@@ -1,0 +1,215 @@
+@page "/products/new"
+@page "/products/{Id:guid}"
+@inherits AdminPageBase
+
+<PageTitle>@(IsNew ? "New product" : "Edit product") — Admin</PageTitle>
+
+<div class="topbar">
+    <h1>@(IsNew ? "New product" : "Edit product")</h1>
+    <a class="btn btn--ghost" href="/products">← Back</a>
+</div>
+
+@if (_loading)
+{
+    <div class="spinner"></div>
+}
+else
+{
+    @if (_error is not null) { <div class="alert alert--error">@_error</div> }
+    @if (_saved) { <div class="alert alert--ok">Saved.</div> }
+
+    <div class="grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="card pad">
+            <h3>Details</h3>
+            <div class="field"><label>Name</label><input @bind="_name" /></div>
+            <div class="field"><label>Slug (optional)</label><input @bind="_slug" placeholder="auto from name" /></div>
+            <div class="row">
+                <div class="field"><label>Category</label>
+                    <select @bind="_categoryId">
+                        <option value="">— select —</option>
+                        @foreach (var c in _categories) { <option value="@c.Id">@c.Name</option> }
+                    </select>
+                </div>
+                <div class="field"><label>Brand</label>
+                    <select @bind="_brandId">
+                        <option value="">— none —</option>
+                        @foreach (var b in _brands) { <option value="@b.Id">@b.Name</option> }
+                    </select>
+                </div>
+            </div>
+            <div class="field"><label>Description</label><textarea rows="3" @bind="_description"></textarea></div>
+            <label style="display:flex; gap:8px; align-items:center;"><input type="checkbox" @bind="_isActive" style="width:auto;" /> Active</label>
+        </div>
+
+        <div class="card pad">
+            <h3>Specifications</h3>
+            @foreach (var spec in _specs)
+            {
+                <div class="row" style="align-items:end;">
+                    <div class="field"><input placeholder="Key" @bind="spec.Key" /></div>
+                    <div class="field"><input placeholder="Value" @bind="spec.Value" /></div>
+                    <button class="btn btn--ghost btn--sm" style="flex:0;" @onclick="() => _specs.Remove(spec)">✕</button>
+                </div>
+            }
+            <button class="btn btn--ghost btn--sm" @onclick="() => _specs.Add(new SpecRow())">+ Add spec</button>
+        </div>
+    </div>
+
+    <div class="card pad" style="margin-top:16px;">
+        <h3>Variants</h3>
+        <table class="table">
+            <thead><tr><th>SKU</th><th>Price</th><th>Old price</th><th>Stock</th><th>Active</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var v in _variants)
+                {
+                    <tr>
+                        <td><input @bind="v.Sku" /></td>
+                        <td><input type="number" @bind="v.Price" /></td>
+                        <td><input type="number" @bind="v.OldPrice" /></td>
+                        <td><input type="number" @bind="v.StockQty" /></td>
+                        <td><input type="checkbox" @bind="v.IsActive" style="width:auto;" /></td>
+                        <td><button class="btn btn--ghost btn--sm" @onclick="() => _variants.Remove(v)">✕</button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <button class="btn btn--ghost btn--sm" @onclick="AddVariant">+ Add variant</button>
+    </div>
+
+    <div class="card pad" style="margin-top:16px;">
+        <h3>Images</h3>
+        @foreach (var img in _images)
+        {
+            <div class="row" style="align-items:end;">
+                <div class="field" style="flex:3;"><input placeholder="https://…" @bind="img.Url" /></div>
+                <label style="flex:0; white-space:nowrap; display:flex; gap:6px; align-items:center;">
+                    <input type="radio" name="primary" checked="@img.IsPrimary" @onchange="() => SetPrimary(img)" style="width:auto;" /> primary
+                </label>
+                <button class="btn btn--ghost btn--sm" style="flex:0;" @onclick="() => _images.Remove(img)">✕</button>
+            </div>
+        }
+        <div class="page-actions">
+            <button class="btn btn--ghost btn--sm" @onclick="() => _images.Add(new ImageRow())">+ Add image URL</button>
+            <label class="btn btn--ghost btn--sm" style="cursor:pointer;">
+                Upload to MinIO
+                <InputFile OnChange="OnUpload" accept="image/*" style="display:none;" />
+            </label>
+            @if (_uploading) { <span class="muted">uploading…</span> }
+        </div>
+    </div>
+
+    <div class="page-actions" style="margin-top:18px;">
+        <button class="btn btn--primary" disabled="@_saving" @onclick="Save">@(_saving ? "Saving…" : "Save product")</button>
+        @if (!IsNew)
+        {
+            <button class="btn btn--danger" @onclick="Delete">Delete</button>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public Guid? Id { get; set; }
+    private bool IsNew => Id is null;
+
+    private sealed class SpecRow { public string Key { get; set; } = ""; public string Value { get; set; } = ""; }
+    private sealed class VariantRow { public Guid? Id { get; set; } public string Sku { get; set; } = ""; public decimal Price { get; set; } public decimal? OldPrice { get; set; } public int StockQty { get; set; } public bool IsActive { get; set; } = true; public IReadOnlyDictionary<string, string> Attributes { get; set; } = new Dictionary<string, string>(); }
+    private sealed class ImageRow { public string Url { get; set; } = ""; public bool IsPrimary { get; set; } }
+
+    private IReadOnlyList<AdminCategoryDto> _categories = [];
+    private IReadOnlyList<AdminBrandDto> _brands = [];
+    private readonly List<SpecRow> _specs = new();
+    private readonly List<VariantRow> _variants = new();
+    private readonly List<ImageRow> _images = new();
+
+    private string _name = "", _slug = "", _description = "", _categoryId = "", _brandId = "";
+    private bool _isActive = true, _loading = true, _saving, _saved, _uploading;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await EnsureAuthedAsync()) return;
+
+        try
+        {
+            _categories = await Api.ListCategoriesAsync();
+            _brands = await Api.ListBrandsAsync();
+
+            if (!IsNew)
+            {
+                var p = await Api.GetProductAsync(Id!.Value);
+                if (p is not null)
+                {
+                    _name = p.Name; _slug = p.Slug; _description = p.Description ?? "";
+                    _categoryId = p.CategoryId.ToString(); _brandId = p.BrandId?.ToString() ?? "";
+                    _isActive = p.IsActive;
+                    foreach (var s in p.Specs) _specs.Add(new SpecRow { Key = s.Key, Value = s.Value });
+                    foreach (var v in p.Variants) _variants.Add(new VariantRow { Id = v.Id, Sku = v.Sku, Price = v.Price, OldPrice = v.OldPrice, StockQty = v.StockQty, IsActive = v.IsActive, Attributes = v.Attributes });
+                    foreach (var im in p.Images) _images.Add(new ImageRow { Url = im.Url, IsPrimary = im.IsPrimary });
+                }
+            }
+            else
+            {
+                _variants.Add(new VariantRow());
+            }
+        }
+        catch (ApiException ex) { _error = ex.Message; }
+        _loading = false;
+    }
+
+    private void AddVariant() => _variants.Add(new VariantRow());
+    private void SetPrimary(ImageRow img) { foreach (var i in _images) i.IsPrimary = false; img.IsPrimary = true; }
+
+    private async Task OnUpload(InputFileChangeEventArgs e)
+    {
+        _uploading = true;
+        _error = null;
+        try
+        {
+            var file = e.File;
+            await using var stream = file.OpenReadStream(10 * 1024 * 1024);
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            ms.Position = 0;
+            var result = await Api.UploadImageAsync(ms, file.Name, file.ContentType);
+            _images.Add(new ImageRow { Url = result.Url, IsPrimary = _images.Count == 0 });
+        }
+        catch (ApiException ex) { _error = ex.Message; }
+        finally { _uploading = false; }
+    }
+
+    private async Task Save()
+    {
+        if (!Guid.TryParse(_categoryId, out var categoryId))
+        {
+            _error = "Please select a category.";
+            return;
+        }
+
+        _saving = true; _error = null; _saved = false;
+        try
+        {
+            Guid? brandId = Guid.TryParse(_brandId, out var b) ? b : null;
+            var specs = _specs.Where(s => !string.IsNullOrWhiteSpace(s.Key)).ToDictionary(s => s.Key.Trim(), s => s.Value);
+            var variants = _variants.Select(v => new SaveVariantRequest(v.Id, v.Sku, v.Attributes, v.Price, v.OldPrice, v.StockQty, v.IsActive)).ToList();
+            var images = _images.Where(i => !string.IsNullOrWhiteSpace(i.Url)).Select((i, idx) => new AdminImageDto(i.Url, i.IsPrimary, idx)).ToList();
+            var req = new SaveProductRequest(_name.Trim(), string.IsNullOrWhiteSpace(_slug) ? null : _slug.Trim(),
+                string.IsNullOrWhiteSpace(_description) ? null : _description, categoryId, brandId, specs, _isActive, variants, images);
+
+            var saved = IsNew ? await Api.CreateProductAsync(req) : await Api.UpdateProductAsync(Id!.Value, req);
+            Nav.NavigateTo($"/products/{saved.Id}");
+            _saved = true;
+        }
+        catch (ApiException ex) { _error = ex.Message; }
+        finally { _saving = false; }
+    }
+
+    private async Task Delete()
+    {
+        try
+        {
+            await Api.DeleteProductAsync(Id!.Value);
+            Nav.NavigateTo("/products");
+        }
+        catch (ApiException ex) { _error = ex.Message; }
+    }
+}

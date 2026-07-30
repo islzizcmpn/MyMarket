@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PcMarket.Mobile.ViewModels"
+             x:Class="PcMarket.Mobile.Views.LoginPage"
+             x:DataType="vm:LoginViewModel"
+             Title="Sign in">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+
+            <Label Text="Welcome back" Style="{StaticResource H1}" />
+
+            <Entry Placeholder="Phone (+998…)" Keyboard="Telephone" Text="{Binding Phone}" />
+            <Entry Placeholder="Password" IsPassword="True" Text="{Binding Password}" />
+
+            <Label Text="{Binding Error}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" />
+
+            <Button Text="Sign in"
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding SubmitCommand}"
+                    IsEnabled="{Binding IsNotBusy}" />
+
+            <Button Text="Create an account"
+                    Style="{StaticResource GhostButton}"
+                    Command="{Binding GoToRegisterCommand}" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

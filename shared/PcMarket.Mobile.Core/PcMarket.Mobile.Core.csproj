@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Platform-neutral session logic for the mobile app. Kept out of PcMarket.Mobile (a MAUI head with
+    platform TFMs) so the net10.0 unit-test project can reference and exercise it; the MAUI app supplies
+    the ISessionStorage implementation over SecureStorage/Preferences.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PcMarket.Contracts\PcMarket.Contracts.csproj" />
+    <ProjectReference Include="..\PcMarket.ApiClient\PcMarket.ApiClient.csproj" />
+  </ItemGroup>
+
+</Project>

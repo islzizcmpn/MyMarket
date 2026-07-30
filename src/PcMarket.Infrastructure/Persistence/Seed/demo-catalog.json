@@ -1,0 +1,54 @@
+{
+  "brands": [
+    { "name": "ASUS", "slug": "asus" },
+    { "name": "Logitech", "slug": "logitech" },
+    { "name": "Kingston", "slug": "kingston" }
+  ],
+  "_comment": "Category names are the canonical English values. Russian and Uzbek live in ContentTranslations, seeded by DbSeeder.SeedTranslationsAsync.",
+  "categories": [
+    { "name": "Computers", "slug": "computers", "sortOrder": 1 },
+    { "name": "Laptops", "slug": "laptops", "parentSlug": "computers", "sortOrder": 1 },
+    { "name": "Accessories", "slug": "accessories", "sortOrder": 2 },
+    { "name": "Mice", "slug": "mice", "parentSlug": "accessories", "sortOrder": 1 },
+    { "name": "Memory", "slug": "memory", "parentSlug": "computers", "sortOrder": 2 }
+  ],
+  "products": [
+    {
+      "name": "ASUS VivoBook 15",
+      "slug": "asus-vivobook-15",
+      "categorySlug": "laptops",
+      "brandSlug": "asus",
+      "description": "15.6\" FHD noutbuk, kundalik ish uchun.",
+      "specs": { "CPU": "Intel Core i5-1235U", "RAM": "16GB", "Storage": "512GB SSD", "Display": "15.6 FHD" },
+      "variants": [
+        { "sku": "ASUS-VB15-16-512", "attributes": { "Color": "Silver" }, "price": 7500000, "oldPrice": 8200000, "stockQty": 12 }
+      ],
+      "images": ["https://placehold.co/600x600/eef0ff/3b3ba6.png?text=ASUS+VivoBook+15"]
+    },
+    {
+      "name": "Logitech M330 Silent",
+      "slug": "logitech-m330-silent",
+      "categorySlug": "mice",
+      "brandSlug": "logitech",
+      "description": "Simsiz, shovqinsiz sichqoncha.",
+      "specs": { "Connection": "Wireless 2.4GHz", "Battery": "24 months" },
+      "variants": [
+        { "sku": "LOG-M330-BLK", "attributes": { "Color": "Black" }, "price": 320000, "stockQty": 40 },
+        { "sku": "LOG-M330-GRY", "attributes": { "Color": "Gray" }, "price": 320000, "stockQty": 25 }
+      ],
+      "images": ["https://placehold.co/600x600/eef0ff/3b3ba6.png?text=Logitech+M330"]
+    },
+    {
+      "name": "Kingston FURY 16GB DDR4",
+      "slug": "kingston-fury-16gb-ddr4",
+      "categorySlug": "memory",
+      "brandSlug": "kingston",
+      "description": "3200MHz DDR4 o'yin xotirasi.",
+      "specs": { "Capacity": "16GB", "Speed": "3200MHz", "Type": "DDR4" },
+      "variants": [
+        { "sku": "KING-FURY-16-3200", "attributes": {}, "price": 650000, "stockQty": 60 }
+      ],
+      "images": ["https://placehold.co/600x600/eef0ff/3b3ba6.png?text=Kingston+FURY+16GB"]
+    }
+  ]
+}

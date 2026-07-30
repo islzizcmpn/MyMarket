@@ -1,0 +1,95 @@
+@page "/cart"
+@inject StoreCart CartApi
+@inject NavigationManager Nav
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L["Cart.PageTitle"]</PageTitle>
+
+<div class="page-head"><h1>@L["Cart.Title"]</h1></div>
+
+@if (_loading)
+{
+    <div class="spinner"></div>
+}
+else if (_cart is null || _cart.Items.Count == 0)
+{
+    <div class="card pad">
+        <p class="muted">@L["Cart.Empty"]</p>
+        <a class="btn btn--primary" href="/catalog">@L["Cart.BrowseProducts"]</a>
+    </div>
+}
+else
+{
+    <div class="split" style="grid-template-columns: 1fr 340px;">
+        <div class="card pad">
+            @foreach (var item in _cart.Items)
+            {
+                <div class="line-item">
+                    <div class="line-item__media">
+                        @if (!string.IsNullOrEmpty(item.PrimaryImageUrl))
+                        {
+                            <img src="@item.PrimaryImageUrl" alt="@item.ProductName" style="width:100%;height:100%;object-fit:cover;" />
+                        }
+                    </div>
+                    <div>
+                        <div style="font-weight:600;">@item.ProductName</div>
+                        <div class="muted" style="font-size:.85rem;">@item.Sku</div>
+                        <div style="margin-top:8px; display:flex; align-items:center; gap:12px;">
+                            <div class="qty">
+                                <button @onclick="() => Update(item.Id, item.Qty - 1)" disabled="@_busy">−</button>
+                                <span>@item.Qty</span>
+                                <button @onclick="() => Update(item.Id, item.Qty + 1)" disabled="@_busy">+</button>
+                            </div>
+                            <button class="btn btn--ghost" @onclick="() => Remove(item.Id)" disabled="@_busy">@L["Cart.Remove"]</button>
+                        </div>
+                    </div>
+                    <div style="text-align:right; font-weight:700;">@Format.Money(item.LineTotal)</div>
+                </div>
+            }
+        </div>
+
+        <aside class="card pad" style="height:fit-content;">
+            <h3>@L["Common.Summary"]</h3>
+            <div class="summary-row"><span class="muted">@L["Cart.Items"]</span><span>@_cart.TotalQty</span></div>
+            <div class="summary-total"><span>@L["Common.Total"]</span><span>@Format.Money(_cart.Subtotal)</span></div>
+            @if (_error is not null)
+            {
+                <div class="alert alert--error" style="margin-top:12px;">@_error</div>
+            }
+            <button class="btn btn--primary btn--block" style="margin-top:16px;" @onclick="Checkout">@L["Cart.Checkout"]</button>
+        </aside>
+    </div>
+}
+
+@code {
+    private CartDto? _cart;
+    private bool _loading = true;
+    private bool _busy;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try { _cart = await CartApi.GetAsync(); } catch (ApiException ex) { _error = ex.Message; }
+        _loading = false;
+    }
+
+    private async Task Update(Guid itemId, int qty)
+    {
+        _busy = true;
+        _error = null;
+        try { _cart = await CartApi.UpdateAsync(itemId, qty); }
+        catch (ApiException ex) { _error = ex.Message; }
+        finally { _busy = false; }
+    }
+
+    private async Task Remove(Guid itemId)
+    {
+        _busy = true;
+        _error = null;
+        try { _cart = await CartApi.RemoveAsync(itemId); }
+        catch (ApiException ex) { _error = ex.Message; }
+        finally { _busy = false; }
+    }
+
+    private void Checkout() => Nav.NavigateTo("/checkout");
+}

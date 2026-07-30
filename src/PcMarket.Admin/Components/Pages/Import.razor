@@ -1,0 +1,38 @@
+@page "/import"
+@inherits AdminPageBase
+
+<PageTitle>Import — Admin</PageTitle>
+<div class="topbar"><h1>Catalog import</h1></div>
+
+<div class="card pad" style="max-width:760px;">
+    <p class="muted">Paste a catalog JSON document (same shape as <code>demo-catalog.json</code>: brands, categories, products). Import is idempotent — existing slugs are skipped.</p>
+
+    @if (_error is not null) { <div class="alert alert--error">@_error</div> }
+    @if (_done) { <div class="alert alert--ok">Import complete.</div> }
+
+    <div class="field">
+        <textarea rows="16" style="font-family:monospace;" @bind="_json" placeholder='{ "brands": [], "categories": [], "products": [] }'></textarea>
+    </div>
+    <button class="btn btn--primary" disabled="@_busy" @onclick="Run">@(_busy ? "Importing…" : "Import")</button>
+</div>
+
+@code {
+    private string _json = "";
+    private bool _busy, _done;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync() => await EnsureAuthedAsync();
+
+    private async Task Run()
+    {
+        _busy = true; _error = null; _done = false;
+        try
+        {
+            await Api.ImportCatalogAsync(_json);
+            _done = true;
+        }
+        catch (ApiException ex) { _error = ex.Message; }
+        catch (Exception ex) { _error = ex.Message; }
+        finally { _busy = false; }
+    }
+}

@@ -1,0 +1,200 @@
+@page "/product/{Slug}"
+@inject CatalogApiClient Catalog
+@inject StoreCart Cart
+@inject NavigationManager Nav
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@(_product?.Name ?? L["Product.PageTitleFallback"]) — PCMarket</PageTitle>
+
+@if (_loading)
+{
+    <div class="spinner"></div>
+}
+else if (_product is null)
+{
+    <div class="card pad">
+        <h1>@L["Product.NotFound"]</h1>
+        <p class="muted">@L["Product.NotFoundHint"] <a href="/catalog">@L["Product.BackToCatalog"]</a></p>
+    </div>
+}
+else
+{
+    <p class="muted" style="margin-bottom:14px;"><a href="/catalog">@L["Common.Catalog"]</a> / @_product.Name</p>
+
+    <div class="split" style="grid-template-columns: 1fr 1fr;">
+        <div class="card" style="overflow:hidden;">
+            <div style="aspect-ratio:1/1; background:#f0f1f6; display:grid; place-items:center;">
+                @if (_primaryImage is not null)
+                {
+                    <img src="@_primaryImage" alt="@_product.Name" style="width:100%; height:100%; object-fit:cover;" />
+                }
+                else
+                {
+                    <span class="muted">@L["Product.NoImage"]</span>
+                }
+            </div>
+        </div>
+
+        <div class="stack">
+            @if (!string.IsNullOrEmpty(_product.BrandName))
+            {
+                <div class="product-card__brand">@_product.BrandName</div>
+            }
+            <h1>@_product.Name</h1>
+
+            @if (_selected is not null)
+            {
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span style="font-size:1.6rem; font-weight:800;">@Format.Money(_selected.Price)</span>
+                    @if (_selected.OldPrice is { } old && old > _selected.Price)
+                    {
+                        <span class="muted" style="text-decoration:line-through;">@Format.Money(old)</span>
+                    }
+                </div>
+
+                @if (_product.Variants.Count > 1)
+                {
+                    <div class="field">
+                        <label>@L["Product.Option"]</label>
+                        <select @onchange="OnVariantChanged">
+                            @foreach (var variant in _product.Variants)
+                            {
+                                <option value="@variant.Id" selected="@(variant.Id == _selected.Id)">
+                                    @DescribeVariant(variant)
+                                </option>
+                            }
+                        </select>
+                    </div>
+                }
+
+                @if (_selected.StockQty > 0)
+                {
+                    <span class="pill pill--ok">@L["Product.InStockQty", _selected.StockQty]</span>
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <div class="qty">
+                            <button @onclick="() => AdjustQty(-1)">−</button>
+                            <span>@_qty</span>
+                            <button @onclick="() => AdjustQty(1)">+</button>
+                        </div>
+                        <button class="btn btn--primary" disabled="@_adding" @onclick="AddToCart">
+                            @(_adding ? L["Product.Adding"] : L["Product.AddToCart"])
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <span class="pill pill--out">@L["Product.OutOfStock"]</span>
+                }
+            }
+
+            @if (_message is not null)
+            {
+                <div class="alert alert--ok">@_message</div>
+            }
+            @if (_error is not null)
+            {
+                <div class="alert alert--error">@_error</div>
+            }
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(_product.Description))
+    {
+        <div class="card pad" style="margin-top:24px;">
+            <h3>@L["Product.Description"]</h3>
+            <p>@_product.Description</p>
+        </div>
+    }
+
+    @if (_product.Specs.Count > 0)
+    {
+        <div class="card pad" style="margin-top:20px;">
+            <h3>@L["Product.Specifications"]</h3>
+            <table class="table">
+                @foreach (var spec in _product.Specs)
+                {
+                    <tr><th style="width:220px;">@spec.Key</th><td>@spec.Value</td></tr>
+                }
+            </table>
+        </div>
+    }
+}
+
+@code {
+    [Parameter] public string Slug { get; set; } = string.Empty;
+
+    private ProductDetailDto? _product;
+    private ProductVariantDto? _selected;
+    private string? _primaryImage;
+    private int _qty = 1;
+    private bool _loading = true;
+    private bool _adding;
+    private string? _message;
+    private string? _error;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        _message = _error = null;
+        try
+        {
+            _product = await Catalog.GetProductAsync(Slug);
+            _selected = _product?.Variants.FirstOrDefault();
+            _primaryImage = _product?.Images.FirstOrDefault(i => i.IsPrimary)?.Url
+                            ?? _product?.Images.OrderBy(i => i.SortOrder).FirstOrDefault()?.Url;
+            _qty = 1;
+        }
+        catch
+        {
+            _product = null;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void OnVariantChanged(ChangeEventArgs e)
+    {
+        if (Guid.TryParse(e.Value?.ToString(), out var id))
+        {
+            _selected = _product?.Variants.FirstOrDefault(v => v.Id == id) ?? _selected;
+            _qty = 1;
+        }
+    }
+
+    private void AdjustQty(int delta)
+    {
+        var max = _selected?.StockQty ?? 1;
+        _qty = Math.Clamp(_qty + delta, 1, Math.Max(1, max));
+    }
+
+    private async Task AddToCart()
+    {
+        if (_selected is null)
+        {
+            return;
+        }
+
+        _adding = true;
+        _message = _error = null;
+        try
+        {
+            await Cart.AddAsync(_selected.Id, _qty);
+            _message = L["Product.AddedToCart", _qty, _product!.Name];
+        }
+        catch (ApiException ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _adding = false;
+        }
+    }
+
+    private static string DescribeVariant(ProductVariantDto variant) =>
+        variant.Attributes.Count > 0
+            ? string.Join(", ", variant.Attributes.Select(a => $"{a.Key}: {a.Value}"))
+            : variant.Sku;
+}

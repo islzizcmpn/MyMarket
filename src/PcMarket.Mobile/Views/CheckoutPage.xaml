@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PcMarket.Mobile.ViewModels"
+             xmlns:users="clr-namespace:PcMarket.Contracts.Users;assembly=PcMarket.Contracts"
+             x:Class="PcMarket.Mobile.Views.CheckoutPage"
+             x:DataType="vm:CheckoutViewModel"
+             Title="Checkout">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="14">
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Delivery" Style="{StaticResource H2}" />
+                    <Picker Title="Delivery type"
+                            ItemsSource="{Binding DeliveryTypes}"
+                            SelectedItem="{Binding DeliveryType}" />
+
+                    <VerticalStackLayout Spacing="10" IsVisible="{Binding AddressRequired}">
+                        <Picker Title="Saved address"
+                                ItemsSource="{Binding Addresses}"
+                                SelectedItem="{Binding SelectedAddress}"
+                                ItemDisplayBinding="{Binding Street, x:DataType=users:AddressDto}"
+                                IsVisible="{Binding HasSavedAddresses}" />
+
+                        <HorizontalStackLayout Spacing="8" IsVisible="{Binding HasSavedAddresses}">
+                            <CheckBox IsChecked="{Binding UseNewAddress}" />
+                            <Label Text="Use a new address" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+
+                        <VerticalStackLayout Spacing="8" IsVisible="{Binding UseNewAddress}">
+                            <Entry Placeholder="Region" Text="{Binding Region}" />
+                            <Entry Placeholder="City" Text="{Binding City}" />
+                            <Entry Placeholder="Street and house" Text="{Binding Street}" />
+                            <Entry Placeholder="Flat, entrance, landmark (optional)" Text="{Binding Details}" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Payment" Style="{StaticResource H2}" />
+                    <Picker Title="Payment method"
+                            ItemsSource="{Binding PaymentMethods}"
+                            SelectedItem="{Binding PaymentMethod}" />
+                    <Label Text="Online payments open in your browser and return here when finished."
+                           Style="{StaticResource MutedText}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0" Text="Total" Style="{StaticResource H2}" />
+                    <Label Grid.Column="1" Text="{Binding TotalText}" Style="{StaticResource Price}" />
+                </Grid>
+            </Border>
+
+            <Label Text="{Binding Error}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" />
+
+            <Button Text="Place order"
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding PlaceOrderCommand}"
+                    IsEnabled="{Binding IsNotBusy}" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

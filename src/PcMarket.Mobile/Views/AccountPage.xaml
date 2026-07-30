@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PcMarket.Mobile.ViewModels"
+             x:Class="PcMarket.Mobile.Views.AccountPage"
+             x:DataType="vm:AccountViewModel"
+             Title="Account">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="14">
+
+            <Label Text="{Binding Error}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" />
+
+            <!-- Signed out -->
+            <Border Style="{StaticResource Card}" IsVisible="{Binding IsAnonymous}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Sign in" Style="{StaticResource H1}" />
+                    <Label Text="Sign in to check out, track orders, and save addresses."
+                           Style="{StaticResource MutedText}" />
+                    <Button Text="Sign in" Style="{StaticResource PrimaryButton}" Command="{Binding SignInCommand}" />
+                    <Button Text="Create an account" Style="{StaticResource GhostButton}" Command="{Binding RegisterCommand}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Signed in -->
+            <VerticalStackLayout Spacing="14" IsVisible="{Binding IsAuthenticated}">
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding DisplayName}" Style="{StaticResource H1}" />
+                        <Label Text="{Binding Profile.Phone}" Style="{StaticResource MutedText}" />
+                        <Label Text="{Binding Profile.Email}"
+                               Style="{StaticResource MutedText}"
+                               IsVisible="{Binding Profile.Email, Converter={StaticResource HasText}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Button Text="My orders" Style="{StaticResource PrimaryButton}" Command="{Binding OpenOrdersCommand}" />
+                <Button Text="Delivery addresses" Style="{StaticResource GhostButton}" Command="{Binding OpenAddressesCommand}" />
+                <Button Text="Sign out" Style="{StaticResource GhostButton}" Command="{Binding SignOutCommand}" />
+            </VerticalStackLayout>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

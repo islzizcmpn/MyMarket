@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Storefront look on top of the MAUI template styles: cards, headings, price emphasis, and the
+    error/empty states every screen shares.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    xmlns:converters="clr-namespace:PcMarket.Mobile">
+
+    <converters:MoneyConverter x:Key="Money" />
+    <converters:DateConverter x:Key="Date" />
+    <converters:OrderStatusConverter x:Key="OrderStatus" />
+    <converters:InverseBoolConverter x:Key="Not" />
+    <converters:HasTextConverter x:Key="HasText" />
+    <converters:AttributesConverter x:Key="Attributes" />
+
+    <Color x:Key="Accent">#1F6FEB</Color>
+    <Color x:Key="AccentDark">#144D9E</Color>
+    <Color x:Key="Danger">#C0392B</Color>
+    <Color x:Key="Success">#1E8E4E</Color>
+    <Color x:Key="Muted">#6B7280</Color>
+    <Color x:Key="CardLight">#FFFFFF</Color>
+    <Color x:Key="CardDark">#1B1B1F</Color>
+
+    <Style x:Key="Card" TargetType="Border">
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="Padding" Value="14" />
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+    </Style>
+
+    <Style x:Key="H1" TargetType="Label">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontAttributes" Value="Bold" />
+    </Style>
+
+    <Style x:Key="H2" TargetType="Label">
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="FontAttributes" Value="Bold" />
+    </Style>
+
+    <Style x:Key="MutedText" TargetType="Label">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="TextColor" Value="{StaticResource Muted}" />
+    </Style>
+
+    <Style x:Key="Price" TargetType="Label">
+        <Setter Property="FontSize" Value="17" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource Accent}" />
+    </Style>
+
+    <Style x:Key="ErrorText" TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource Danger}" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style x:Key="SuccessText" TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource Success}" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style x:Key="PrimaryButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource Accent}" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="HeightRequest" Value="46" />
+    </Style>
+
+    <Style x:Key="GhostButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{StaticResource Accent}" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="HeightRequest" Value="42" />
+    </Style>
+
+    <Style x:Key="Quantity" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{StaticResource Accent}" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="WidthRequest" Value="38" />
+        <Setter Property="HeightRequest" Value="38" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+</ResourceDictionary>

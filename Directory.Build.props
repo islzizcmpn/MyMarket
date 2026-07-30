@@ -1,0 +1,22 @@
+<Project>
+
+  <!-- Shared settings applied to every project in the solution. -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!--
+      NuGet audit advisories (NU19xx) stay visible as warnings but do NOT break the build.
+      Reason: Microsoft.AspNetCore.OpenApi 10.x transitively pulls Microsoft.OpenApi, whose
+      entire 2.x line carries advisory GHSA-v5pm-xwqc-g5wc; the only fix is the 3.x major,
+      which AspNetCore.OpenApi is not compiled against. Revisit and remove this once a patched
+      AspNetCore.OpenApi ships, so real first-party vulnerabilities fail the build again.
+    -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1900;NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+</Project>

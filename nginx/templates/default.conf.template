@@ -1,0 +1,74 @@
+# Plain-HTTP routing by hostname. This is what `docker compose up` serves, and it is also what answers
+# the ACME challenge before any certificate exists. To add TLS, copy `tls.conf.example` into
+# nginx/templates/ as `tls.conf.template` (see docs/runbooks/deploy.md); it takes over port 443 and
+# turns the port-80 blocks below into redirects.
+#
+# ${STOREFRONT_HOST} / ${ADMIN_HOST} / ${API_HOST} / ${MINIO_BUCKET} are substituted from the
+# environment by the nginx image's entrypoint. Locally they default to `localhost`, `admin.localhost`,
+# and `api.localhost` — Chrome and Firefox resolve *.localhost to 127.0.0.1 with no hosts-file edit.
+
+upstream pcmarket_web   { server web:8080; }
+upstream pcmarket_admin { server admin:8080; }
+upstream pcmarket_api   { server api:8080; }
+upstream pcmarket_minio { server minio:9000; }
+
+server {
+    listen 80;
+    server_name ${STOREFRONT_HOST};
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        proxy_pass http://pcmarket_web;
+        include /etc/nginx/proxy_params.conf;
+    }
+}
+
+server {
+    listen 80;
+    server_name ${ADMIN_HOST};
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        proxy_pass http://pcmarket_admin;
+        include /etc/nginx/proxy_params.conf;
+    }
+}
+
+server {
+    listen 80;
+    server_name ${API_HOST};
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    # Public media served straight from MinIO — no reason to spend an API request on a static object.
+    # The API's own /api/v1/media/{key} read-through stays available for anything that needs auth.
+    location /media/ {
+        proxy_pass http://pcmarket_minio/${MINIO_BUCKET}/;
+        include /etc/nginx/proxy_params.conf;
+        add_header Cache-Control "public, max-age=604800";
+    }
+
+    # Hangfire's dashboard is admin-only in the app, but there is no reason to expose it publicly.
+    # Uncomment to block it at the edge as well.
+    # location /hangfire { return 404; }
+
+    location / {
+        proxy_pass http://pcmarket_api;
+        include /etc/nginx/proxy_params.conf;
+    }
+}
+
+# A bare IP scan or unknown Host gets a flat close rather than whichever vhost happens to be first.
+server {
+    listen 80 default_server;
+    server_name _;
+    return 444;
+}

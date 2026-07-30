@@ -1,0 +1,271 @@
+# Full PcMarket stack: storefront, admin panel, API, PostgreSQL, Redis, MinIO, and Nginx.
+#
+#   docker compose up -d --build          # everything
+#   docker compose up -d postgres redis minio   # just the backing services, for `dotnet run` development
+#
+# Copy `.env.example` to `.env` first. Only nginx publishes a port; the app and data services talk
+# over the internal network, so nothing else is reachable from outside the host.
+services:
+  postgres:
+    image: postgres:17
+    container_name: pcmarket-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-pcmarket}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pcmarket}
+      POSTGRES_DB: ${POSTGRES_DB:-pcmarket}
+    ports:
+      # Published for local development (psql, EF tooling). Drop this mapping in production.
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks: [pcmarket]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pcmarket}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    container_name: pcmarket-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks: [pcmarket]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio
+    container_name: pcmarket-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio_data:/data
+    networks: [pcmarket]
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Creates the media bucket and makes its objects anonymously readable, which is what lets Nginx serve
+  # /media/ straight from MinIO. The app creates the bucket on first upload but leaves it private, so
+  # without this step that route would 403. Idempotent; exits once done.
+  minio-init:
+    image: minio/mc
+    container_name: pcmarket-minio-init
+    depends_on:
+      minio: { condition: service_healthy }
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_BUCKET: ${MINIO_BUCKET:-pcmarket-media}
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 \"$$MINIO_ROOT_USER\" \"$$MINIO_ROOT_PASSWORD\" &&
+      mc mb --ignore-existing local/\"$$MINIO_BUCKET\" &&
+      mc anonymous set download local/\"$$MINIO_BUCKET\" &&
+      echo 'minio: bucket ready'
+      "
+    networks: [pcmarket]
+
+  api:
+    image: ${IMAGE_REGISTRY:-pcmarket}/api:${IMAGE_TAG:-dev}
+    build:
+      context: .
+      dockerfile: src/PcMarket.Api/Dockerfile
+    container_name: pcmarket-api
+    restart: unless-stopped
+    depends_on:
+      postgres:   { condition: service_healthy }
+      redis:      { condition: service_healthy }
+      minio:      { condition: service_healthy }
+      minio-init: { condition: service_completed_successfully }
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-pcmarket};Username=${POSTGRES_USER:-pcmarket};Password=${POSTGRES_PASSWORD:-pcmarket}"
+      Redis__Configuration: "redis:6379"
+      Minio__Endpoint: "minio:9000"
+      Minio__AccessKey: ${MINIO_ROOT_USER:-minioadmin}
+      Minio__SecretKey: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      Minio__Bucket: ${MINIO_BUCKET:-pcmarket-media}
+      Minio__UseSsl: "false"
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?set JWT_SIGNING_KEY in .env — at least 32 characters}
+      Jwt__Issuer: ${JWT_ISSUER:-pcmarket}
+      Jwt__Audience: ${JWT_AUDIENCE:-pcmarket-clients}
+      # On a multi-instance or rolling deploy set this false and run the `migrate` service first,
+      # so instances cannot race each other applying the same migration.
+      Database__MigrateOnStartup: ${DB_MIGRATE_ON_STARTUP:-true}
+      Database__SeedDemoCatalog: ${DB_SEED_DEMO_CATALOG:-true}
+      Telegram__Enabled: ${TELEGRAM_ENABLED:-false}
+      Telegram__BotToken: ${TELEGRAM_BOT_TOKEN:-}
+      Telegram__WebhookSecretToken: ${TELEGRAM_WEBHOOK_SECRET:-}
+      Telegram__AdminChatId: ${TELEGRAM_ADMIN_CHAT_ID:-}
+      Telegram__PublicApiUrl: ${PUBLIC_API_URL:-}
+      Telegram__StorefrontUrl: ${PUBLIC_STOREFRONT_URL:-}
+      # Typing a phone number is the only route in the bot that costs an SMS. Off until a provider is funded.
+      Telegram__AllowPhoneEntry: ${TELEGRAM_ALLOW_PHONE_ENTRY:-false}
+    networks: [pcmarket]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  web:
+    image: ${IMAGE_REGISTRY:-pcmarket}/web:${IMAGE_TAG:-dev}
+    build:
+      context: .
+      dockerfile: src/PcMarket.Web/Dockerfile
+    container_name: pcmarket-web
+    restart: unless-stopped
+    depends_on:
+      api: { condition: service_healthy }
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      # Server-to-server over the internal network; the browser never sees this address.
+      Api__BaseUrl: "http://api:8080"
+    networks: [pcmarket]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  admin:
+    image: ${IMAGE_REGISTRY:-pcmarket}/admin:${IMAGE_TAG:-dev}
+    build:
+      context: .
+      dockerfile: src/PcMarket.Admin/Dockerfile
+    container_name: pcmarket-admin
+    restart: unless-stopped
+    depends_on:
+      api: { condition: service_healthy }
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      Api__BaseUrl: "http://api:8080"
+    networks: [pcmarket]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: pcmarket-nginx
+    restart: unless-stopped
+    depends_on: [web, admin, api]
+    environment:
+      STOREFRONT_HOST: ${STOREFRONT_HOST:-localhost}
+      ADMIN_HOST: ${ADMIN_HOST:-admin.localhost}
+      API_HOST: ${API_HOST:-api.localhost}
+      MINIO_BUCKET: ${MINIO_BUCKET:-pcmarket-media}
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+      - "${HTTPS_PORT:-8443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/proxy_params.conf:/etc/nginx/proxy_params.conf:ro
+      - ./nginx/tls_params.conf:/etc/nginx/tls_params.conf:ro
+      # Only *.template files are env-substituted by the image entrypoint, into /etc/nginx/conf.d.
+      - ./nginx/templates:/etc/nginx/templates:ro
+      - certbot_webroot:/var/www/certbot
+      - certbot_certs:/etc/letsencrypt:ro
+    networks: [pcmarket]
+
+  # One-shot schema step for gated deploys: applies migrations with the same image the API runs from,
+  # then exits.  docker compose run --rm migrate
+  migrate:
+    image: ${IMAGE_REGISTRY:-pcmarket}/api:${IMAGE_TAG:-dev}
+    build:
+      context: .
+      dockerfile: src/PcMarket.Api/Dockerfile
+    profiles: [tools]
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-pcmarket};Username=${POSTGRES_USER:-pcmarket};Password=${POSTGRES_PASSWORD:-pcmarket}"
+      Redis__Configuration: "redis:6379"
+      Minio__Endpoint: "minio:9000"
+      Minio__AccessKey: ${MINIO_ROOT_USER:-minioadmin}
+      Minio__SecretKey: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?set JWT_SIGNING_KEY in .env — at least 32 characters}
+      Database__SeedDemoCatalog: ${DB_SEED_DEMO_CATALOG:-false}
+    command: ["--migrate"]
+    networks: [pcmarket]
+
+  # Development-only public HTTPS URL, for Telegram webhooks. Telegram will not call a private
+  # address, and a quick tunnel needs no Cloudflare account:
+  #   docker compose --profile dev up -d tunnel
+  #   docker compose logs tunnel | grep trycloudflare.com
+  # Put that hostname in PUBLIC_API_URL, `up -d api`, then re-register the webhook — see
+  # docs/runbooks/telegram-bot.md. The URL is ephemeral and changes on every restart, so this is
+  # strictly a dev aid; production terminates TLS at Nginx with a real certificate instead.
+  #
+  # --http-host-header rewrites the tunnel's Host to the API vhost, so Nginx routes it to the api
+  # service rather than dropping it on the catch-all 444 server block.
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: pcmarket-tunnel
+    profiles: [dev]
+    depends_on: [nginx]
+    command: >
+      tunnel --no-autoupdate
+      --url http://nginx:80
+      --http-host-header ${API_HOST:-api.localhost}
+    networks: [pcmarket]
+
+  # Second tunnel for the storefront. The bot's "Open in store" button is a URL button, and Telegram
+  # rejects the entire message when such a URL is not publicly reachable — so with PUBLIC_STOREFRONT_URL
+  # left on localhost the button is dropped from the card instead (see PublicUrl). Run this and set
+  # PUBLIC_STOREFRONT_URL to get the real button back in dev.
+  tunnel-web:
+    image: cloudflare/cloudflared:latest
+    container_name: pcmarket-tunnel-web
+    profiles: [dev]
+    depends_on: [nginx]
+    command: >
+      tunnel --no-autoupdate
+      --url http://nginx:80
+      --http-host-header ${STOREFRONT_HOST:-localhost}
+    networks: [pcmarket]
+
+  # TLS certificate issue/renew. Not started by `up`; see docs/runbooks/deploy.md.
+  #   docker compose run --rm certbot certonly --webroot -w /var/www/certbot -d shop.example.com
+  certbot:
+    image: certbot/certbot
+    container_name: pcmarket-certbot
+    profiles: [tools]
+    volumes:
+      - certbot_webroot:/var/www/certbot
+      - certbot_certs:/etc/letsencrypt
+    networks: [pcmarket]
+
+networks:
+  pcmarket:
+    driver: bridge
+
+volumes:
+  pg_data:
+  redis_data:
+  minio_data:
+  certbot_webroot:
+  certbot_certs:

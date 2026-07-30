@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PcMarket.Mobile.ViewModels"
+             xmlns:cart="clr-namespace:PcMarket.Contracts.Cart;assembly=PcMarket.Contracts"
+             x:Class="PcMarket.Mobile.Views.CartPage"
+             x:DataType="vm:CartViewModel"
+             Title="Cart">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="16,12" RowSpacing="10">
+
+        <Label Grid.Row="0" Text="{Binding Error}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" />
+
+        <RefreshView Grid.Row="1" IsRefreshing="{Binding IsBusy}" Command="{Binding LoadCommand}">
+            <CollectionView ItemsSource="{Binding Items}" SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="24" Spacing="6">
+                        <Label Text="Your cart is empty" Style="{StaticResource H2}" HorizontalOptions="Center" />
+                        <Label Text="Browse the catalog to add something." Style="{StaticResource MutedText}" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="cart:CartItemDto">
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+                            <Grid ColumnDefinitions="64,*,Auto" ColumnSpacing="12">
+                                <Image Grid.Column="0" Source="{Binding PrimaryImageUrl}" Aspect="AspectFit" HeightRequest="64" />
+
+                                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                    <Label Text="{Binding ProductName}" FontAttributes="Bold" MaxLines="2" LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding Sku}" Style="{StaticResource MutedText}" />
+                                    <Label Text="{Binding LineTotal, Converter={StaticResource Money}}" Style="{StaticResource Price}" />
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Grid.Column="2" Spacing="2">
+                                    <HorizontalStackLayout HorizontalOptions="Center">
+                                        <Button Text="−"
+                                                Style="{StaticResource Quantity}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, Path=DecreaseCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        <Label Text="{Binding Qty}" VerticalOptions="Center" WidthRequest="24" HorizontalTextAlignment="Center" />
+                                        <Button Text="+"
+                                                Style="{StaticResource Quantity}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, Path=IncreaseCommand}"
+                                                CommandParameter="{Binding .}" />
+                                    </HorizontalStackLayout>
+                                    <Button Text="Remove"
+                                            Style="{StaticResource GhostButton}"
+                                            FontSize="12"
+                                            HeightRequest="30"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, Path=RemoveCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <Border Grid.Row="2" Style="{StaticResource Card}">
+            <VerticalStackLayout Spacing="10">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0" Text="Subtotal" Style="{StaticResource H2}" />
+                    <Label Grid.Column="1" Text="{Binding SubtotalText}" Style="{StaticResource Price}" />
+                </Grid>
+                <Button Text="Checkout"
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding CheckoutCommand}"
+                        IsEnabled="{Binding CanCheckout}" />
+            </VerticalStackLayout>
+        </Border>
+
+    </Grid>
+
+</ContentPage>

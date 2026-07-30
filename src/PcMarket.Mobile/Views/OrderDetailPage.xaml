@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PcMarket.Mobile.ViewModels"
+             xmlns:orders="clr-namespace:PcMarket.Contracts.Orders;assembly=PcMarket.Contracts"
+             x:Class="PcMarket.Mobile.Views.OrderDetailPage"
+             x:DataType="vm:OrderDetailViewModel"
+             Title="Order">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="14">
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+            <Label Text="{Binding Error}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" />
+
+            <VerticalStackLayout Spacing="14" IsVisible="{Binding HasOrder}">
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding Order.Number}" Style="{StaticResource H1}" />
+                        <Label Text="{Binding StatusText}" Style="{StaticResource H2}" />
+                        <Label Text="{Binding CreatedAtText}" Style="{StaticResource MutedText}" />
+                        <Label Text="{Binding PaymentMethodText}" Style="{StaticResource MutedText}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Delivery address" Style="{StaticResource H2}" />
+                        <Label Text="{Binding AddressText}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Items" Style="{StaticResource H2}" />
+                <CollectionView ItemsSource="{Binding Order.Items}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="orders:OrderItemDto">
+                            <Border Style="{StaticResource Card}" Margin="0,0,0,8">
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                                    <Label Grid.Row="0" Grid.Column="0" Text="{Binding Name}" FontAttributes="Bold" />
+                                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding Qty, StringFormat='× {0}'}" />
+                                    <Label Grid.Row="1" Grid.Column="0"
+                                           Text="{Binding UnitPrice, Converter={StaticResource Money}}"
+                                           Style="{StaticResource MutedText}" />
+                                    <Label Grid.Row="1" Grid.Column="1"
+                                           Text="{Binding LineTotal, Converter={StaticResource Money}}"
+                                           Style="{StaticResource Price}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="6">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0" Text="Subtotal" />
+                            <Label Grid.Column="1" Text="{Binding SubtotalText}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0" Text="Delivery" />
+                            <Label Grid.Column="1" Text="{Binding DeliveryFeeText}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0" Text="Total" Style="{StaticResource H2}" />
+                            <Label Grid.Column="1" Text="{Binding TotalText}" Style="{StaticResource Price}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Button Text="Pay now"
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding PayCommand}"
+                        IsVisible="{Binding CanPay}" />
+
+                <Button Text="Cancel order"
+                        Style="{StaticResource GhostButton}"
+                        Command="{Binding CancelCommand}"
+                        IsVisible="{Binding CanCancel}" />
+
+                <Label Text="Status history" Style="{StaticResource H2}" />
+                <CollectionView ItemsSource="{Binding Order.History}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="orders:OrderStatusHistoryDto">
+                            <Grid ColumnDefinitions="*,Auto" Padding="0,5">
+                                <Label Grid.Column="0" Text="{Binding ToStatus, Converter={StaticResource OrderStatus}}" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding ChangedAt, Converter={StaticResource Date}}"
+                                       Style="{StaticResource MutedText}" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

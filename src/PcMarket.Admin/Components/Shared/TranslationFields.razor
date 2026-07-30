@@ -1,0 +1,59 @@
+@* Per-language inputs for one translatable field. The English value stays in the form's own input — it is the
+   canonical column — so this renders only the other languages. Leaving a box empty removes the translation and
+   lets that language fall back to English. *@
+
+<div class="translation-fields">
+    @foreach (var culture in ContentLanguages.Translatable)
+    {
+        var code = culture;
+        <div class="field">
+            <label>
+                @Label <span class="muted">· @ContentLanguages.DisplayName(code)</span>
+            </label>
+            @if (Multiline)
+            {
+                <textarea rows="3"
+                          placeholder="@Placeholder"
+                          value="@Get(code)"
+                          @onchange="e => Set(code, e.Value?.ToString())"></textarea>
+            }
+            else
+            {
+                <input placeholder="@Placeholder"
+                       value="@Get(code)"
+                       @onchange="e => Set(code, e.Value?.ToString())" />
+            }
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>Entity property being translated, e.g. <c>Name</c> or <c>Title</c>. Must match the field name the
+    /// API stores, since that is the lookup key.</summary>
+    [Parameter, EditorRequired] public string Field { get; set; } = default!;
+
+    /// <summary>Human-readable label, e.g. "Name".</summary>
+    [Parameter, EditorRequired] public string Label { get; set; } = default!;
+
+    /// <summary>The edit form's working set of translations, shared across every field on the form.</summary>
+    [Parameter, EditorRequired] public Dictionary<(string Field, string Culture), string> Values { get; set; } = default!;
+
+    [Parameter] public bool Multiline { get; set; }
+
+    [Parameter] public string? Placeholder { get; set; }
+
+    private string Get(string culture) =>
+        Values.TryGetValue((Field, culture), out var value) ? value : string.Empty;
+
+    private void Set(string culture, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            Values.Remove((Field, culture));
+        }
+        else
+        {
+            Values[(Field, culture)] = value.Trim();
+        }
+    }
+}

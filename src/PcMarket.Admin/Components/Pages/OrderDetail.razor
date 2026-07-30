@@ -1,0 +1,108 @@
+@page "/orders/{Id:guid}"
+@inherits AdminPageBase
+
+<PageTitle>Order — Admin</PageTitle>
+<div class="topbar">
+    <h1>Order @(_detail?.Order.Number)</h1>
+    <a class="btn btn--ghost" href="/orders">← Back</a>
+</div>
+
+@if (_loading) { <div class="spinner"></div> }
+else if (_detail is null) { <div class="card pad"><p class="muted">Order not found.</p></div> }
+else
+{
+    @if (_error is not null) { <div class="alert alert--error">@_error</div> }
+
+    <div class="grid" style="grid-template-columns: 1fr 340px;">
+        <div class="card pad">
+            <h3>Items</h3>
+            <table class="table">
+                <tbody>
+                    @foreach (var item in _detail.Order.Items)
+                    {
+                        <tr><td>@item.Qty × @item.Name</td><td style="text-align:right;">@Format.Money(item.LineTotal)</td></tr>
+                    }
+                </tbody>
+            </table>
+            <h3 style="margin-top:18px;">History</h3>
+            @foreach (var h in _detail.Order.History)
+            {
+                <div class="row" style="justify-content:space-between;">
+                    <span class="muted">@h.ChangedAt.LocalDateTime.ToString("g")</span>
+                    <span>@(h.FromStatus?.ToString() ?? "—") → @h.ToStatus @(string.IsNullOrEmpty(h.ChangedBy) ? "" : $"({h.ChangedBy})")</span>
+                </div>
+            }
+        </div>
+
+        <aside class="grid" style="height:fit-content;">
+            <div class="card pad">
+                <h3>Status</h3>
+                <p><span class="status status--@_detail.Order.Status.ToString().ToLower()">@_detail.Order.Status</span></p>
+                <div class="field">
+                    <label>Advance to</label>
+                    <select @bind="_target">
+                        @foreach (var s in Enum.GetValues<OrderStatus>()) { <option value="@s">@s</option> }
+                    </select>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn--primary btn--sm" disabled="@_busy" @onclick="Advance">Advance</button>
+                    <button class="btn btn--danger btn--sm" disabled="@_busy" @onclick="Refund">Refund</button>
+                </div>
+            </div>
+            <div class="card pad">
+                <h3>Customer</h3>
+                @if (_detail.Customer is { } c)
+                {
+                    <div class="row" style="justify-content:space-between;"><span class="muted">Phone</span><span>@c.Phone</span></div>
+                    <div class="row" style="justify-content:space-between;"><span class="muted">Name</span><span>@(c.FullName ?? "—")</span></div>
+                    <div class="row" style="justify-content:space-between;"><span class="muted">Orders</span><span>@c.OrderCount</span></div>
+                }
+                else { <p class="muted">Unknown</p> }
+            </div>
+            <div class="card pad">
+                <h3>Payment</h3>
+                <div class="row" style="justify-content:space-between;"><span class="muted">Method</span><span>@_detail.Order.PaymentMethod</span></div>
+                <div class="row" style="justify-content:space-between;"><span class="muted">Status</span><span>@_detail.Order.PaymentStatus</span></div>
+                <div class="row" style="justify-content:space-between;"><span class="muted">Total</span><span>@Format.Money(_detail.Order.Total)</span></div>
+            </div>
+        </aside>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private AdminOrderDetailDto? _detail;
+    private bool _loading = true, _busy;
+    private string? _error;
+    private OrderStatus _target = OrderStatus.Processing;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!await EnsureAuthedAsync()) return;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try { _detail = await Api.GetOrderAsync(Id); } catch (ApiException ex) { _error = ex.Message; }
+        _loading = false;
+    }
+
+    private async Task Advance()
+    {
+        _busy = true; _error = null;
+        try { _detail = await Api.AdvanceOrderAsync(Id, _target); }
+        catch (ApiException ex) { _error = ex.Message; }
+        finally { _busy = false; }
+    }
+
+    private async Task Refund()
+    {
+        _busy = true; _error = null;
+        try { _detail = await Api.RefundOrderAsync(Id); }
+        catch (ApiException ex) { _error = ex.Message; }
+        finally { _busy = false; }
+    }
+}

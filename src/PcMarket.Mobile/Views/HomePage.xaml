@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PcMarket.Mobile.ViewModels"
+             xmlns:catalog="clr-namespace:PcMarket.Contracts.Catalog;assembly=PcMarket.Contracts"
+             x:Class="PcMarket.Mobile.Views.HomePage"
+             x:DataType="vm:HomeViewModel"
+             Title="PcMarket">
+
+    <RefreshView IsRefreshing="{Binding IsBusy}" Command="{Binding LoadCommand}">
+        <ScrollView>
+            <VerticalStackLayout Padding="16" Spacing="18">
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Build your PC" Style="{StaticResource H1}" />
+                        <Label Text="Components, laptops and peripherals delivered across Uzbekistan."
+                               Style="{StaticResource MutedText}" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Entry Grid.Column="0"
+                                   Placeholder="Search products"
+                                   Text="{Binding SearchText}"
+                                   ReturnCommand="{Binding SearchCommand}" />
+                            <Button Grid.Column="1"
+                                    Text="Search"
+                                    Style="{StaticResource PrimaryButton}"
+                                    Command="{Binding SearchCommand}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="{Binding Error}"
+                       Style="{StaticResource ErrorText}"
+                       IsVisible="{Binding HasError}" />
+
+                <Label Text="Categories" Style="{StaticResource H2}" />
+                <CollectionView ItemsSource="{Binding Categories}"
+                                HeightRequest="56"
+                                ItemsLayout="HorizontalList">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="catalog:CategoryNodeDto">
+                            <Border Style="{StaticResource Card}" Padding="14,10" Margin="0,0,8,0">
+                                <Label Text="{Binding Name}" VerticalOptions="Center" />
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=OpenCategoryCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Label Text="New arrivals" Style="{StaticResource H2}" />
+                <CollectionView ItemsSource="{Binding NewArrivals}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="catalog:ProductListItemDto">
+                            <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+                                <Grid ColumnDefinitions="76,*" ColumnSpacing="12">
+                                    <Image Grid.Column="0"
+                                           Source="{Binding PrimaryImageUrl}"
+                                           Aspect="AspectFit"
+                                           HeightRequest="76" />
+                                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                        <Label Text="{Binding Name}" FontAttributes="Bold" MaxLines="2" LineBreakMode="TailTruncation" />
+                                        <Label Text="{Binding BrandName}" Style="{StaticResource MutedText}" />
+                                        <Label Text="{Binding PriceFrom, Converter={StaticResource Money}}"
+                                               Style="{StaticResource Price}" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=OpenProductCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+
+</ContentPage>

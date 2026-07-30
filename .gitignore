@@ -1,0 +1,63 @@
+# .NET
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+.vs/
+artifacts/
+
+# Build results
+[Bb]in/
+[Oo]bj/
+*.dll
+*.pdb
+
+# Rider / VS
+.idea/
+*.sln.iml
+
+# Test results
+[Tt]est[Rr]esult*/
+coverage/
+*.trx
+
+# Secrets & env
+.env
+.env.*
+!.env.example
+appsettings.*.local.json
+secrets/
+
+# Backups produced by scripts/backup.sh — database dumps and media, never in git
+backups/
+
+# MAUI / mobile
+*.keystore
+*.mobileprovision
+*.p12
+Platforms/Android/**/bin/
+Platforms/iOS/**/bin/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+**/docker-compose.override.yml
+
+# EF (keep migrations, ignore local db)
+*.db
+*.db-shm
+*.db-wal
+
+
+# Local agent/editor tooling directories.
+# NB: these patterns also match the bare `.claude` / `.cursor` directories, since `*` matches zero
+# characters. `.github` is deliberately NOT ignored — it holds the CI and deploy workflows.
+*.claude
+*.cursor
+
+# Agent prompt scratch, but keep the workflows that actually run in CI.
+.github/prompts/

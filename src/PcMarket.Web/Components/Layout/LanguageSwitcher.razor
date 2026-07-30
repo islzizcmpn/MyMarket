@@ -1,0 +1,39 @@
+@inject NavigationManager Nav
+@inject IStringLocalizer<SharedResource> L
+
+<div class="lang-switch" role="group" aria-label="@L["Header.Language"]">
+    @for (var i = 0; i < SupportedCultures.All.Length; i++)
+    {
+        var (code, label) = SupportedCultures.All[i];
+        var isCurrent = string.Equals(code, _current, StringComparison.OrdinalIgnoreCase);
+
+        if (i > 0)
+        {
+            <span class="lang-switch__sep" aria-hidden="true">|</span>
+        }
+
+        <button type="button"
+                class="lang-switch__item @(isCurrent ? "is-active" : null)"
+                aria-current="@(isCurrent ? "true" : null)"
+                disabled="@isCurrent"
+                @onclick="() => SwitchTo(code)">@label</button>
+    }
+</div>
+
+@code {
+    private string _current = SupportedCultures.Default;
+
+    protected override void OnInitialized() =>
+        _current = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+
+    // Culture is baked into the circuit when it connects, so the new cookie can only take effect
+    // through a full browser navigation — hence forceLoad. The current page is passed along so the
+    // shopper lands back where they were.
+    private void SwitchTo(string code)
+    {
+        var returnTo = "/" + Nav.ToBaseRelativePath(Nav.Uri);
+        Nav.NavigateTo(
+            $"/set-language?culture={Uri.EscapeDataString(code)}&redirect={Uri.EscapeDataString(returnTo)}",
+            forceLoad: true);
+    }
+}

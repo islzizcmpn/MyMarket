@@ -1,0 +1,169 @@
+@page "/account"
+@inject UsersApiClient Users
+@inject OrdersApiClient Orders
+@inject WebSession Session
+@inject SessionStore Store
+@inject NavigationManager Nav
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L["Account.PageTitle"]</PageTitle>
+
+<div class="page-head">
+    <h1>@L["Account.Title"]</h1>
+    <button class="btn btn--ghost" @onclick="SignOut">@L["Account.SignOut"]</button>
+</div>
+
+@if (_loading)
+{
+    <div class="spinner"></div>
+}
+else
+{
+    <div class="split" style="grid-template-columns: 1fr 1fr;">
+        <div class="stack">
+            <div class="card pad">
+                <h3>@L["Account.Profile"]</h3>
+                @if (_profile is not null)
+                {
+                    <div class="summary-row"><span class="muted">@L["Account.Name"]</span><span>@(_profile.FullName ?? "—")</span></div>
+                    <div class="summary-row"><span class="muted">@L["Common.Phone"]</span><span>@_profile.Phone</span></div>
+                    <div class="summary-row"><span class="muted">@L["Account.Roles"]</span><span>@string.Join(", ", _profile.Roles)</span></div>
+                }
+            </div>
+
+            <div class="card pad">
+                <h3>@L["Account.Addresses"]</h3>
+                @if (_addresses.Count == 0)
+                {
+                    <p class="muted">@L["Account.NoAddresses"]</p>
+                }
+                else
+                {
+                    @foreach (var address in _addresses)
+                    {
+                        <div class="summary-row">
+                            <span>@address.Region, @address.City, @address.Street @(address.IsDefault ? L["Account.DefaultAddress"] : "")</span>
+                            <button class="btn btn--ghost" @onclick="() => DeleteAddress(address.Id)">@L["Common.Delete"]</button>
+                        </div>
+                    }
+                }
+
+                <div style="border-top:1px solid var(--line); margin-top:12px; padding-top:12px;">
+                    <div class="field"><label>@L["Common.Region"]</label><input @bind="_region" /></div>
+                    <div class="field"><label>@L["Common.City"]</label><input @bind="_city" /></div>
+                    <div class="field"><label>@L["Common.Street"]</label><input @bind="_street" /></div>
+                    @if (_addressError is not null)
+                    {
+                        <div class="alert alert--error">@_addressError</div>
+                    }
+                    <button class="btn btn--primary" disabled="@_savingAddress" @onclick="AddAddress">@L["Account.AddAddress"]</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card pad">
+            <h3>@L["Account.OrderHistory"]</h3>
+            @if (_orders.Count == 0)
+            {
+                <p class="muted">@L["Account.NoOrders"] <a href="/catalog">@L["Account.StartShopping"]</a></p>
+            }
+            else
+            {
+                <table class="table">
+                    <thead><tr><th>@L["Account.ColOrder"]</th><th>@L["Account.ColStatus"]</th><th>@L["Common.Total"]</th></tr></thead>
+                    <tbody>
+                        @foreach (var order in _orders)
+                        {
+                            <tr>
+                                <td><a href="@($"/account/orders/{order.Id}")">@order.Number</a><br /><span class="muted" style="font-size:.8rem;">@order.CreatedAt.LocalDateTime.ToString("g")</span></td>
+                                <td><span class="status @StatusClass(order.Status)">@L.EnumName(order.Status)</span></td>
+                                <td>@Format.Money(order.Total)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private UserProfileDto? _profile;
+    private IReadOnlyList<AddressDto> _addresses = [];
+    private IReadOnlyList<OrderListItemDto> _orders = [];
+    private bool _loading = true;
+    private bool _savingAddress;
+    private string? _addressError;
+    private string _region = string.Empty, _city = string.Empty, _street = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Session.IsAuthenticated)
+        {
+            Nav.NavigateTo("/login?returnUrl=/account");
+            return;
+        }
+
+        await LoadAsync();
+        _loading = false;
+    }
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            _profile = await Users.GetProfileAsync();
+            _addresses = await Users.ListAddressesAsync();
+            _orders = await Orders.ListAsync();
+        }
+        catch (ApiException)
+        {
+            // Session may have expired; leave data empty.
+        }
+    }
+
+    private async Task AddAddress()
+    {
+        _savingAddress = true;
+        _addressError = null;
+        try
+        {
+            await Users.CreateAddressAsync(new CreateAddressRequest(_region.Trim(), _city.Trim(), _street.Trim(), null, _addresses.Count == 0));
+            _region = _city = _street = string.Empty;
+            _addresses = await Users.ListAddressesAsync();
+        }
+        catch (ApiException ex)
+        {
+            _addressError = ex.Message;
+        }
+        finally
+        {
+            _savingAddress = false;
+        }
+    }
+
+    private async Task DeleteAddress(Guid id)
+    {
+        try
+        {
+            await Users.DeleteAddressAsync(id);
+            _addresses = await Users.ListAddressesAsync();
+        }
+        catch (ApiException) { }
+    }
+
+    private async Task SignOut()
+    {
+        await Store.ClearAsync(Session);
+        Nav.NavigateTo("/");
+    }
+
+    private static string StatusClass(OrderStatus status) => status switch
+    {
+        OrderStatus.Paid => "status--paid",
+        OrderStatus.Delivered => "status--delivered",
+        OrderStatus.Cancelled => "status--cancelled",
+        OrderStatus.Refunded => "status--refunded",
+        _ => string.Empty
+    };
+}

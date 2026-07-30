@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PcMarket.Mobile.ViewModels"
+             x:Class="PcMarket.Mobile.Views.OtpPage"
+             x:DataType="vm:OtpViewModel"
+             Title="Confirm number">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+
+            <Label Text="Enter the code" Style="{StaticResource H1}" />
+            <Label Text="{Binding Phone, StringFormat='Sent to {0}'}" Style="{StaticResource MutedText}" />
+
+            <Entry Placeholder="6-digit code" Keyboard="Numeric" MaxLength="6" Text="{Binding Code}" />
+
+            <Label Text="{Binding Error}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" />
+
+            <Button Text="Confirm"
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding SubmitCommand}"
+                    IsEnabled="{Binding IsNotBusy}" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

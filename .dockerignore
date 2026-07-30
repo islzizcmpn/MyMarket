@@ -1,0 +1,23 @@
+# Build context is the repository root (all three images need the shared props + project graph),
+# so keep everything that does not affect a server build out of it.
+
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+**/.idea/
+.git/
+.github/
+.claude/
+.cursor/
+docs/
+tests/
+
+# The MAUI head needs mobile workloads no server image has, and nothing here builds it.
+src/PcMarket.Mobile/
+
+**/*.user
+**/*.suo
+.env
+.env.*
+!.env.example

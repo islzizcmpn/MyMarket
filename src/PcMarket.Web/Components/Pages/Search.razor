@@ -1,0 +1,56 @@
+@page "/search"
+@inject CatalogApiClient Catalog
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L["Search.PageTitle"]</PageTitle>
+
+<div class="page-head">
+    <h1>@L["Search.Title"]</h1>
+    <span class="muted">@L["Search.ResultCount", _result?.Total ?? 0, Q ?? string.Empty]</span>
+</div>
+
+@if (_loading)
+{
+    <div class="spinner"></div>
+}
+else if (string.IsNullOrWhiteSpace(Q))
+{
+    <p class="muted">@L["Search.TypeSomething"]</p>
+}
+else if (_result is null || _result.Items.Count == 0)
+{
+    <p class="muted">@L["Search.NoMatch", Q ?? string.Empty] <a href="/catalog">@L["Search.BrowseCatalog"]</a>.</p>
+}
+else
+{
+    <div class="product-grid">
+        @foreach (var product in _result.Items)
+        {
+            <ProductCard Product="product" />
+        }
+    </div>
+}
+
+@code {
+    [Parameter, SupplyParameterFromQuery] public string? Q { get; set; }
+
+    private PagedResult<ProductListItemDto>? _result;
+    private bool _loading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        try
+        {
+            _result = string.IsNullOrWhiteSpace(Q) ? null : await Catalog.SearchAsync(Q, 1, 24);
+        }
+        catch
+        {
+            _result = null;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

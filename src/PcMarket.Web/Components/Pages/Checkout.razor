@@ -1,0 +1,180 @@
+@page "/checkout"
+@inject StoreCart Cart
+@inject UsersApiClient Users
+@inject OrdersApiClient Orders
+@inject PaymentsApiClient Payments
+@inject WebSession Session
+@inject NavigationManager Nav
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L["Checkout.PageTitle"]</PageTitle>
+
+<div class="page-head"><h1>@L["Checkout.Title"]</h1></div>
+
+@if (_loading)
+{
+    <div class="spinner"></div>
+}
+else if (_cart is null || _cart.Items.Count == 0)
+{
+    <div class="card pad">
+        <p class="muted">@L["Cart.Empty"]</p>
+        <a class="btn btn--primary" href="/catalog">@L["Cart.BrowseProducts"]</a>
+    </div>
+}
+else
+{
+    <div class="split" style="grid-template-columns: 1fr 340px;">
+        <div class="stack">
+            <div class="card pad">
+                <h3>@L["Checkout.Delivery"]</h3>
+                <div class="field">
+                    <label>@L["Checkout.DeliveryType"]</label>
+                    <select @bind="_deliveryType">
+                        <option value="@DeliveryType.Courier">@L.EnumName(DeliveryType.Courier)</option>
+                        <option value="@DeliveryType.Pickup">@L.EnumName(DeliveryType.Pickup)</option>
+                    </select>
+                </div>
+
+                @if (_addresses.Count > 0)
+                {
+                    <div class="field">
+                        <label>@L["Checkout.SavedAddress"]</label>
+                        <select @bind="_addressChoice">
+                            @foreach (var address in _addresses)
+                            {
+                                <option value="@address.Id">@address.Region, @address.City, @address.Street</option>
+                            }
+                            <option value="new">➕ @L["Checkout.NewAddress"]</option>
+                        </select>
+                    </div>
+                }
+
+                @if (_useInlineAddress)
+                {
+                    <div class="field"><label>@L["Common.Region"]</label><input @bind="_region" /></div>
+                    <div class="field"><label>@L["Common.City"]</label><input @bind="_city" /></div>
+                    <div class="field"><label>@L["Common.Street"]</label><input @bind="_street" /></div>
+                    <div class="field"><label>@L["Checkout.Details"]</label><input @bind="_details" /></div>
+                }
+            </div>
+
+            <div class="card pad">
+                <h3>@L["Checkout.PaymentMethod"]</h3>
+                <div class="field">
+                    <select @bind="_paymentMethod">
+                        <option value="@PaymentMethod.Cash">@L.EnumName(PaymentMethod.Cash)</option>
+                        <option value="@PaymentMethod.Click">@L.EnumName(PaymentMethod.Click)</option>
+                        <option value="@PaymentMethod.Payme">@L.EnumName(PaymentMethod.Payme)</option>
+                        <option value="@PaymentMethod.Uzcard">@L.EnumName(PaymentMethod.Uzcard)</option>
+                        <option value="@PaymentMethod.Humo">@L.EnumName(PaymentMethod.Humo)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <aside class="card pad" style="height:fit-content;">
+            <h3>@L["Checkout.OrderSummary"]</h3>
+            @foreach (var item in _cart.Items)
+            {
+                <div class="summary-row"><span class="muted">@item.Qty × @item.ProductName</span><span>@Format.Money(item.LineTotal)</span></div>
+            }
+            <div class="summary-total"><span>@L["Common.Total"]</span><span>@Format.Money(_cart.Subtotal)</span></div>
+
+            @if (_error is not null)
+            {
+                <div class="alert alert--error" style="margin-top:12px;">@_error</div>
+            }
+
+            <button class="btn btn--primary btn--block" style="margin-top:16px;" disabled="@_placing" @onclick="PlaceOrder">
+                @(_placing ? L["Checkout.Placing"] : L["Checkout.PlaceOrder"])
+            </button>
+        </aside>
+    </div>
+}
+
+@code {
+    private CartDto? _cart;
+    private IReadOnlyList<AddressDto> _addresses = [];
+    private bool _loading = true;
+    private bool _placing;
+    private string? _error;
+
+    private DeliveryType _deliveryType = DeliveryType.Courier;
+    private PaymentMethod _paymentMethod = PaymentMethod.Cash;
+    private string _addressChoice = "new";
+    private string _region = string.Empty, _city = string.Empty, _street = string.Empty, _details = string.Empty;
+
+    private bool _useInlineAddress => _addressChoice == "new";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Session.IsAuthenticated)
+        {
+            Nav.NavigateTo("/login?returnUrl=/checkout");
+            return;
+        }
+
+        try
+        {
+            _cart = await Cart.GetAsync();
+            _addresses = await Users.ListAddressesAsync();
+            if (_addresses.Count > 0)
+            {
+                var preferred = _addresses.FirstOrDefault(a => a.IsDefault) ?? _addresses[0];
+                _addressChoice = preferred.Id.ToString();
+            }
+        }
+        catch (ApiException ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task PlaceOrder()
+    {
+        _placing = true;
+        _error = null;
+        try
+        {
+            Guid? addressId = null;
+            ShippingAddressDto? inline = null;
+
+            if (_useInlineAddress)
+            {
+                inline = new ShippingAddressDto(_region.Trim(), _city.Trim(), _street.Trim(),
+                    string.IsNullOrWhiteSpace(_details) ? null : _details.Trim());
+            }
+            else if (Guid.TryParse(_addressChoice, out var id))
+            {
+                addressId = id;
+            }
+
+            var order = await Orders.CreateAsync(new CreateOrderRequest(_paymentMethod, _deliveryType, addressId, inline));
+
+            if (_paymentMethod != PaymentMethod.Cash)
+            {
+                var payment = await Payments.InitiateAsync(order.Id);
+                if (payment is { RequiresRedirect: true, PaymentUrl: { } url })
+                {
+                    Nav.NavigateTo(url, forceLoad: true);
+                    return;
+                }
+            }
+
+            Nav.NavigateTo($"/account/orders/{order.Id}");
+        }
+        catch (ApiException ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _placing = false;
+        }
+    }
+}

@@ -1,0 +1,101 @@
+@page "/"
+@using Microsoft.AspNetCore.SignalR.Client
+@inherits AdminPageBase
+@inject IConfiguration Config
+@implements IAsyncDisposable
+
+<PageTitle>Dashboard — PCMarket Admin</PageTitle>
+
+<div class="topbar"><h1>Dashboard</h1></div>
+
+@if (_loading)
+{
+    <div class="spinner"></div>
+}
+else if (_stats is not null)
+{
+    <div class="stat-grid">
+        <div class="stat"><div class="label">Orders total</div><div class="value">@_stats.TotalOrders</div></div>
+        <div class="stat"><div class="label">Orders today</div><div class="value">@_stats.OrdersToday</div></div>
+        <div class="stat"><div class="label">Pending</div><div class="value">@_stats.PendingOrders</div></div>
+        <div class="stat"><div class="label">Revenue total</div><div class="value" style="font-size:1.15rem;">@Format.Money(_stats.RevenueTotal)</div></div>
+        <div class="stat"><div class="label">Revenue today</div><div class="value" style="font-size:1.15rem;">@Format.Money(_stats.RevenueToday)</div></div>
+        <div class="stat"><div class="label">Products</div><div class="value">@_stats.ProductCount</div></div>
+        <div class="stat"><div class="label">Low stock</div><div class="value">@_stats.LowStockCount</div></div>
+    </div>
+
+    <div class="card pad" style="margin-top:20px;">
+        <h3>Live new-order feed
+            <span class="pill @(_connected ? "pill--ok" : "pill--off")" style="margin-left:8px;">@(_connected ? "connected" : "offline")</span>
+        </h3>
+        @if (_feed.Count == 0)
+        {
+            <p class="muted">Waiting for new orders… place an order in the storefront to see it appear here in real time.</p>
+        }
+        else
+        {
+            @foreach (var notice in _feed)
+            {
+                <div class="feed-item">
+                    <strong><a href="@($"/orders/{notice.OrderId}")">@notice.OrderNumber</a></strong>
+                    <span class="muted"> · new order received</span>
+                </div>
+            }
+        }
+    </div>
+}
+
+@code {
+    private DashboardStatsDto? _stats;
+    private bool _loading = true;
+    private bool _connected;
+    private readonly List<NewOrderNotice> _feed = new();
+    private HubConnection? _hub;
+
+    private sealed record NewOrderNotice(Guid OrderId, string OrderNumber);
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await EnsureAuthedAsync())
+        {
+            return;
+        }
+
+        try { _stats = await Api.GetDashboardAsync(); } catch { }
+        _loading = false;
+
+        await ConnectFeedAsync();
+    }
+
+    private async Task ConnectFeedAsync()
+    {
+        var apiBase = Config["Api:BaseUrl"] ?? "http://localhost:5055";
+        _hub = new HubConnectionBuilder()
+            .WithUrl($"{apiBase}/hubs/admin", options => options.AccessTokenProvider = () => Task.FromResult(Session.AccessToken))
+            .WithAutomaticReconnect()
+            .Build();
+
+        _hub.On<NewOrderNotice>("NewOrder", notice => InvokeAsync(() =>
+        {
+            _feed.Insert(0, notice);
+            StateHasChanged();
+        }));
+        _hub.Reconnected += _ => { _connected = true; return InvokeAsync(StateHasChanged); };
+        _hub.Closed += _ => { _connected = false; return InvokeAsync(StateHasChanged); };
+
+        try
+        {
+            await _hub.StartAsync();
+            _connected = true;
+        }
+        catch { _connected = false; }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hub is not null)
+        {
+            await _hub.DisposeAsync();
+        }
+    }
+}

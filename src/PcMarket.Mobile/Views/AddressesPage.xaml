@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PcMarket.Mobile.ViewModels"
+             xmlns:users="clr-namespace:PcMarket.Contracts.Users;assembly=PcMarket.Contracts"
+             x:Class="PcMarket.Mobile.Views.AddressesPage"
+             x:DataType="vm:AddressesViewModel"
+             Title="Addresses">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="16,12" RowSpacing="10">
+
+        <Label Grid.Row="0" Text="{Binding Error}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" />
+
+        <Border Grid.Row="1" Style="{StaticResource Card}" IsVisible="{Binding IsEditing}">
+            <VerticalStackLayout Spacing="8">
+                <Label Text="{Binding EditorTitle}" Style="{StaticResource H2}" />
+                <Entry Placeholder="Region" Text="{Binding Region}" />
+                <Entry Placeholder="City" Text="{Binding City}" />
+                <Entry Placeholder="Street and house" Text="{Binding Street}" />
+                <Entry Placeholder="Flat, entrance, landmark (optional)" Text="{Binding Details}" />
+                <HorizontalStackLayout Spacing="8">
+                    <CheckBox IsChecked="{Binding IsDefault}" />
+                    <Label Text="Use as default" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <Button Grid.Column="0" Text="Save" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" />
+                    <Button Grid.Column="1" Text="Cancel" Style="{StaticResource GhostButton}" Command="{Binding CancelEditCommand}" />
+                </Grid>
+            </VerticalStackLayout>
+        </Border>
+
+        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsBusy}" Command="{Binding LoadCommand}">
+            <CollectionView ItemsSource="{Binding Addresses}" SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <Label Text="No saved addresses yet." Style="{StaticResource MutedText}" HorizontalOptions="Center" Margin="0,24" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="users:AddressDto">
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="{Binding Street}" FontAttributes="Bold" />
+                                    <Label Text="{Binding City}" Style="{StaticResource MutedText}" />
+                                    <Label Text="{Binding Region}" Style="{StaticResource MutedText}" />
+                                    <Label Text="Default" Style="{StaticResource SuccessText}" IsVisible="{Binding IsDefault}" />
+                                </VerticalStackLayout>
+                                <Button Grid.Column="1" Text="Edit"
+                                        Style="{StaticResource GhostButton}" FontSize="12" HeightRequest="32"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AddressesViewModel}}, Path=StartEditCommand}"
+                                        CommandParameter="{Binding .}" />
+                                <Button Grid.Column="2" Text="Delete"
+                                        Style="{StaticResource GhostButton}" FontSize="12" HeightRequest="32"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AddressesViewModel}}, Path=DeleteCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <Button Grid.Row="3" Text="Add address" Style="{StaticResource PrimaryButton}" Command="{Binding StartAddCommand}" />
+
+    </Grid>
+
+</ContentPage>

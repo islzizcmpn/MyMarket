@@ -1,0 +1,140 @@
+@page "/catalog"
+@page "/catalog/{CategorySlug}"
+@inject CatalogApiClient CatalogApi
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L["Catalog.PageTitle"]</PageTitle>
+
+<div class="page-head">
+    <h1>@(_title)</h1>
+    <span class="muted">@L["Catalog.ProductCount", _result?.Total ?? 0]</span>
+</div>
+
+<div class="split">
+    <aside class="card pad stack">
+        <div class="field">
+            <label>@L["Catalog.Brand"]</label>
+            <select @bind="_brandSlug">
+                <option value="">@L["Catalog.AllBrands"]</option>
+                @foreach (var brand in _brands)
+                {
+                    <option value="@brand.Slug">@brand.Name</option>
+                }
+            </select>
+        </div>
+        <div class="field">
+            <label>@L["Catalog.MinPrice"]</label>
+            <input type="number" min="0" @bind="_minPrice" />
+        </div>
+        <div class="field">
+            <label>@L["Catalog.MaxPrice"]</label>
+            <input type="number" min="0" @bind="_maxPrice" />
+        </div>
+        <div class="field">
+            <label>@L["Catalog.SortBy"]</label>
+            <select @bind="_sort">
+                <option value="@ProductSort.Newest">@L["Catalog.SortNewest"]</option>
+                <option value="@ProductSort.PriceAsc">@L["Catalog.SortPriceAsc"]</option>
+                <option value="@ProductSort.PriceDesc">@L["Catalog.SortPriceDesc"]</option>
+                <option value="@ProductSort.NameAsc">@L["Catalog.SortNameAsc"]</option>
+            </select>
+        </div>
+        <button class="btn btn--primary btn--block" @onclick="ApplyFilters">@L["Catalog.ApplyFilters"]</button>
+    </aside>
+
+    <section>
+        @if (_loading)
+        {
+            <div class="spinner"></div>
+        }
+        else if (_result is null || _result.Items.Count == 0)
+        {
+            <p class="muted">@L["Catalog.NoMatches"]</p>
+        }
+        else
+        {
+            <div class="product-grid">
+                @foreach (var product in _result.Items)
+                {
+                    <ProductCard Product="product" />
+                }
+            </div>
+
+            @if (_result.TotalPages > 1)
+            {
+                <div style="display:flex; gap:10px; align-items:center; justify-content:center; margin-top:24px;">
+                    <button class="btn btn--ghost" disabled="@(_page <= 1)" @onclick="() => GoTo(_page - 1)">← @L["Catalog.Prev"]</button>
+                    <span class="muted">@L["Catalog.PageOf", _page, _result.TotalPages]</span>
+                    <button class="btn btn--ghost" disabled="@(_page >= _result.TotalPages)" @onclick="() => GoTo(_page + 1)">@L["Catalog.Next"] →</button>
+                </div>
+            }
+        }
+    </section>
+</div>
+
+@code {
+    [Parameter] public string? CategorySlug { get; set; }
+
+    private IReadOnlyList<BrandDto> _brands = [];
+    private PagedResult<ProductListItemDto>? _result;
+    private bool _loading = true;
+
+    private string _brandSlug = string.Empty;
+    private decimal? _minPrice;
+    private decimal? _maxPrice;
+    private ProductSort _sort = ProductSort.Newest;
+    private int _page = 1;
+
+    private string _title = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try { _brands = await CatalogApi.GetBrandsAsync(); } catch { _brands = []; }
+    }
+
+    // Runs on first render and whenever the category route changes; loads the matching products.
+    protected override async Task OnParametersSetAsync()
+    {
+        _title = string.IsNullOrEmpty(CategorySlug)
+            ? L["Common.AllProducts"]
+            : CategorySlug.Replace('-', ' ');
+        _page = 1;
+        await LoadAsync();
+    }
+
+    private async Task ApplyFilters()
+    {
+        _page = 1;
+        await LoadAsync();
+    }
+
+    private async Task GoTo(int page)
+    {
+        _page = page;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try
+        {
+            _result = await CatalogApi.GetProductsAsync(
+                categorySlug: string.IsNullOrEmpty(CategorySlug) ? null : CategorySlug,
+                brandSlug: string.IsNullOrEmpty(_brandSlug) ? null : _brandSlug,
+                minPrice: _minPrice,
+                maxPrice: _maxPrice,
+                sort: _sort,
+                page: _page,
+                pageSize: 12);
+        }
+        catch
+        {
+            _result = null;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

@@ -1,0 +1,57 @@
+@page "/audit"
+@inherits AdminPageBase
+
+<PageTitle>Audit log — Admin</PageTitle>
+<div class="topbar"><h1>Audit log</h1></div>
+
+@if (_loading) { <div class="spinner"></div> }
+else if (_result is null || _result.Items.Count == 0) { <div class="card pad"><p class="muted">No audit entries yet.</p></div> }
+else
+{
+    <div class="card">
+        <table class="table">
+            <thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Entity</th><th>Summary</th></tr></thead>
+            <tbody>
+                @foreach (var e in _result.Items)
+                {
+                    <tr>
+                        <td class="muted">@e.CreatedAt.LocalDateTime.ToString("g")</td>
+                        <td>@(e.ActorName ?? "—")</td>
+                        <td><span class="pill pill--ok">@e.Action</span></td>
+                        <td>@e.EntityType</td>
+                        <td class="muted">@e.Summary</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (_result.TotalPages > 1)
+    {
+        <div class="page-actions" style="justify-content:center; margin-top:16px;">
+            <button class="btn btn--ghost btn--sm" disabled="@(_page <= 1)" @onclick="() => Go(_page - 1)">← Prev</button>
+            <span class="muted">Page @_page of @_result.TotalPages</span>
+            <button class="btn btn--ghost btn--sm" disabled="@(_page >= _result.TotalPages)" @onclick="() => Go(_page + 1)">Next →</button>
+        </div>
+    }
+}
+
+@code {
+    private PagedResult<AuditLogEntryDto>? _result;
+    private bool _loading = true;
+    private int _page = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await EnsureAuthedAsync()) return;
+        await LoadAsync();
+    }
+
+    private async Task Go(int page) { _page = page; await LoadAsync(); }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try { _result = await Api.ListAuditAsync(_page, 50); } catch { _result = null; }
+        _loading = false;
+    }
+}

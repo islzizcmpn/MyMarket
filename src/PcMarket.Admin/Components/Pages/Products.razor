@@ -1,0 +1,78 @@
+@page "/products"
+@inherits AdminPageBase
+
+<PageTitle>Products — Admin</PageTitle>
+
+<div class="topbar">
+    <h1>Products</h1>
+    <div class="page-actions">
+        <input placeholder="Search…" @bind="_search" @bind:event="oninput" @onkeydown="OnKey" />
+        <a class="btn btn--primary" href="/products/new">+ New product</a>
+    </div>
+</div>
+
+@if (_loading)
+{
+    <div class="spinner"></div>
+}
+else if (_result is null || _result.Items.Count == 0)
+{
+    <div class="card pad"><p class="muted">No products found.</p></div>
+}
+else
+{
+    <div class="card">
+        <table class="table">
+            <thead><tr><th>Name</th><th>Category</th><th>Brand</th><th>From</th><th>Stock</th><th>Active</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var p in _result.Items)
+                {
+                    <tr>
+                        <td><a href="@($"/products/{p.Id}")">@p.Name</a></td>
+                        <td>@p.CategoryName</td>
+                        <td>@(p.BrandName ?? "—")</td>
+                        <td>@Format.Money(p.PriceFrom)</td>
+                        <td>@p.TotalStock</td>
+                        <td>@(p.IsActive ? "Yes" : "No")</td>
+                        <td><a class="btn btn--ghost btn--sm" href="@($"/products/{p.Id}")">Edit</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (_result.TotalPages > 1)
+    {
+        <div class="page-actions" style="justify-content:center; margin-top:16px;">
+            <button class="btn btn--ghost btn--sm" disabled="@(_page <= 1)" @onclick="() => Go(_page - 1)">← Prev</button>
+            <span class="muted">Page @_page of @_result.TotalPages</span>
+            <button class="btn btn--ghost btn--sm" disabled="@(_page >= _result.TotalPages)" @onclick="() => Go(_page + 1)">Next →</button>
+        </div>
+    }
+}
+
+@code {
+    private PagedResult<AdminProductListItemDto>? _result;
+    private bool _loading = true;
+    private string _search = string.Empty;
+    private int _page = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await EnsureAuthedAsync()) return;
+        await LoadAsync();
+    }
+
+    private async Task OnKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") { _page = 1; await LoadAsync(); }
+    }
+
+    private async Task Go(int page) { _page = page; await LoadAsync(); }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try { _result = await Api.ListProductsAsync(_search, _page, 20); } catch { _result = null; }
+        _loading = false;
+    }
+}

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\shared\PcMarket.ApiClient\PcMarket.ApiClient.csproj" />
+    <ProjectReference Include="..\PcMarket.Contracts\PcMarket.Contracts.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    <!--
+      Overrides the solution-wide InvariantGlobalization=true from Directory.Build.props. The
+      storefront is localized (ru/uz/en): invariant mode makes CultureInfo("ru") throw and stops
+      the culture-specific resources under Resources/ from resolving. Any container image built
+      for this project must therefore ship ICU (the Debian-based aspnet images do; Alpine and
+      chiseled variants need libicu added explicitly).
+    -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+
+</Project>

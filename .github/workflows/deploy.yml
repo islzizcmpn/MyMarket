@@ -1,0 +1,67 @@
+name: Deploy
+
+# Manual promotion of an already-built image to the VPS. Images come from the CI workflow — this
+# never rebuilds, so what reaches production is byte-identical to what was tested.
+#
+# Required repository secrets:
+#   DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY   SSH access to the VPS
+#   DEPLOY_PATH                                 directory holding docker-compose.yml and .env
+#
+# The schema step runs on its own, before the app containers roll, so instances never race to apply
+# the same migration. See docs/runbooks/deploy.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to deploy (e.g. latest, v1.2.0, sha-<commit>)'
+        required: true
+        default: 'latest'
+      run_migrations:
+        description: 'Apply database migrations before rolling the app'
+        type: boolean
+        required: true
+        default: true
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.image_tag }}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Pull images
+        run: |
+          ssh "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "cd '${{ secrets.DEPLOY_PATH }}' && IMAGE_TAG='${{ inputs.image_tag }}' docker compose pull"
+
+      # Gated schema step: runs to completion and exits non-zero on failure, so a bad migration stops
+      # the deploy before any app container is replaced.
+      - name: Apply migrations
+        if: inputs.run_migrations
+        run: |
+          ssh "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "cd '${{ secrets.DEPLOY_PATH }}' && IMAGE_TAG='${{ inputs.image_tag }}' docker compose run --rm migrate"
+
+      - name: Roll application containers
+        run: |
+          ssh "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "cd '${{ secrets.DEPLOY_PATH }}' && IMAGE_TAG='${{ inputs.image_tag }}' docker compose up -d --no-deps api web admin nginx"
+
+      - name: Verify health
+        run: |
+          ssh "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "cd '${{ secrets.DEPLOY_PATH }}' && for i in \$(seq 1 30); do \
+               if docker compose exec -T api curl -fsS http://localhost:8080/health; then exit 0; fi; \
+               sleep 5; \
+             done; echo 'health check never passed'; docker compose logs --tail 100 api; exit 1"

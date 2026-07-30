@@ -1,0 +1,120 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject WebSession Session
+@inject SessionStore Store
+@inject CartState Cart
+@inject StoreCart StoreCart
+@inject CatalogApiClient Catalog
+@inject NavigationManager Nav
+@inject IStringLocalizer<SharedResource> L
+
+<header class="site-header">
+    <div class="container site-header__row">
+        <a class="brand" href="/">PC<span>Market</span></a>
+
+        <div class="searchbar">
+            <input placeholder="@L["Header.SearchPlaceholder"]"
+                   @bind="_query" @bind:event="oninput" @onkeydown="OnSearchKey" />
+            <button @onclick="Search">@L["Header.Search"]</button>
+        </div>
+
+        <nav class="header-actions">
+            <LanguageSwitcher />
+            <a class="header-link" href="/cart">
+                🛒 @L["Header.Cart"] @if (Cart.Count > 0) { <span class="cart-badge">@Cart.Count</span> }
+            </a>
+            @if (Session.IsAuthenticated)
+            {
+                <a class="header-link" href="/account">👤 @L["Header.Account"]</a>
+            }
+            else
+            {
+                <a class="header-link" href="/login">@L["Header.SignIn"]</a>
+            }
+        </nav>
+    </div>
+
+    @if (_categories.Count > 0)
+    {
+        <div class="catnav">
+            <div class="container catnav__row">
+                <a href="/catalog">@L["Common.AllProducts"]</a>
+                @foreach (var category in _categories)
+                {
+                    <a href="@($"/catalog/{category.Slug}")">@category.Name</a>
+                }
+            </div>
+        </div>
+    }
+</header>
+
+<main>
+    <div class="container">
+        @Body
+    </div>
+</main>
+
+<footer class="site-footer">
+    <div class="container">
+        @L["Footer.Copyright", DateTime.UtcNow.Year]
+    </div>
+</footer>
+
+<div id="blazor-error-ui" data-nosnippet>
+    @L["Error.Unhandled"]
+    <a href="." class="reload">@L["Error.Reload"]</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+@code {
+    private IReadOnlyList<CategoryNodeDto> _categories = [];
+    private string _query = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Session.Changed += OnStateChanged;
+        Cart.Changed += OnStateChanged;
+
+        if (!Session.Loaded)
+        {
+            await Store.LoadIntoAsync(Session);
+        }
+
+        try
+        {
+            _categories = await Catalog.GetCategoriesAsync();
+        }
+        catch
+        {
+            _categories = [];
+        }
+
+        // Prime the cart badge only when a cart already exists (avoid creating carts for casual visitors).
+        if (Session.IsAuthenticated || !string.IsNullOrEmpty(Session.CartToken))
+        {
+            try { await StoreCart.GetAsync(); } catch { /* ignore */ }
+        }
+    }
+
+    private void OnSearchKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            Search();
+        }
+    }
+
+    private void Search()
+    {
+        var q = _query.Trim();
+        Nav.NavigateTo(string.IsNullOrEmpty(q) ? "/catalog" : $"/search?q={Uri.EscapeDataString(q)}");
+    }
+
+    private void OnStateChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        Session.Changed -= OnStateChanged;
+        Cart.Changed -= OnStateChanged;
+    }
+}

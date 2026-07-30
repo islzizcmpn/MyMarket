@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/shared/">
+    <Project Path="shared/PcMarket.ApiClient/PcMarket.ApiClient.csproj" />
+    <Project Path="shared/PcMarket.Mobile.Core/PcMarket.Mobile.Core.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/PcMarket.Admin/PcMarket.Admin.csproj" />
+    <Project Path="src/PcMarket.Api/PcMarket.Api.csproj" />
+    <Project Path="src/PcMarket.Application/PcMarket.Application.csproj" />
+    <Project Path="src/PcMarket.Bot/PcMarket.Bot.csproj" />
+    <Project Path="src/PcMarket.Contracts/PcMarket.Contracts.csproj" />
+    <Project Path="src/PcMarket.Domain/PcMarket.Domain.csproj" />
+    <Project Path="src/PcMarket.Infrastructure/PcMarket.Infrastructure.csproj" />
+    <Project Path="src/PcMarket.Mobile/PcMarket.Mobile.csproj" />
+    <Project Path="src/PcMarket.Payments/PcMarket.Payments.csproj" />
+    <Project Path="src/PcMarket.Web/PcMarket.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PcMarket.IntegrationTests/PcMarket.IntegrationTests.csproj" />
+    <Project Path="tests/PcMarket.UnitTests/PcMarket.UnitTests.csproj" />
+  </Folder>
+</Solution>

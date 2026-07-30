@@ -1,0 +1,599 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Neutral (English) storefront strings. Culture-specific overrides live in SharedResource.ru.resx
+    and SharedResource.uz.resx; anything missing there falls back to this file.
+  -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="Common.AllProducts" xml:space="preserve">
+    <value>All products</value>
+  </data>
+  <data name="Common.Catalog" xml:space="preserve">
+    <value>Catalog</value>
+  </data>
+  <data name="Common.Region" xml:space="preserve">
+    <value>Region</value>
+  </data>
+  <data name="Common.City" xml:space="preserve">
+    <value>City</value>
+  </data>
+  <data name="Common.Street" xml:space="preserve">
+    <value>Street</value>
+  </data>
+  <data name="Common.Phone" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="Common.Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Common.FullName" xml:space="preserve">
+    <value>Full name</value>
+  </data>
+  <data name="Common.Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Common.Summary" xml:space="preserve">
+    <value>Summary</value>
+  </data>
+  <data name="Common.Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+
+  <!-- Enum display names, resolved by IStringLocalizer.EnumName(). -->
+  <data name="Enum.OrderStatus.Created" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="Enum.OrderStatus.AwaitingPayment" xml:space="preserve">
+    <value>Awaiting payment</value>
+  </data>
+  <data name="Enum.OrderStatus.Paid" xml:space="preserve">
+    <value>Paid</value>
+  </data>
+  <data name="Enum.OrderStatus.Processing" xml:space="preserve">
+    <value>Processing</value>
+  </data>
+  <data name="Enum.OrderStatus.Shipped" xml:space="preserve">
+    <value>Shipped</value>
+  </data>
+  <data name="Enum.OrderStatus.Delivered" xml:space="preserve">
+    <value>Delivered</value>
+  </data>
+  <data name="Enum.OrderStatus.Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="Enum.OrderStatus.Refunded" xml:space="preserve">
+    <value>Refunded</value>
+  </data>
+  <data name="Enum.PaymentStatus.None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Enum.PaymentStatus.Pending" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="Enum.PaymentStatus.Paid" xml:space="preserve">
+    <value>Paid</value>
+  </data>
+  <data name="Enum.PaymentStatus.Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="Enum.PaymentStatus.Refunded" xml:space="preserve">
+    <value>Refunded</value>
+  </data>
+  <data name="Enum.PaymentMethod.Cash" xml:space="preserve">
+    <value>Cash on delivery</value>
+  </data>
+  <data name="Enum.PaymentMethod.Click" xml:space="preserve">
+    <value>Click</value>
+    <comment>Payment brand name — not translated.</comment>
+  </data>
+  <data name="Enum.PaymentMethod.Payme" xml:space="preserve">
+    <value>Payme</value>
+    <comment>Payment brand name — not translated.</comment>
+  </data>
+  <data name="Enum.PaymentMethod.Uzcard" xml:space="preserve">
+    <value>Uzcard</value>
+    <comment>Payment brand name — not translated.</comment>
+  </data>
+  <data name="Enum.PaymentMethod.Humo" xml:space="preserve">
+    <value>Humo</value>
+    <comment>Payment brand name — not translated.</comment>
+  </data>
+  <data name="Enum.DeliveryType.Courier" xml:space="preserve">
+    <value>Courier</value>
+  </data>
+  <data name="Enum.DeliveryType.Pickup" xml:space="preserve">
+    <value>Pickup</value>
+  </data>
+
+  <data name="Account.PageTitle" xml:space="preserve">
+    <value>My account — PCMarket</value>
+  </data>
+  <data name="Account.Title" xml:space="preserve">
+    <value>My account</value>
+  </data>
+  <data name="Account.SignOut" xml:space="preserve">
+    <value>Sign out</value>
+  </data>
+  <data name="Account.Profile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Account.Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Account.Roles" xml:space="preserve">
+    <value>Roles</value>
+  </data>
+  <data name="Account.Addresses" xml:space="preserve">
+    <value>Addresses</value>
+  </data>
+  <data name="Account.NoAddresses" xml:space="preserve">
+    <value>No saved addresses yet.</value>
+  </data>
+  <data name="Account.DefaultAddress" xml:space="preserve">
+    <value>(default)</value>
+  </data>
+  <data name="Account.AddAddress" xml:space="preserve">
+    <value>Add address</value>
+  </data>
+  <data name="Account.OrderHistory" xml:space="preserve">
+    <value>Order history</value>
+  </data>
+  <data name="Account.NoOrders" xml:space="preserve">
+    <value>You haven’t placed any orders yet.</value>
+  </data>
+  <data name="Account.StartShopping" xml:space="preserve">
+    <value>Start shopping</value>
+  </data>
+  <data name="Account.ColOrder" xml:space="preserve">
+    <value>Order</value>
+  </data>
+  <data name="Account.ColStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+
+  <data name="Cart.PageTitle" xml:space="preserve">
+    <value>Cart — PCMarket</value>
+  </data>
+  <data name="Cart.Title" xml:space="preserve">
+    <value>Your cart</value>
+  </data>
+  <data name="Cart.Empty" xml:space="preserve">
+    <value>Your cart is empty.</value>
+  </data>
+  <data name="Cart.BrowseProducts" xml:space="preserve">
+    <value>Browse products</value>
+  </data>
+  <data name="Cart.Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Cart.Items" xml:space="preserve">
+    <value>Items</value>
+  </data>
+  <data name="Cart.Checkout" xml:space="preserve">
+    <value>Checkout</value>
+  </data>
+
+  <data name="Checkout.PageTitle" xml:space="preserve">
+    <value>Checkout — PCMarket</value>
+  </data>
+  <data name="Checkout.Title" xml:space="preserve">
+    <value>Checkout</value>
+  </data>
+  <data name="Checkout.Delivery" xml:space="preserve">
+    <value>Delivery</value>
+  </data>
+  <data name="Checkout.DeliveryType" xml:space="preserve">
+    <value>Delivery type</value>
+  </data>
+  <data name="Checkout.SavedAddress" xml:space="preserve">
+    <value>Saved address</value>
+  </data>
+  <data name="Checkout.NewAddress" xml:space="preserve">
+    <value>Enter a new address</value>
+  </data>
+  <data name="Checkout.Details" xml:space="preserve">
+    <value>Details (optional)</value>
+  </data>
+  <data name="Checkout.PaymentMethod" xml:space="preserve">
+    <value>Payment method</value>
+  </data>
+  <data name="Checkout.OrderSummary" xml:space="preserve">
+    <value>Order summary</value>
+  </data>
+  <data name="Checkout.PlaceOrder" xml:space="preserve">
+    <value>Place order</value>
+  </data>
+  <data name="Checkout.Placing" xml:space="preserve">
+    <value>Placing order…</value>
+  </data>
+
+  <data name="Login.PageTitle" xml:space="preserve">
+    <value>Sign in — PCMarket</value>
+  </data>
+  <data name="Login.Title" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="Login.Hint" xml:space="preserve">
+    <value>Use your phone number and password.</value>
+  </data>
+  <data name="Login.Submit" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="Login.Signing" xml:space="preserve">
+    <value>Signing in…</value>
+  </data>
+  <data name="Login.NoAccount" xml:space="preserve">
+    <value>No account?</value>
+  </data>
+  <data name="Login.CreateOne" xml:space="preserve">
+    <value>Create one</value>
+  </data>
+
+  <data name="Register.PageTitle" xml:space="preserve">
+    <value>Create account — PCMarket</value>
+  </data>
+  <data name="Register.Title" xml:space="preserve">
+    <value>Create account</value>
+  </data>
+  <data name="Register.Hint" xml:space="preserve">
+    <value>Register with your phone number — we’ll text you a verification code.</value>
+  </data>
+  <data name="Register.Continue" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="Register.SendingCode" xml:space="preserve">
+    <value>Sending code…</value>
+  </data>
+  <data name="Register.HaveAccount" xml:space="preserve">
+    <value>Already have an account?</value>
+  </data>
+  <data name="Register.SignIn" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="Register.CodeSent" xml:space="preserve">
+    <value>A 6-digit code was sent to {0}. In development the code is written to the API log.</value>
+    <comment>{0} is the phone number the shopper entered.</comment>
+  </data>
+  <data name="Register.VerificationCode" xml:space="preserve">
+    <value>Verification code</value>
+  </data>
+  <data name="Register.Verify" xml:space="preserve">
+    <value>Verify &amp; sign in</value>
+  </data>
+  <data name="Register.Verifying" xml:space="preserve">
+    <value>Verifying…</value>
+  </data>
+
+  <data name="Product.PageTitleFallback" xml:space="preserve">
+    <value>Product</value>
+  </data>
+  <data name="Product.NotFound" xml:space="preserve">
+    <value>Product not found</value>
+  </data>
+  <data name="Product.NotFoundHint" xml:space="preserve">
+    <value>This product may have been removed.</value>
+  </data>
+  <data name="Product.BackToCatalog" xml:space="preserve">
+    <value>Back to catalog</value>
+  </data>
+  <data name="Product.Option" xml:space="preserve">
+    <value>Option</value>
+  </data>
+  <data name="Product.InStockQty" xml:space="preserve">
+    <value>In stock ({0})</value>
+  </data>
+  <data name="Product.Adding" xml:space="preserve">
+    <value>Adding…</value>
+  </data>
+  <data name="Product.AddToCart" xml:space="preserve">
+    <value>Add to cart</value>
+  </data>
+  <data name="Product.Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Product.Specifications" xml:space="preserve">
+    <value>Specifications</value>
+  </data>
+  <data name="Product.AddedToCart" xml:space="preserve">
+    <value>Added {0} × {1} to your cart.</value>
+    <comment>{0} is the quantity, {1} the product name.</comment>
+  </data>
+
+  <data name="Search.PageTitle" xml:space="preserve">
+    <value>Search — PCMarket</value>
+  </data>
+  <data name="Search.Title" xml:space="preserve">
+    <value>Search results</value>
+  </data>
+  <data name="Search.ResultCount" xml:space="preserve">
+    <value>{0} result(s) for “{1}”</value>
+  </data>
+  <data name="Search.TypeSomething" xml:space="preserve">
+    <value>Type something in the search box above.</value>
+  </data>
+  <data name="Search.NoMatch" xml:space="preserve">
+    <value>Nothing matched “{0}”. Try a different term or</value>
+    <comment>Followed by the Search.BrowseCatalog link, so it ends mid-sentence on purpose.</comment>
+  </data>
+  <data name="Search.BrowseCatalog" xml:space="preserve">
+    <value>browse the catalog</value>
+  </data>
+
+  <data name="Order.PageTitle" xml:space="preserve">
+    <value>Order — PCMarket</value>
+  </data>
+  <data name="Order.SignInPrompt" xml:space="preserve">
+    <value>To view this order, please</value>
+    <comment>Followed by the Order.SignInLink link, so it ends mid-sentence on purpose.</comment>
+  </data>
+  <data name="Order.SignInLink" xml:space="preserve">
+    <value>sign in</value>
+  </data>
+  <data name="Order.NotFound" xml:space="preserve">
+    <value>Order not found</value>
+  </data>
+  <data name="Order.BackToAccount" xml:space="preserve">
+    <value>Back to account</value>
+  </data>
+  <data name="Order.Title" xml:space="preserve">
+    <value>Order {0}</value>
+    <comment>{0} is the order number.</comment>
+  </data>
+  <data name="Order.Items" xml:space="preserve">
+    <value>Items</value>
+  </data>
+  <data name="Order.DeliveryTo" xml:space="preserve">
+    <value>Delivery to</value>
+  </data>
+  <data name="Order.History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="Order.Payment" xml:space="preserve">
+    <value>Payment</value>
+  </data>
+  <data name="Order.PaymentStatus" xml:space="preserve">
+    <value>Payment status</value>
+  </data>
+  <data name="Order.Subtotal" xml:space="preserve">
+    <value>Subtotal</value>
+  </data>
+  <data name="Order.DeliveryFee" xml:space="preserve">
+    <value>Delivery</value>
+  </data>
+  <data name="Order.PayNow" xml:space="preserve">
+    <value>Pay now</value>
+  </data>
+  <data name="Order.Cancel" xml:space="preserve">
+    <value>Cancel order</value>
+  </data>
+
+  <data name="ErrorPage.PageTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="ErrorPage.Title" xml:space="preserve">
+    <value>Error.</value>
+  </data>
+  <data name="ErrorPage.Subtitle" xml:space="preserve">
+    <value>An error occurred while processing your request.</value>
+  </data>
+  <data name="ErrorPage.RequestId" xml:space="preserve">
+    <value>Request ID:</value>
+  </data>
+  <data name="ErrorPage.DevMode" xml:space="preserve">
+    <value>Development Mode</value>
+  </data>
+  <data name="ErrorPage.DevModeBody" xml:space="preserve">
+    <value>Swapping to the Development environment will display more detailed information about the error that occurred.</value>
+  </data>
+  <data name="ErrorPage.DevModeWarning" xml:space="preserve">
+    <value>The Development environment shouldn't be enabled for deployed applications. It can result in displaying sensitive information from exceptions to end users. For local debugging, enable the Development environment by setting the ASPNETCORE_ENVIRONMENT environment variable to Development and restarting the app.</value>
+    <comment>ASPNETCORE_ENVIRONMENT and Development are literal tokens — do not translate them.</comment>
+  </data>
+
+  <data name="NotFound.Title" xml:space="preserve">
+    <value>Not Found</value>
+  </data>
+  <data name="NotFound.Body" xml:space="preserve">
+    <value>Sorry, the content you are looking for does not exist.</value>
+  </data>
+
+  <data name="Reconnect.Rejoining" xml:space="preserve">
+    <value>Rejoining the server…</value>
+  </data>
+  <data name="Reconnect.RetryPrefix" xml:space="preserve">
+    <value>Rejoin failed… trying again in</value>
+    <comment>The countdown number and Reconnect.RetrySuffix follow this text.</comment>
+  </data>
+  <data name="Reconnect.RetrySuffix" xml:space="preserve">
+    <value>seconds.</value>
+  </data>
+  <data name="Reconnect.Failed" xml:space="preserve">
+    <value>Failed to rejoin.</value>
+  </data>
+  <data name="Reconnect.RetryOrReload" xml:space="preserve">
+    <value>Please retry or reload the page.</value>
+  </data>
+  <data name="Reconnect.Retry" xml:space="preserve">
+    <value>Retry</value>
+  </data>
+  <data name="Reconnect.Paused" xml:space="preserve">
+    <value>The session has been paused by the server.</value>
+  </data>
+  <data name="Reconnect.ResumeFailed" xml:space="preserve">
+    <value>Failed to resume the session.</value>
+  </data>
+  <data name="Reconnect.Resume" xml:space="preserve">
+    <value>Resume</value>
+  </data>
+
+  <data name="Header.Language" xml:space="preserve">
+    <value>Language</value>
+    <comment>Accessible label for the RU / UZ / EN switcher.</comment>
+  </data>
+  <data name="Header.SearchPlaceholder" xml:space="preserve">
+    <value>Search laptops, components, accessories…</value>
+  </data>
+  <data name="Header.Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Header.Cart" xml:space="preserve">
+    <value>Cart</value>
+  </data>
+  <data name="Header.Account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="Header.SignIn" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+
+  <data name="Footer.Copyright" xml:space="preserve">
+    <value>© {0} PCMarket — PC &amp; electronics store. Built with Blazor.</value>
+    <comment>{0} is the current year.</comment>
+  </data>
+
+  <data name="Error.Unhandled" xml:space="preserve">
+    <value>An unhandled error has occurred.</value>
+  </data>
+  <data name="Error.Reload" xml:space="preserve">
+    <value>Reload</value>
+  </data>
+
+  <data name="Home.PageTitle" xml:space="preserve">
+    <value>PCMarket — PC &amp; electronics store</value>
+  </data>
+  <data name="Home.HeroTitle" xml:space="preserve">
+    <value>Build your dream setup</value>
+  </data>
+  <data name="Home.HeroSubtitle" xml:space="preserve">
+    <value>Laptops, components, peripherals and more — genuine gear with fast delivery across Uzbekistan.</value>
+  </data>
+  <data name="Home.ShopCatalog" xml:space="preserve">
+    <value>Shop the catalog</value>
+  </data>
+  <data name="Home.NewArrivals" xml:space="preserve">
+    <value>New arrivals</value>
+  </data>
+  <data name="Home.ViewAll" xml:space="preserve">
+    <value>View all</value>
+  </data>
+  <data name="Home.NoProducts" xml:space="preserve">
+    <value>No products yet. Seed the catalog to see items here.</value>
+  </data>
+
+  <data name="Catalog.PageTitle" xml:space="preserve">
+    <value>Catalog — PCMarket</value>
+  </data>
+  <data name="Catalog.ProductCount" xml:space="preserve">
+    <value>{0} product(s)</value>
+  </data>
+  <data name="Catalog.Brand" xml:space="preserve">
+    <value>Brand</value>
+  </data>
+  <data name="Catalog.AllBrands" xml:space="preserve">
+    <value>All brands</value>
+  </data>
+  <data name="Catalog.MinPrice" xml:space="preserve">
+    <value>Min price</value>
+  </data>
+  <data name="Catalog.MaxPrice" xml:space="preserve">
+    <value>Max price</value>
+  </data>
+  <data name="Catalog.SortBy" xml:space="preserve">
+    <value>Sort by</value>
+  </data>
+  <data name="Catalog.SortNewest" xml:space="preserve">
+    <value>Newest</value>
+  </data>
+  <data name="Catalog.SortPriceAsc" xml:space="preserve">
+    <value>Price: low to high</value>
+  </data>
+  <data name="Catalog.SortPriceDesc" xml:space="preserve">
+    <value>Price: high to low</value>
+  </data>
+  <data name="Catalog.SortNameAsc" xml:space="preserve">
+    <value>Name A–Z</value>
+  </data>
+  <data name="Catalog.ApplyFilters" xml:space="preserve">
+    <value>Apply filters</value>
+  </data>
+  <data name="Catalog.NoMatches" xml:space="preserve">
+    <value>No products match your filters.</value>
+  </data>
+  <data name="Catalog.Prev" xml:space="preserve">
+    <value>Prev</value>
+  </data>
+  <data name="Catalog.Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Catalog.PageOf" xml:space="preserve">
+    <value>Page {0} of {1}</value>
+  </data>
+
+  <data name="Product.NoImage" xml:space="preserve">
+    <value>No image</value>
+  </data>
+  <data name="Product.InStock" xml:space="preserve">
+    <value>In stock</value>
+  </data>
+  <data name="Product.OutOfStock" xml:space="preserve">
+    <value>Out of stock</value>
+  </data>
+</root>

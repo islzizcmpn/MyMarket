@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PcMarket.Mobile.ViewModels"
+             xmlns:catalog="clr-namespace:PcMarket.Contracts.Catalog;assembly=PcMarket.Contracts"
+             x:Class="PcMarket.Mobile.Views.CatalogPage"
+             x:DataType="vm:CatalogViewModel"
+             Title="Catalog">
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="16,12" RowSpacing="10">
+
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <Entry Grid.Column="0"
+                   Placeholder="Search products"
+                   Text="{Binding SearchText}"
+                   ReturnCommand="{Binding LoadCommand}" />
+            <Button Grid.Column="1"
+                    Text="Filters"
+                    Style="{StaticResource GhostButton}"
+                    Command="{Binding ToggleFiltersCommand}" />
+        </Grid>
+
+        <Border Grid.Row="1" Style="{StaticResource Card}" IsVisible="{Binding FiltersVisible}">
+            <VerticalStackLayout Spacing="8">
+                <Picker Title="Category"
+                        ItemsSource="{Binding Categories}"
+                        ItemDisplayBinding="{Binding Name, x:DataType=catalog:CategoryNodeDto}"
+                        SelectedItem="{Binding SelectedCategory}" />
+                <Picker Title="Brand"
+                        ItemsSource="{Binding Brands}"
+                        ItemDisplayBinding="{Binding Name, x:DataType=catalog:BrandDto}"
+                        SelectedItem="{Binding SelectedBrand}" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <Entry Grid.Column="0" Placeholder="Min price" Keyboard="Numeric" Text="{Binding MinPrice}" />
+                    <Entry Grid.Column="1" Placeholder="Max price" Keyboard="Numeric" Text="{Binding MaxPrice}" />
+                </Grid>
+                <Picker Title="Sort" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding Sort}" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <Button Grid.Column="0" Text="Apply" Style="{StaticResource PrimaryButton}" Command="{Binding ApplyFiltersCommand}" />
+                    <Button Grid.Column="1" Text="Clear" Style="{StaticResource GhostButton}" Command="{Binding ClearFiltersCommand}" />
+                </Grid>
+            </VerticalStackLayout>
+        </Border>
+
+        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsBusy}" Command="{Binding LoadCommand}">
+            <CollectionView ItemsSource="{Binding Products}"
+                            SelectionMode="None"
+                            RemainingItemsThreshold="4"
+                            RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="24" Spacing="6">
+                        <Label Text="Nothing here" Style="{StaticResource H2}" HorizontalOptions="Center" />
+                        <Label Text="Try a different search or clear the filters."
+                               Style="{StaticResource MutedText}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="catalog:ProductListItemDto">
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+                            <Grid ColumnDefinitions="76,*" ColumnSpacing="12">
+                                <Image Grid.Column="0" Source="{Binding PrimaryImageUrl}" Aspect="AspectFit" HeightRequest="76" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                    <Label Text="{Binding Name}" FontAttributes="Bold" MaxLines="2" LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding BrandName}" Style="{StaticResource MutedText}" />
+                                    <Label Text="{Binding PriceFrom, Converter={StaticResource Money}}" Style="{StaticResource Price}" />
+                                    <Label Text="Out of stock"
+                                           Style="{StaticResource ErrorText}"
+                                           IsVisible="{Binding InStock, Converter={StaticResource Not}}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, Path=OpenProductCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.Footer>
+                    <ActivityIndicator IsRunning="{Binding IsLoadingMore}" IsVisible="{Binding IsLoadingMore}" Margin="0,10" />
+                </CollectionView.Footer>
+            </CollectionView>
+        </RefreshView>
+
+    </Grid>
+
+</ContentPage>

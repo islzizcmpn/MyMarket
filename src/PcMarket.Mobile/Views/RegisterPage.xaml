@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PcMarket.Mobile.ViewModels"
+             x:Class="PcMarket.Mobile.Views.RegisterPage"
+             x:DataType="vm:RegisterViewModel"
+             Title="Create account">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+
+            <Label Text="Create an account" Style="{StaticResource H1}" />
+            <Label Text="We'll text you a code to confirm your number." Style="{StaticResource MutedText}" />
+
+            <Entry Placeholder="Phone (+998…)" Keyboard="Telephone" Text="{Binding Phone}" />
+            <Entry Placeholder="Full name (optional)" Text="{Binding FullName}" />
+            <Entry Placeholder="Password (min. 8 characters)" IsPassword="True" Text="{Binding Password}" />
+
+            <Label Text="{Binding Error}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" />
+
+            <Button Text="Continue"
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding SubmitCommand}"
+                    IsEnabled="{Binding IsNotBusy}" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

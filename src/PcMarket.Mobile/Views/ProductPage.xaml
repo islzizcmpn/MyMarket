@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PcMarket.Mobile.ViewModels"
+             xmlns:catalog="clr-namespace:PcMarket.Contracts.Catalog;assembly=PcMarket.Contracts"
+             x:Class="PcMarket.Mobile.Views.ProductPage"
+             x:DataType="vm:ProductViewModel"
+             Title="Product">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="14">
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+            <Label Text="{Binding Error}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" />
+
+            <VerticalStackLayout Spacing="14" IsVisible="{Binding HasProduct}">
+
+                <Image Source="{Binding PrimaryImageUrl}" Aspect="AspectFit" HeightRequest="220" />
+
+                <Label Text="{Binding Product.Name}" Style="{StaticResource H1}" />
+                <Label Text="{Binding Product.BrandName}" Style="{StaticResource MutedText}" />
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Choose an option" Style="{StaticResource H2}" />
+                        <Picker ItemsSource="{Binding Product.Variants}"
+                                SelectedItem="{Binding SelectedVariant}"
+                                ItemDisplayBinding="{Binding Sku, x:DataType=catalog:ProductVariantDto}" />
+                        <Label Text="{Binding SelectedVariant.Attributes, Converter={StaticResource Attributes}}"
+                               Style="{StaticResource MutedText}" />
+                        <Label Text="{Binding SelectedVariant.Price, Converter={StaticResource Money}}"
+                               Style="{StaticResource Price}" />
+                        <Label Text="{Binding StockLabel}" Style="{StaticResource MutedText}" />
+                        <Button Text="Add to cart"
+                                Style="{StaticResource PrimaryButton}"
+                                Command="{Binding AddToCartCommand}"
+                                IsEnabled="{Binding CanAddToCart}" />
+                        <Label Text="{Binding AddedMessage}"
+                               Style="{StaticResource SuccessText}"
+                               IsVisible="{Binding AddedMessage, Converter={StaticResource HasText}}" />
+                        <Button Text="Go to cart"
+                                Style="{StaticResource GhostButton}"
+                                Command="{Binding GoToCartCommand}"
+                                IsVisible="{Binding AddedMessage, Converter={StaticResource HasText}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Description" Style="{StaticResource H2}" />
+                <Label Text="{Binding Product.Description}" />
+
+                <Label Text="Specifications" Style="{StaticResource H2}" />
+                <CollectionView ItemsSource="{Binding Specs}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SpecRow">
+                            <Grid ColumnDefinitions="*,*" Padding="0,5">
+                                <Label Grid.Column="0" Text="{Binding Key}" Style="{StaticResource MutedText}" />
+                                <Label Grid.Column="1" Text="{Binding Value}" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

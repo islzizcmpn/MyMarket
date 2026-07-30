@@ -1,0 +1,34 @@
+@inject IStringLocalizer<SharedResource> L
+
+<a class="product-card" href="@($"/product/{Product.Slug}")">
+    <div class="product-card__media">
+        @if (!string.IsNullOrEmpty(Product.PrimaryImageUrl))
+        {
+            <img src="@Product.PrimaryImageUrl" alt="@Product.Name" loading="lazy" />
+        }
+        else
+        {
+            <span class="muted">@L["Product.NoImage"]</span>
+        }
+    </div>
+    <div class="product-card__body">
+        @if (!string.IsNullOrEmpty(Product.BrandName))
+        {
+            <div class="product-card__brand">@Product.BrandName</div>
+        }
+        <div class="product-card__name">@Product.Name</div>
+        <div class="product-card__price">@Format.Money(Product.PriceFrom)</div>
+        @if (Product.InStock)
+        {
+            <span class="pill pill--ok">@L["Product.InStock"]</span>
+        }
+        else
+        {
+            <span class="pill pill--out">@L["Product.OutOfStock"]</span>
+        }
+    </div>
+</a>
+
+@code {
+    [Parameter, EditorRequired] public ProductListItemDto Product { get; set; } = default!;
+}

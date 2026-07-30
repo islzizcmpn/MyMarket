@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PcMarket.Mobile.ViewModels"
+             xmlns:orders="clr-namespace:PcMarket.Contracts.Orders;assembly=PcMarket.Contracts"
+             x:Class="PcMarket.Mobile.Views.OrdersPage"
+             x:DataType="vm:OrdersViewModel"
+             Title="My orders">
+
+    <Grid RowDefinitions="Auto,*" Padding="16,12" RowSpacing="10">
+
+        <Label Grid.Row="0" Text="{Binding Error}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" />
+
+        <RefreshView Grid.Row="1" IsRefreshing="{Binding IsBusy}" Command="{Binding LoadCommand}">
+            <CollectionView ItemsSource="{Binding Orders}" SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="24" Spacing="6">
+                        <Label Text="No orders yet" Style="{StaticResource H2}" HorizontalOptions="Center" />
+                        <Label Text="Your orders will appear here once you check out."
+                               Style="{StaticResource MutedText}" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="orders:OrderListItemDto">
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="3">
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding Number}" FontAttributes="Bold" />
+                                <Label Grid.Row="0" Grid.Column="1"
+                                       Text="{Binding Status, Converter={StaticResource OrderStatus}}"
+                                       Style="{StaticResource MutedText}" />
+                                <Label Grid.Row="1" Grid.Column="0"
+                                       Text="{Binding CreatedAt, Converter={StaticResource Date}}"
+                                       Style="{StaticResource MutedText}" />
+                                <Label Grid.Row="1" Grid.Column="1"
+                                       Text="{Binding ItemCount, StringFormat='{0} item(s)'}"
+                                       Style="{StaticResource MutedText}" />
+                                <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                       Text="{Binding Total, Converter={StaticResource Money}}"
+                                       Style="{StaticResource Price}" />
+                            </Grid>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:OrdersViewModel}}, Path=OpenCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+    </Grid>
+
+</ContentPage>

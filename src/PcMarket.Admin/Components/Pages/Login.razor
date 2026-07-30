@@ -1,0 +1,70 @@
+@page "/login"
+@inject AuthApiClient Auth
+@inject AdminSession Session
+@inject SessionStore Store
+@inject NavigationManager Nav
+
+<PageTitle>Admin sign in</PageTitle>
+
+<div class="login-wrap">
+    <div class="card pad login-card">
+        <h2>PCMarket Admin</h2>
+        <p class="muted">Sign in with an Admin or Manager account.</p>
+
+        @if (_error is not null)
+        {
+            <div class="alert alert--error">@_error</div>
+        }
+
+        <div class="field">
+            <label>Phone</label>
+            <input placeholder="+998900000000" @bind="_phone" />
+        </div>
+        <div class="field">
+            <label>Password</label>
+            <input type="password" @bind="_password" @onkeydown="OnKey" />
+        </div>
+        <button class="btn btn--primary" style="width:100%;" disabled="@_busy" @onclick="SignIn">
+            @(_busy ? "Signing in…" : "Sign in")
+        </button>
+    </div>
+</div>
+
+@code {
+    private string _phone = "+998900000000";
+    private string _password = string.Empty;
+    private bool _busy;
+    private string? _error;
+
+    private async Task OnKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await SignIn();
+    }
+
+    private async Task SignIn()
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            var tokens = await Auth.LoginAsync(new LoginRequest(_phone.Trim(), _password));
+            if (!tokens.Roles.Contains("Admin") && !tokens.Roles.Contains("Manager"))
+            {
+                _error = "This account does not have back-office access.";
+                return;
+            }
+
+            Session.SetAuth(tokens);
+            await Store.SaveAsync(Session);
+            Nav.NavigateTo("/");
+        }
+        catch (ApiException ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

@@ -1,0 +1,77 @@
+@page "/login"
+@inject AuthApiClient Auth
+@inject WebSession Session
+@inject SessionStore Store
+@inject StoreCart Cart
+@inject NavigationManager Nav
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L["Login.PageTitle"]</PageTitle>
+
+<div class="center-narrow">
+    <div class="card pad">
+        <h1>@L["Login.Title"]</h1>
+        <p class="muted">@L["Login.Hint"]</p>
+
+        @if (_error is not null)
+        {
+            <div class="alert alert--error">@_error</div>
+        }
+
+        <div class="field">
+            <label>@L["Common.Phone"]</label>
+            <input placeholder="+998901234567" @bind="_phone" />
+        </div>
+        <div class="field">
+            <label>@L["Common.Password"]</label>
+            <input type="password" @bind="_password" @onkeydown="OnKey" />
+        </div>
+
+        <button class="btn btn--primary btn--block" disabled="@_busy" @onclick="SignIn">
+            @(_busy ? L["Login.Signing"] : L["Login.Submit"])
+        </button>
+
+        <p class="muted" style="margin-top:16px; text-align:center;">
+            @L["Login.NoAccount"] <a href="/register">@L["Login.CreateOne"]</a>
+        </p>
+    </div>
+</div>
+
+@code {
+    [Parameter, SupplyParameterFromQuery] public string? ReturnUrl { get; set; }
+
+    private string _phone = string.Empty;
+    private string _password = string.Empty;
+    private bool _busy;
+    private string? _error;
+
+    private async Task OnKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SignIn();
+        }
+    }
+
+    private async Task SignIn()
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            var tokens = await Auth.LoginAsync(new LoginRequest(_phone.Trim(), _password));
+            Session.SetAuth(tokens);
+            await Store.SaveAsync(Session);
+            await Cart.MergeGuestAsync();
+            Nav.NavigateTo(string.IsNullOrEmpty(ReturnUrl) ? "/account" : ReturnUrl);
+        }
+        catch (ApiException ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

@@ -1,0 +1,131 @@
+@page "/categories"
+@inherits AdminPageBase
+
+<PageTitle>Categories — Admin</PageTitle>
+<div class="topbar"><h1>Categories</h1></div>
+
+@if (_loading) { <div class="spinner"></div> }
+else
+{
+    @if (_error is not null) { <div class="alert alert--error">@_error</div> }
+    <div class="grid" style="grid-template-columns: 1fr 340px;">
+        <div class="card">
+            <table class="table">
+                <thead><tr><th>Name</th><th>Translated</th><th>Slug</th><th>Sort</th><th>Products</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var c in _items)
+                    {
+                        <tr>
+                            <td>@c.Name @(c.IsActive ? "" : "(inactive)")</td>
+                            <td class="muted">@TranslatedLanguages(c.Translations)</td>
+                            <td class="muted">@c.Slug</td>
+                            <td>@c.SortOrder</td>
+                            <td>@c.ProductCount</td>
+                            <td class="page-actions">
+                                <button class="btn btn--ghost btn--sm" @onclick="() => Edit(c)">Edit</button>
+                                <button class="btn btn--danger btn--sm" @onclick="() => Delete(c.Id)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card pad" style="height:fit-content;">
+            <h3>@(_editId is null ? "Add category" : "Edit category")</h3>
+            <div class="field">
+                <label>Name <span class="muted">· English</span></label>
+                <input @bind="_name" />
+            </div>
+            <TranslationFields Field="Name" Label="Name" Values="_translations" />
+            <p class="muted" style="font-size:.8rem; margin:-4px 0 12px;">
+                Leave a language empty to fall back to the English name.
+            </p>
+            <div class="field"><label>Parent</label>
+                <select @bind="_parentId">
+                    <option value="">— none —</option>
+                    @foreach (var c in _items.Where(x => x.Id != _editId)) { <option value="@c.Id">@c.Name</option> }
+                </select>
+            </div>
+            <div class="row">
+                <div class="field"><label>Sort order</label><input type="number" @bind="_sortOrder" /></div>
+                <div class="field"><label>Active</label><select @bind="_isActive"><option value="true">Yes</option><option value="false">No</option></select></div>
+            </div>
+            <div class="page-actions">
+                <button class="btn btn--primary" @onclick="Save">Save</button>
+                @if (_editId is not null) { <button class="btn btn--ghost" @onclick="Reset">Cancel</button> }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private IReadOnlyList<AdminCategoryDto> _items = [];
+    private bool _loading = true;
+    private string? _error;
+    private Guid? _editId;
+    private string _name = "", _parentId = "";
+    private int _sortOrder;
+    private bool _isActive = true;
+
+    /// <summary>Working set of translations for the open form, keyed (field, culture). Shared with every
+    /// <see cref="TranslationFields"/> on the page.</summary>
+    private Dictionary<(string Field, string Culture), string> _translations = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await EnsureAuthedAsync()) return;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try { _items = await Api.ListCategoriesAsync(); } catch (ApiException ex) { _error = ex.Message; }
+        _loading = false;
+    }
+
+    private void Edit(AdminCategoryDto c)
+    {
+        _editId = c.Id; _name = c.Name; _parentId = c.ParentId?.ToString() ?? "";
+        _sortOrder = c.SortOrder; _isActive = c.IsActive;
+        _translations = c.Translations.ToDictionary(t => (t.Field, t.Culture), t => t.Value);
+    }
+
+    private void Reset()
+    {
+        _editId = null; _name = ""; _parentId = ""; _sortOrder = 0; _isActive = true;
+        _translations = [];
+    }
+
+    private async Task Save()
+    {
+        _error = null;
+        try
+        {
+            Guid? parent = Guid.TryParse(_parentId, out var p) ? p : null;
+            var req = new SaveCategoryRequest(
+                _name.Trim(), null, parent, _sortOrder, _isActive, TranslationList());
+            if (_editId is null) await Api.CreateCategoryAsync(req); else await Api.UpdateCategoryAsync(_editId.Value, req);
+            Reset();
+            await LoadAsync();
+        }
+        catch (ApiException ex) { _error = ex.Message; }
+    }
+
+    private List<TranslationDto> TranslationList() =>
+        [.. _translations.Select(kv => new TranslationDto(kv.Key.Field, kv.Key.Culture, kv.Value))];
+
+    /// <summary>Shows at a glance which languages a row has been translated into.</summary>
+    private static string TranslatedLanguages(IReadOnlyList<TranslationDto> translations) =>
+        translations.Count == 0
+            ? "—"
+            : string.Join(", ", translations.Select(t => t.Culture).Distinct().Order().Select(c => c.ToUpperInvariant()));
+
+    private async Task Delete(Guid id)
+    {
+        _error = null;
+        try { await Api.DeleteCategoryAsync(id); await LoadAsync(); }
+        catch (ApiException ex) { _error = ex.Message; }
+    }
+}

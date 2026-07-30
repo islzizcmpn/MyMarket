@@ -1,0 +1,109 @@
+@page "/register"
+@inject AuthApiClient Auth
+@inject WebSession Session
+@inject SessionStore Store
+@inject StoreCart Cart
+@inject NavigationManager Nav
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L["Register.PageTitle"]</PageTitle>
+
+<div class="center-narrow">
+    <div class="card pad">
+        <h1>@L["Register.Title"]</h1>
+
+        @if (_error is not null)
+        {
+            <div class="alert alert--error">@_error</div>
+        }
+
+        @if (_step == Step.Details)
+        {
+            <p class="muted">@L["Register.Hint"]</p>
+            <div class="field">
+                <label>@L["Common.FullName"]</label>
+                <input @bind="_fullName" />
+            </div>
+            <div class="field">
+                <label>@L["Common.Phone"]</label>
+                <input placeholder="+998901234567" @bind="_phone" />
+            </div>
+            <div class="field">
+                <label>@L["Common.Password"]</label>
+                <input type="password" @bind="_password" />
+            </div>
+            <button class="btn btn--primary btn--block" disabled="@_busy" @onclick="SubmitDetails">
+                @(_busy ? L["Register.SendingCode"] : L["Register.Continue"])
+            </button>
+            <p class="muted" style="margin-top:16px; text-align:center;">
+                @L["Register.HaveAccount"] <a href="/login">@L["Register.SignIn"]</a>
+            </p>
+        }
+        else
+        {
+            <div class="alert alert--info">
+                @L["Register.CodeSent", _phone]
+            </div>
+            <div class="field">
+                <label>@L["Register.VerificationCode"]</label>
+                <input placeholder="123456" @bind="_code" />
+            </div>
+            <button class="btn btn--primary btn--block" disabled="@_busy" @onclick="Verify">
+                @(_busy ? L["Register.Verifying"] : L["Register.Verify"])
+            </button>
+        }
+    </div>
+</div>
+
+@code {
+    private enum Step { Details, Verify }
+
+    private Step _step = Step.Details;
+    private string _fullName = string.Empty;
+    private string _phone = string.Empty;
+    private string _password = string.Empty;
+    private string _code = string.Empty;
+    private bool _busy;
+    private string? _error;
+
+    private async Task SubmitDetails()
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            await Auth.RegisterAsync(new RegisterRequest(_phone.Trim(), _password, string.IsNullOrWhiteSpace(_fullName) ? null : _fullName.Trim()));
+            _step = Step.Verify;
+        }
+        catch (ApiException ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task Verify()
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            var tokens = await Auth.VerifyOtpAsync(new VerifyOtpRequest(_phone.Trim(), _code.Trim()));
+            Session.SetAuth(tokens);
+            await Store.SaveAsync(Session);
+            await Cart.MergeGuestAsync();
+            Nav.NavigateTo("/account");
+        }
+        catch (ApiException ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

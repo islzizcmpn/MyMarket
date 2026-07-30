@@ -1,0 +1,72 @@
+@page "/orders"
+@inherits AdminPageBase
+
+<PageTitle>Orders — Admin</PageTitle>
+<div class="topbar">
+    <h1>Orders</h1>
+    <div class="page-actions">
+        <input placeholder="Order #…" @bind="_search" @bind:event="oninput" @onkeydown="OnKey" />
+        <select @bind="_status" @bind:after="Reload">
+            <option value="">All statuses</option>
+            @foreach (var s in Enum.GetValues<OrderStatus>()) { <option value="@s">@s</option> }
+        </select>
+    </div>
+</div>
+
+@if (_loading) { <div class="spinner"></div> }
+else if (_result is null || _result.Items.Count == 0) { <div class="card pad"><p class="muted">No orders.</p></div> }
+else
+{
+    <div class="card">
+        <table class="table">
+            <thead><tr><th>Order</th><th>Customer</th><th>Status</th><th>Payment</th><th>Total</th><th>Placed</th></tr></thead>
+            <tbody>
+                @foreach (var o in _result.Items)
+                {
+                    <tr>
+                        <td><a href="@($"/orders/{o.Id}")">@o.Number</a></td>
+                        <td>@(o.CustomerPhone ?? "—")</td>
+                        <td><span class="status status--@o.Status.ToString().ToLower()">@o.Status</span></td>
+                        <td>@o.PaymentMethod / @o.PaymentStatus</td>
+                        <td>@Format.Money(o.Total)</td>
+                        <td class="muted">@o.CreatedAt.LocalDateTime.ToString("g")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (_result.TotalPages > 1)
+    {
+        <div class="page-actions" style="justify-content:center; margin-top:16px;">
+            <button class="btn btn--ghost btn--sm" disabled="@(_page <= 1)" @onclick="() => Go(_page - 1)">← Prev</button>
+            <span class="muted">Page @_page of @_result.TotalPages</span>
+            <button class="btn btn--ghost btn--sm" disabled="@(_page >= _result.TotalPages)" @onclick="() => Go(_page + 1)">Next →</button>
+        </div>
+    }
+}
+
+@code {
+    private PagedResult<AdminOrderListItemDto>? _result;
+    private bool _loading = true;
+    private string _search = "";
+    private string _status = "";
+    private int _page = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await EnsureAuthedAsync()) return;
+        await LoadAsync();
+    }
+
+    private async Task OnKey(KeyboardEventArgs e) { if (e.Key == "Enter") await Reload(); }
+    private async Task Reload() { _page = 1; await LoadAsync(); }
+    private async Task Go(int page) { _page = page; await LoadAsync(); }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        OrderStatus? status = Enum.TryParse<OrderStatus>(_status, out var s) ? s : null;
+        try { _result = await Api.ListOrdersAsync(status, _search, _page, 20); } catch { _result = null; }
+        _loading = false;
+    }
+}

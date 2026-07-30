@@ -1,0 +1,199 @@
+@page "/content"
+@inherits AdminPageBase
+
+<PageTitle>Content — Admin</PageTitle>
+<div class="topbar"><h1>Content</h1></div>
+
+@if (_loading) { <div class="spinner"></div> }
+else
+{
+    @if (_error is not null) { <div class="alert alert--error">@_error</div> }
+
+    <div class="grid" style="grid-template-columns: 1fr 340px;">
+        <div class="card">
+            <div class="pad"><h3>Banners</h3></div>
+            <table class="table">
+                <thead><tr><th>Title</th><th>Translated</th><th>Sort</th><th>Active</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var b in _banners)
+                    {
+                        <tr>
+                            <td>@b.Title</td>
+                            <td class="muted">@TranslatedLanguages(b.Translations)</td>
+                            <td>@b.SortOrder</td>
+                            <td>@(b.IsActive ? "Yes" : "No")</td>
+                            <td class="page-actions">
+                                <button class="btn btn--ghost btn--sm" @onclick="() => EditBanner(b)">Edit</button>
+                                <button class="btn btn--danger btn--sm" @onclick="() => DeleteBanner(b.Id)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="card pad" style="height:fit-content;">
+            <h3>@(_bannerId is null ? "Add banner" : "Edit banner")</h3>
+            <div class="field"><label>Title <span class="muted">· English</span></label><input @bind="_bTitle" /></div>
+            <TranslationFields Field="Title" Label="Title" Values="_bTranslations" />
+            <div class="field"><label>Subtitle <span class="muted">· English</span></label><input @bind="_bSubtitle" /></div>
+            <TranslationFields Field="Subtitle" Label="Subtitle" Values="_bTranslations" />
+            <p class="muted" style="font-size:.8rem; margin:-4px 0 12px;">
+                Leave a language empty to fall back to the English text.
+            </p>
+            <div class="field"><label>Image URL</label><input @bind="_bImage" /></div>
+            <div class="field"><label>Link URL</label><input @bind="_bLink" placeholder="/catalog" /></div>
+            <div class="row">
+                <div class="field"><label>Sort</label><input type="number" @bind="_bSort" /></div>
+                <div class="field"><label>Active</label><select @bind="_bActive"><option value="true">Yes</option><option value="false">No</option></select></div>
+            </div>
+            <div class="page-actions">
+                <button class="btn btn--primary" @onclick="SaveBanner">Save</button>
+                @if (_bannerId is not null) { <button class="btn btn--ghost" @onclick="ResetBanner">Cancel</button> }
+            </div>
+        </div>
+    </div>
+
+    <div class="grid" style="grid-template-columns: 1fr 340px; margin-top:18px;">
+        <div class="card">
+            <div class="pad"><h3>CMS blocks</h3></div>
+            <table class="table">
+                <thead><tr><th>Key</th><th>Title</th><th>Translated</th><th>Active</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var c in _blocks)
+                    {
+                        <tr>
+                            <td><code>@c.Key</code></td>
+                            <td>@c.Title</td>
+                            <td class="muted">@TranslatedLanguages(c.Translations)</td>
+                            <td>@(c.IsActive ? "Yes" : "No")</td>
+                            <td class="page-actions">
+                                <button class="btn btn--ghost btn--sm" @onclick="() => EditBlock(c)">Edit</button>
+                                <button class="btn btn--danger btn--sm" @onclick="() => DeleteBlock(c.Id)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="card pad" style="height:fit-content;">
+            <h3>@(_blockId is null ? "Add block" : "Edit block")</h3>
+            <div class="field"><label>Key</label><input @bind="_cKey" placeholder="home-intro" /></div>
+            <div class="field"><label>Title <span class="muted">· English</span></label><input @bind="_cTitle" /></div>
+            <TranslationFields Field="Title" Label="Title" Values="_cTranslations" />
+            <div class="field"><label>Body <span class="muted">· English</span></label><textarea rows="4" @bind="_cBody"></textarea></div>
+            <TranslationFields Field="Body" Label="Body" Values="_cTranslations" Multiline="true" />
+            <p class="muted" style="font-size:.8rem; margin:-4px 0 12px;">
+                Leave a language empty to fall back to the English text.
+            </p>
+            <div class="field"><label>Active</label><select @bind="_cActive"><option value="true">Yes</option><option value="false">No</option></select></div>
+            <div class="page-actions">
+                <button class="btn btn--primary" @onclick="SaveBlock">Save</button>
+                @if (_blockId is not null) { <button class="btn btn--ghost" @onclick="ResetBlock">Cancel</button> }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private IReadOnlyList<AdminBannerDto> _banners = [];
+    private IReadOnlyList<AdminCmsBlockDto> _blocks = [];
+    private bool _loading = true;
+    private string? _error;
+
+    private Guid? _bannerId;
+    private string _bTitle = "", _bSubtitle = "", _bImage = "", _bLink = "";
+    private int _bSort;
+    private bool _bActive = true;
+    private Dictionary<(string Field, string Culture), string> _bTranslations = [];
+
+    private Guid? _blockId;
+    private string _cKey = "", _cTitle = "", _cBody = "";
+    private bool _cActive = true;
+    private Dictionary<(string Field, string Culture), string> _cTranslations = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await EnsureAuthedAsync()) return;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try { _banners = await Api.ListBannersAsync(); _blocks = await Api.ListBlocksAsync(); }
+        catch (ApiException ex) { _error = ex.Message; }
+        _loading = false;
+    }
+
+    private void EditBanner(AdminBannerDto b)
+    {
+        _bannerId = b.Id; _bTitle = b.Title; _bSubtitle = b.Subtitle ?? ""; _bImage = b.ImageUrl;
+        _bLink = b.LinkUrl ?? ""; _bSort = b.SortOrder; _bActive = b.IsActive;
+        _bTranslations = b.Translations.ToDictionary(t => (t.Field, t.Culture), t => t.Value);
+    }
+    private void ResetBanner()
+    {
+        _bannerId = null; _bTitle = _bSubtitle = _bImage = _bLink = ""; _bSort = 0; _bActive = true;
+        _bTranslations = [];
+    }
+
+    private async Task SaveBanner()
+    {
+        _error = null;
+        try
+        {
+            var req = new SaveBannerRequest(_bTitle.Trim(), NullIfEmpty(_bSubtitle), _bImage.Trim(), NullIfEmpty(_bLink),
+                _bSort, _bActive, ToList(_bTranslations));
+            if (_bannerId is null) await Api.CreateBannerAsync(req); else await Api.UpdateBannerAsync(_bannerId.Value, req);
+            ResetBanner();
+            await LoadAsync();
+        }
+        catch (ApiException ex) { _error = ex.Message; }
+    }
+
+    private async Task DeleteBanner(Guid id)
+    {
+        try { await Api.DeleteBannerAsync(id); await LoadAsync(); } catch (ApiException ex) { _error = ex.Message; }
+    }
+
+    private void EditBlock(AdminCmsBlockDto c)
+    {
+        _blockId = c.Id; _cKey = c.Key; _cTitle = c.Title; _cBody = c.Body ?? ""; _cActive = c.IsActive;
+        _cTranslations = c.Translations.ToDictionary(t => (t.Field, t.Culture), t => t.Value);
+    }
+    private void ResetBlock()
+    {
+        _blockId = null; _cKey = _cTitle = _cBody = ""; _cActive = true;
+        _cTranslations = [];
+    }
+
+    private async Task SaveBlock()
+    {
+        _error = null;
+        try
+        {
+            var req = new SaveCmsBlockRequest(_cKey.Trim(), _cTitle.Trim(), NullIfEmpty(_cBody), _cActive,
+                ToList(_cTranslations));
+            if (_blockId is null) await Api.CreateBlockAsync(req); else await Api.UpdateBlockAsync(_blockId.Value, req);
+            ResetBlock();
+            await LoadAsync();
+        }
+        catch (ApiException ex) { _error = ex.Message; }
+    }
+
+    private async Task DeleteBlock(Guid id)
+    {
+        try { await Api.DeleteBlockAsync(id); await LoadAsync(); } catch (ApiException ex) { _error = ex.Message; }
+    }
+
+    private static string? NullIfEmpty(string s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
+
+    private static List<TranslationDto> ToList(Dictionary<(string Field, string Culture), string> values) =>
+        [.. values.Select(kv => new TranslationDto(kv.Key.Field, kv.Key.Culture, kv.Value))];
+
+    /// <summary>Shows at a glance which languages a row has been translated into.</summary>
+    private static string TranslatedLanguages(IReadOnlyList<TranslationDto> translations) =>
+        translations.Count == 0
+            ? "—"
+            : string.Join(", ", translations.Select(t => t.Culture).Distinct().Order().Select(c => c.ToUpperInvariant()));
+}

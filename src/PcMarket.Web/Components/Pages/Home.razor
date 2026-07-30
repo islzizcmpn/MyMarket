@@ -1,0 +1,99 @@
+@page "/"
+@inject CatalogApiClient Catalog
+@inject ContentApiClient Content
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L["Home.PageTitle"]</PageTitle>
+
+@if (_banners.Count > 0)
+{
+    <div class="banner-strip">
+        @foreach (var banner in _banners)
+        {
+            <a class="banner" href="@(banner.LinkUrl ?? "/catalog")">
+                <img src="@banner.ImageUrl" alt="@banner.Title" />
+                <div class="banner__overlay">
+                    <h2>@banner.Title</h2>
+                    @if (!string.IsNullOrWhiteSpace(banner.Subtitle)) { <p>@banner.Subtitle</p> }
+                </div>
+            </a>
+        }
+    </div>
+}
+else
+{
+    <section class="hero">
+        <h1>@L["Home.HeroTitle"]</h1>
+        <p>@L["Home.HeroSubtitle"]</p>
+        <a class="btn btn--accent" href="/catalog">@L["Home.ShopCatalog"]</a>
+    </section>
+}
+
+@if (_intro is not null)
+{
+    <div class="card pad" style="margin-bottom:24px;">
+        <h2>@_intro.Title</h2>
+        <p class="muted">@_intro.Body</p>
+    </div>
+}
+
+@if (_categories.Count > 0)
+{
+    <div class="catnav__row" style="margin-bottom:24px; flex-wrap:wrap;">
+        @foreach (var category in _categories)
+        {
+            <a class="btn btn--ghost" href="@($"/catalog/{category.Slug}")">@category.Name</a>
+        }
+    </div>
+}
+
+<div class="page-head">
+    <h1>@L["Home.NewArrivals"]</h1>
+    <a href="/catalog">@L["Home.ViewAll"] →</a>
+</div>
+
+@if (_loading)
+{
+    <div class="spinner"></div>
+}
+else if (_products.Count == 0)
+{
+    <p class="muted">@L["Home.NoProducts"]</p>
+}
+else
+{
+    <div class="product-grid">
+        @foreach (var product in _products)
+        {
+            <ProductCard Product="product" />
+        }
+    </div>
+}
+
+@code {
+    private IReadOnlyList<BannerDto> _banners = [];
+    private CmsBlockDto? _intro;
+    private IReadOnlyList<CategoryNodeDto> _categories = [];
+    private IReadOnlyList<ProductListItemDto> _products = [];
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _banners = await Content.GetBannersAsync();
+            _intro = await Content.GetBlockAsync("home-intro");
+            _categories = await Catalog.GetCategoriesAsync();
+            var page = await Catalog.GetProductsAsync(sort: ProductSort.Newest, page: 1, pageSize: 8);
+            _products = page.Items;
+        }
+        catch
+        {
+            // Leave defaults; the API may be offline.
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

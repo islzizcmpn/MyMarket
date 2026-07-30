@@ -1,0 +1,145 @@
+@page "/account/orders/{Id:guid}"
+@inject OrdersApiClient Orders
+@inject PaymentsApiClient Payments
+@inject WebSession Session
+@inject NavigationManager Nav
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L["Order.PageTitle"]</PageTitle>
+
+@if (!Session.IsAuthenticated)
+{
+    <div class="card pad"><p class="muted">@L["Order.SignInPrompt"] <a href="@($"/login?returnUrl=/account/orders/{Id}")">@L["Order.SignInLink"]</a>.</p></div>
+}
+else if (_loading)
+{
+    <div class="spinner"></div>
+}
+else if (_order is null)
+{
+    <div class="card pad"><h1>@L["Order.NotFound"]</h1><a href="/account">@L["Order.BackToAccount"]</a></div>
+}
+else
+{
+    <p class="muted" style="margin-bottom:14px;"><a href="/account">@L["Account.Title"]</a> / @_order.Number</p>
+
+    <div class="page-head">
+        <h1>@L["Order.Title", _order.Number]</h1>
+        <span class="status @StatusClass(_order.Status)">@L.EnumName(_order.Status)</span>
+    </div>
+
+    @if (_error is not null)
+    {
+        <div class="alert alert--error">@_error</div>
+    }
+
+    <div class="split" style="grid-template-columns: 1fr 340px;">
+        <div class="card pad">
+            <h3>@L["Order.Items"]</h3>
+            <table class="table">
+                <tbody>
+                    @foreach (var item in _order.Items)
+                    {
+                        <tr><td>@item.Qty × @item.Name</td><td style="text-align:right;">@Format.Money(item.LineTotal)</td></tr>
+                    }
+                </tbody>
+            </table>
+
+            <h3 style="margin-top:20px;">@L["Order.DeliveryTo"]</h3>
+            <p class="muted">@_order.ShippingAddress.Region, @_order.ShippingAddress.City, @_order.ShippingAddress.Street</p>
+
+            <h3 style="margin-top:20px;">@L["Order.History"]</h3>
+            @foreach (var entry in _order.History)
+            {
+                <div class="summary-row">
+                    <span class="muted">@entry.ChangedAt.LocalDateTime.ToString("g")</span>
+                    <span>@(entry.FromStatus is { } from ? L.EnumName(from) : "—") → @L.EnumName(entry.ToStatus)</span>
+                </div>
+            }
+        </div>
+
+        <aside class="card pad" style="height:fit-content;">
+            <h3>@L["Common.Summary"]</h3>
+            <div class="summary-row"><span class="muted">@L["Order.Payment"]</span><span>@L.EnumName(_order.PaymentMethod)</span></div>
+            <div class="summary-row"><span class="muted">@L["Order.PaymentStatus"]</span><span>@L.EnumName(_order.PaymentStatus)</span></div>
+            <div class="summary-row"><span class="muted">@L["Order.Subtotal"]</span><span>@Format.Money(_order.Subtotal)</span></div>
+            <div class="summary-row"><span class="muted">@L["Order.DeliveryFee"]</span><span>@Format.Money(_order.DeliveryFee)</span></div>
+            <div class="summary-total"><span>@L["Common.Total"]</span><span>@Format.Money(_order.Total)</span></div>
+
+            @if (_order.Status == OrderStatus.AwaitingPayment)
+            {
+                <button class="btn btn--primary btn--block" style="margin-top:14px;" disabled="@_busy" @onclick="Pay">@L["Order.PayNow"]</button>
+            }
+            @if (CanCancel(_order.Status))
+            {
+                <button class="btn btn--ghost btn--block" style="margin-top:10px;" disabled="@_busy" @onclick="CancelOrder">@L["Order.Cancel"]</button>
+            }
+        </aside>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private OrderDto? _order;
+    private bool _loading = true;
+    private bool _busy;
+    private string? _error;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!Session.IsAuthenticated)
+        {
+            _loading = false;
+            return;
+        }
+
+        _loading = true;
+        try { _order = await Orders.GetAsync(Id); }
+        catch (ApiException ex) { _error = ex.Message; }
+        finally { _loading = false; }
+    }
+
+    private async Task Pay()
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            var payment = await Payments.InitiateAsync(Id);
+            if (payment is { RequiresRedirect: true, PaymentUrl: { } url })
+            {
+                Nav.NavigateTo(url, forceLoad: true);
+            }
+        }
+        catch (ApiException ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task CancelOrder()
+    {
+        _busy = true;
+        _error = null;
+        try { _order = await Orders.CancelAsync(Id); }
+        catch (ApiException ex) { _error = ex.Message; }
+        finally { _busy = false; }
+    }
+
+    private static bool CanCancel(OrderStatus status) =>
+        status is OrderStatus.Created or OrderStatus.AwaitingPayment or OrderStatus.Paid or OrderStatus.Processing;
+
+    private static string StatusClass(OrderStatus status) => status switch
+    {
+        OrderStatus.Paid => "status--paid",
+        OrderStatus.Delivered => "status--delivered",
+        OrderStatus.Cancelled => "status--cancelled",
+        OrderStatus.Refunded => "status--refunded",
+        _ => string.Empty
+    };
+}

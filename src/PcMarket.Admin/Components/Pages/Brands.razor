@@ -1,0 +1,86 @@
+@page "/brands"
+@inherits AdminPageBase
+
+<PageTitle>Brands — Admin</PageTitle>
+<div class="topbar"><h1>Brands</h1></div>
+
+@if (_loading) { <div class="spinner"></div> }
+else
+{
+    @if (_error is not null) { <div class="alert alert--error">@_error</div> }
+    <div class="grid" style="grid-template-columns: 1fr 340px;">
+        <div class="card">
+            <table class="table">
+                <thead><tr><th>Name</th><th>Slug</th><th>Products</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var b in _items)
+                    {
+                        <tr>
+                            <td>@b.Name</td>
+                            <td class="muted">@b.Slug</td>
+                            <td>@b.ProductCount</td>
+                            <td class="page-actions">
+                                <button class="btn btn--ghost btn--sm" @onclick="() => Edit(b)">Edit</button>
+                                <button class="btn btn--danger btn--sm" @onclick="() => Delete(b.Id)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card pad" style="height:fit-content;">
+            <h3>@(_editId is null ? "Add brand" : "Edit brand")</h3>
+            <div class="field"><label>Name</label><input @bind="_name" /></div>
+            <div class="field"><label>Logo URL (optional)</label><input @bind="_logoUrl" /></div>
+            <div class="page-actions">
+                <button class="btn btn--primary" @onclick="Save">Save</button>
+                @if (_editId is not null) { <button class="btn btn--ghost" @onclick="Reset">Cancel</button> }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private IReadOnlyList<AdminBrandDto> _items = [];
+    private bool _loading = true;
+    private string? _error;
+    private Guid? _editId;
+    private string _name = "", _logoUrl = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await EnsureAuthedAsync()) return;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try { _items = await Api.ListBrandsAsync(); } catch (ApiException ex) { _error = ex.Message; }
+        _loading = false;
+    }
+
+    private void Edit(AdminBrandDto b) { _editId = b.Id; _name = b.Name; _logoUrl = b.LogoUrl ?? ""; }
+    private void Reset() { _editId = null; _name = ""; _logoUrl = ""; }
+
+    private async Task Save()
+    {
+        _error = null;
+        try
+        {
+            var req = new SaveBrandRequest(_name.Trim(), null, string.IsNullOrWhiteSpace(_logoUrl) ? null : _logoUrl.Trim());
+            if (_editId is null) await Api.CreateBrandAsync(req); else await Api.UpdateBrandAsync(_editId.Value, req);
+            Reset();
+            await LoadAsync();
+        }
+        catch (ApiException ex) { _error = ex.Message; }
+    }
+
+    private async Task Delete(Guid id)
+    {
+        _error = null;
+        try { await Api.DeleteBrandAsync(id); await LoadAsync(); }
+        catch (ApiException ex) { _error = ex.Message; }
+    }
+}
