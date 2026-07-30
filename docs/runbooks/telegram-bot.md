@@ -59,7 +59,15 @@ dotnet user-secrets set "Telegram:BotToken" "..." --project src/PcMarket.Api
      when it does.
 
 5. **Register the webhook.** This is a deliberate manual step, not something startup does — pointing
-   Telegram at a half-configured host is worse than not pointing it anywhere. It needs an admin JWT:
+   Telegram at a half-configured host is worse than not pointing it anywhere. It needs an admin JWT,
+   fetched from a login call, then used to call `set-webhook` and `webhook-info`. **Repeat this step
+   every time the dev tunnel restarts** — the hostname is ephemeral (step 4 above).
+
+   The three commands below do the same thing; pick the one for your terminal. `curl`, `$(...)`
+   assignment, and header syntax are not portable between shells — this has tripped up new
+   contributors before.
+
+   <details><summary>macOS / Linux / Git Bash — <code>jq</code> installed</summary>
 
    ```bash
    TOKEN=$(curl -s -X POST http://api.localhost:8080/api/v1/auth/login \
@@ -68,16 +76,54 @@ dotnet user-secrets set "Telegram:BotToken" "..." --project src/PcMarket.Api
 
    curl -s -X POST http://api.localhost:8080/api/v1/bot/telegram/set-webhook \
      -H "Authorization: Bearer $TOKEN"
-   ```
 
-6. **Verify:**
-
-   ```bash
    curl -s http://api.localhost:8080/api/v1/bot/telegram/webhook-info \
      -H "Authorization: Bearer $TOKEN"
    ```
 
-   `url` should be your public webhook and `lastErrorMessage` empty. Then send `/start` to the bot.
+   </details>
+
+   <details><summary>Git Bash — no <code>jq</code> (default on a fresh Windows machine)</summary>
+
+   `jq` is not bundled with Git for Windows, and a `winget install` may land outside Git Bash's `PATH`
+   even when it "succeeds". This variant needs nothing beyond what Git Bash already ships with:
+
+   ```bash
+   TOKEN=$(curl -s -X POST http://api.localhost:8080/api/v1/auth/login \
+     -H 'Content-Type: application/json' \
+     -d '{"phone":"+998900000000","password":"Admin!23456"}' | grep -o '"accessToken":"[^"]*' | cut -d'"' -f4)
+
+   curl -s -X POST http://api.localhost:8080/api/v1/bot/telegram/set-webhook \
+     -H "Authorization: Bearer $TOKEN"
+
+   curl -s http://api.localhost:8080/api/v1/bot/telegram/webhook-info \
+     -H "Authorization: Bearer $TOKEN"
+   ```
+
+   </details>
+
+   <details><summary>Windows PowerShell</summary>
+
+   PowerShell's `curl` is an alias for `Invoke-WebRequest` (different flags), and `Invoke-RestMethod`
+   does not resolve `*.localhost` the way browsers do — hit `127.0.0.1` instead and send the real
+   hostname via an explicit `Host` header so Nginx still routes to the right container. Run this as
+   one paste; PowerShell variables don't survive between separate command invocations the way `$TOKEN`
+   does in bash:
+
+   ```powershell
+   $body = @{ phone = "+998900000000"; password = "Admin!23456" } | ConvertTo-Json
+   $login = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api/v1/auth/login" -Method Post -ContentType "application/json" -Headers @{ Host = "api.localhost" } -Body $body
+   $token = $login.accessToken
+
+   Invoke-RestMethod -Uri "http://127.0.0.1:8080/api/v1/bot/telegram/set-webhook" -Method Post -Headers @{ Host = "api.localhost"; Authorization = "Bearer $token" } | ConvertTo-Json
+
+   Invoke-RestMethod -Uri "http://127.0.0.1:8080/api/v1/bot/telegram/webhook-info" -Method Get -Headers @{ Host = "api.localhost"; Authorization = "Bearer $token" } | ConvertTo-Json
+   ```
+
+   </details>
+
+6. **Check the output of `webhook-info`:** `url` should be your public webhook and `lastErrorMessage`
+   empty. Then send `/start` to the bot.
 
 ## How the webhook is authenticated
 
