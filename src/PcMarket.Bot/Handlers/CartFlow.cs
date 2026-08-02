@@ -19,7 +19,7 @@ public sealed class CartFlow(CartService carts, BotSession session, BotResponder
     {
         var (userId, token) = await session.ResolveCartOwnerAsync(context, cancellationToken);
         var cart = await carts.AddItemAsync(userId, token, new AddCartItemRequest(variantId, 1), cancellationToken);
-        await responder.AcknowledgeAsync(context, "Added to cart", cancellationToken);
+        await responder.AcknowledgeAsync(context, BotPhrases.Get(context.Culture, Phrase.AddedToCartToast), cancellationToken);
         await RenderAsync(context, cart, cancellationToken);
     }
 
@@ -31,5 +31,5 @@ public sealed class CartFlow(CartService carts, BotSession session, BotResponder
     }
 
     private Task RenderAsync(BotContext context, CartDto cart, CancellationToken cancellationToken) =>
-        responder.ReplyAsync(context, BotText.Cart(cart), BotKeyboards.Cart(cart), cancellationToken);
+        responder.ReplyAsync(context, BotText.Cart(context.Culture, cart), BotKeyboards.Cart(context.Culture, cart), cancellationToken);
 }

@@ -23,7 +23,7 @@ public class ProductKeyboardTests
     [InlineData("")]
     public void Product_OmitsTheStoreLink_WhenTelegramCouldNotReachIt(string storefrontUrl)
     {
-        var labels = Labels(BotKeyboards.Product(Product(), storefrontUrl));
+        var labels = Labels(BotKeyboards.Product("en", Product(), storefrontUrl));
 
         Assert.DoesNotContain("🌐 Open in store", labels);
         // The card must still be usable — this is the whole point of dropping the button.
@@ -36,13 +36,13 @@ public class ProductKeyboardTests
     [InlineData("http://shop.example.com:8080")]
     public void Product_KeepsTheStoreLink_WhenPubliclyReachable(string storefrontUrl)
     {
-        Assert.Contains("🌐 Open in store", Labels(BotKeyboards.Product(Product(), storefrontUrl)));
+        Assert.Contains("🌐 Open in store", Labels(BotKeyboards.Product("en", Product(), storefrontUrl)));
     }
 
     [Fact]
     public void Product_OffersAddToCartOnlyForVariantsInStock()
     {
-        var labels = Labels(BotKeyboards.Product(Product(stockQty: 0), "https://pcmarket.uz"));
+        var labels = Labels(BotKeyboards.Product("en", Product(stockQty: 0), "https://pcmarket.uz"));
 
         Assert.DoesNotContain(labels, label => label.StartsWith("➕", StringComparison.Ordinal));
     }

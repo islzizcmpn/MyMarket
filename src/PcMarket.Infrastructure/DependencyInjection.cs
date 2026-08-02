@@ -8,6 +8,7 @@ using PcMarket.Application.Abstractions.Caching;
 using PcMarket.Application.Abstractions.Catalog;
 using PcMarket.Application.Abstractions.Events;
 using PcMarket.Application.Abstractions.Identity;
+using PcMarket.Application.Abstractions.Localization;
 using PcMarket.Application.Abstractions.Messaging;
 using PcMarket.Application.Abstractions.Notifications;
 using PcMarket.Application.Abstractions.Persistence;
@@ -76,6 +77,7 @@ public static class DependencyInjection
         services.AddScoped<IAuditLogger, AuditLogger>();
         services.AddScoped<IUserDirectory, UserDirectory>();
         services.AddScoped<ITelegramLinkStore, TelegramLinkStore>();
+        services.AddScoped<IUserLanguageStore, UserLanguageStore>();
 
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
         services.AddScoped<INotificationChannel, TelegramNotificationChannel>();

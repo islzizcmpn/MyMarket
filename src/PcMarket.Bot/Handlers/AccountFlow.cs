@@ -7,6 +7,7 @@ using PcMarket.Application.Abstractions.Messaging;
 using PcMarket.Application.Carts;
 using PcMarket.Bot.Configuration;
 using PcMarket.Bot.Conversations;
+using PcMarket.Bot.Localization;
 using PcMarket.Bot.Presentation;
 using PcMarket.Contracts.Auth;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -30,6 +31,7 @@ public sealed class AccountFlow(
     ISmsSender sms,
     CartService carts,
     IConversationStore conversations,
+    BotLanguageService languages,
     BotResponder responder,
     IOptions<TelegramSettings> settings,
     ILogger<AccountFlow> logger)
@@ -39,18 +41,26 @@ public sealed class AccountFlow(
     public async Task ShowMenuAsync(BotContext context, CancellationToken cancellationToken = default)
     {
         var link = await session.GetLinkAsync(context, cancellationToken);
-        await responder.ReplyAsync(context, BotText.MainMenu(link?.Phone), BotKeyboards.MainMenu(link is not null), cancellationToken);
+        await responder.ReplyAsync(
+            context,
+            BotText.MainMenu(context.Culture, link?.Phone),
+            BotKeyboards.MainMenu(context.Culture, link is not null),
+            cancellationToken);
     }
 
     public async Task StartAsync(BotContext context, CancellationToken cancellationToken = default)
     {
         await conversations.ClearAsync(context.TelegramUserId, cancellationToken);
         var link = await session.GetLinkAsync(context, cancellationToken);
-        await responder.ReplyAsync(context, BotText.Welcome(context.FirstName), BotKeyboards.MainMenu(link is not null), cancellationToken);
+        await responder.ReplyAsync(
+            context,
+            BotText.Welcome(context.Culture, context.FirstName),
+            BotKeyboards.MainMenu(context.Culture, link is not null),
+            cancellationToken);
     }
 
     public Task ShowHelpAsync(BotContext context, CancellationToken cancellationToken = default) =>
-        responder.ReplyAsync(context, BotText.Help(), keyboard: null, cancellationToken);
+        responder.ReplyAsync(context, BotText.Help(context.Culture), keyboard: null, cancellationToken);
 
     public async Task BeginLinkAsync(BotContext context, CancellationToken cancellationToken = default)
     {
@@ -59,8 +69,8 @@ public sealed class AccountFlow(
         {
             await responder.ReplyAsync(
                 context,
-                $"This chat is already linked to <b>{BotText.Escape(link.Phone)}</b>.\nSend /unlink to disconnect it.",
-                BotKeyboards.MainMenu(true),
+                BotPhrases.Format(context.Culture, Phrase.AlreadyLinked, BotText.Escape(link.Phone)),
+                BotKeyboards.MainMenu(context.Culture, true),
                 cancellationToken);
             return;
         }
@@ -68,13 +78,11 @@ public sealed class AccountFlow(
         var state = await conversations.GetAsync(context.TelegramUserId, cancellationToken);
         await conversations.SetAsync(context.TelegramUserId, state with { Stage = BotStage.AwaitingPhone }, cancellationToken);
 
-        var prompt = _settings.AllowPhoneEntry
-            ? "Tap the button below to share your phone number — that links you straight away.\n\n" +
-              "You can also type it (for example <code>+998901234567</code>), but then we have to send you an " +
-              "SMS code to confirm it."
-            : "Tap the button below to share your phone number — that is all it takes.";
+        var prompt = BotPhrases.Get(
+            context.Culture,
+            _settings.AllowPhoneEntry ? Phrase.LinkPromptWithTyping : Phrase.LinkPromptShareOnly);
 
-        await responder.SendAsync(context.ChatId, prompt, BotKeyboards.RequestContact(), cancellationToken);
+        await responder.SendAsync(context.ChatId, prompt, BotKeyboards.RequestContact(context.Culture), cancellationToken);
     }
 
     /// <param name="phoneVerified">True only when Telegram itself vouched for the number — a shared contact card
@@ -91,7 +99,7 @@ public sealed class AccountFlow(
         {
             await responder.SendAsync(
                 context.ChatId,
-                "That does not look like a phone number. Try again, for example <code>+998901234567</code>.",
+                BotPhrases.Get(context.Culture, Phrase.InvalidPhone),
                 new ReplyKeyboardRemove(),
                 cancellationToken);
             return;
@@ -113,9 +121,8 @@ public sealed class AccountFlow(
         {
             await responder.SendAsync(
                 context.ChatId,
-                "Please use the <b>📱 Share my phone number</b> button below — we can only link a number that " +
-                "Telegram confirms for us.",
-                BotKeyboards.RequestContact(),
+                BotPhrases.Get(context.Culture, Phrase.UseShareButton),
+                BotKeyboards.RequestContact(context.Culture),
                 cancellationToken);
             return;
         }
@@ -127,7 +134,7 @@ public sealed class AccountFlow(
         {
             var code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
             await conversations.SetOtpAsync(context.TelegramUserId, code, cancellationToken);
-            await sms.SendAsync(phone, $"PcMarket Telegram link code: {code}", cancellationToken);
+            await sms.SendAsync(phone, BotPhrases.Format(context.Culture, Phrase.OtpSms, code), cancellationToken);
             await conversations.SetAsync(
                 context.TelegramUserId,
                 state with { Stage = BotStage.AwaitingOtp, Phone = phone, PendingRegistration = false },
@@ -145,7 +152,7 @@ public sealed class AccountFlow(
 
         await responder.SendAsync(
             context.ChatId,
-            $"We sent a 6-digit code to <b>{BotText.Escape(phone)}</b>. Send it here to finish linking.",
+            BotPhrases.Format(context.Culture, Phrase.OtpSent, BotText.Escape(phone)),
             new ReplyKeyboardRemove(),
             cancellationToken);
     }
@@ -167,7 +174,11 @@ public sealed class AccountFlow(
             var outcome = await auth.VerifyOtpAsync(new VerifyOtpRequest(state.Phone, code), cancellationToken);
             if (!outcome.Succeeded || outcome.Response is null)
             {
-                await responder.SendAsync(context.ChatId, $"❌ {BotText.Escape(outcome.Error)} Send the code again, or /link to restart.", keyboard: null, cancellationToken: cancellationToken);
+                await responder.SendAsync(
+                    context.ChatId,
+                    BotPhrases.Format(context.Culture, Phrase.OtpRejected, BotText.Escape(outcome.Error)),
+                    keyboard: null,
+                    cancellationToken: cancellationToken);
                 return;
             }
 
@@ -183,14 +194,14 @@ public sealed class AccountFlow(
                     await conversations.CountFailedOtpAttemptAsync(context.TelegramUserId, cancellationToken);
                 }
 
-                await responder.SendAsync(context.ChatId, "❌ Invalid or expired code. Send /link to start again.", keyboard: null, cancellationToken: cancellationToken);
+                await responder.SendAsync(context.ChatId, BotPhrases.Get(context.Culture, Phrase.OtpInvalid), keyboard: null, cancellationToken: cancellationToken);
                 return;
             }
 
             var user = await FindUserAsync(state.Phone, cancellationToken);
             if (user is null)
             {
-                await responder.SendAsync(context.ChatId, "❌ That account no longer exists. Send /link to start again.", keyboard: null, cancellationToken: cancellationToken);
+                await responder.SendAsync(context.ChatId, BotPhrases.Get(context.Culture, Phrase.AccountGone), keyboard: null, cancellationToken: cancellationToken);
                 return;
             }
 
@@ -200,13 +211,14 @@ public sealed class AccountFlow(
         await CompleteLinkAsync(context, userId, state.Phone, cancellationToken);
     }
 
-    /// <summary>Binds the account, clears the conversation, and carries the guest cart over. Shared by both
-    /// routes in, so a contact share and a verified OTP land in exactly the same state.</summary>
+    /// <summary>Binds the account, clears the conversation, and carries the guest cart and language over. Shared
+    /// by both routes in, so a contact share and a verified OTP land in exactly the same state.</summary>
     private async Task CompleteLinkAsync(BotContext context, Guid userId, string phone, CancellationToken cancellationToken)
     {
         await conversations.ClearOtpAsync(context.TelegramUserId, cancellationToken);
         await links.LinkAsync(userId, context.TelegramUserId, cancellationToken);
         await conversations.ClearAsync(context.TelegramUserId, cancellationToken);
+        await languages.AdoptAsync(userId, context.Culture, cancellationToken);
 
         try
         {
@@ -220,8 +232,8 @@ public sealed class AccountFlow(
 
         await responder.SendAsync(
             context.ChatId,
-            $"✅ Linked to <b>{BotText.Escape(phone)}</b>. Your cart carried over.",
-            BotKeyboards.MainMenu(true),
+            BotPhrases.Format(context.Culture, Phrase.LinkedSuccess, BotText.Escape(phone)),
+            BotKeyboards.MainMenu(context.Culture, true),
             cancellationToken);
     }
 
@@ -231,8 +243,8 @@ public sealed class AccountFlow(
         await conversations.ClearAsync(context.TelegramUserId, cancellationToken);
         await responder.ReplyAsync(
             context,
-            removed ? "This Telegram account is no longer linked." : "This Telegram account was not linked.",
-            BotKeyboards.MainMenu(false),
+            BotPhrases.Get(context.Culture, removed ? Phrase.Unlinked : Phrase.NotLinked),
+            BotKeyboards.MainMenu(context.Culture, false),
             cancellationToken);
     }
 

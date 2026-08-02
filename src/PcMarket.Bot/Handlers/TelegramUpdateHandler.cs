@@ -1,5 +1,7 @@
+using System.Globalization;
 using Microsoft.Extensions.Logging;
 using PcMarket.Bot.Conversations;
+using PcMarket.Bot.Localization;
 using PcMarket.Bot.Presentation;
 using PcMarket.Contracts.Orders;
 using PcMarket.Domain.Common;
@@ -17,6 +19,8 @@ public sealed class TelegramUpdateHandler(
     CartFlow cart,
     OrderFlow orders,
     AdminFlow admin,
+    LanguageFlow language,
+    BotLanguageService languages,
     IConversationStore conversations,
     BotResponder responder,
     ILogger<TelegramUpdateHandler> logger)
@@ -29,6 +33,13 @@ public sealed class TelegramUpdateHandler(
             logger.LogDebug("Ignoring Telegram update {UpdateId} of type {Type}.", update.Id, update.Type);
             return;
         }
+
+        context = context with
+        {
+            Culture = await languages.ResolveAsync(context.TelegramUserId, context.TelegramLanguageCode, cancellationToken)
+        };
+
+        ApplyCulture(context.Culture);
 
         try
         {
@@ -44,16 +55,33 @@ public sealed class TelegramUpdateHandler(
         }
         catch (DomainException ex)
         {
-            await responder.ReplyAsync(context, $"⚠️ {BotText.Escape(ex.Message)}", BotKeyboards.MainMenu(true), cancellationToken);
+            await responder.ReplyAsync(context, $"⚠️ {BotText.Escape(ex.Message)}", BotKeyboards.MainMenu(context.Culture, true), cancellationToken);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Handling Telegram update {UpdateId} failed.", update.Id);
             await responder.ReplyAsync(
                 context,
-                "Something went wrong on our side. Please try again.",
-                BotKeyboards.MainMenu(true),
+                BotPhrases.Get(context.Culture, Phrase.GenericError),
+                BotKeyboards.MainMenu(context.Culture, true),
                 cancellationToken);
+        }
+    }
+
+    /// <summary>Puts the chosen language on the ambient UI culture for the rest of this update, which is what
+    /// the Application layer's <c>ILanguageContext</c> reads — so category and product names come back
+    /// translated without every catalog call having to pass the language along.</summary>
+    private void ApplyCulture(string culture)
+    {
+        try
+        {
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(culture);
+        }
+        catch (CultureNotFoundException ex)
+        {
+            // Only reachable in a globalization-invariant host, where the bot's own phrases still translate
+            // and only database-backed names fall back to English.
+            logger.LogDebug(ex, "Culture {Culture} is unavailable in this runtime.", culture);
         }
     }
 
@@ -121,6 +149,7 @@ public sealed class TelegramUpdateHandler(
                 : catalog.SearchAsync(context, argument, cancellationToken),
             "/cart" => cart.ShowCartAsync(context, cancellationToken),
             "/orders" => orders.ShowOrdersAsync(context, cancellationToken),
+            "/language" => language.ShowPanelAsync(context, cancellationToken),
             "/link" => account.BeginLinkAsync(context, cancellationToken),
             "/unlink" => account.UnlinkAsync(context, cancellationToken),
             _ => account.ShowHelpAsync(context, cancellationToken)
@@ -132,6 +161,8 @@ public sealed class TelegramUpdateHandler(
         {
             BotCommands.Home => account.ShowMenuAsync(context, cancellationToken),
             BotCommands.Link => account.BeginLinkAsync(context, cancellationToken),
+            BotCommands.Language => language.ShowPanelAsync(context, cancellationToken),
+            BotCommands.SetLanguage => language.SetLanguageAsync(context, data.Arg(0), cancellationToken),
             BotCommands.Categories => catalog.ShowCategoriesAsync(context, cancellationToken),
             BotCommands.Category when data.GuidArg(0) is { } categoryId =>
                 catalog.ShowCategoryAsync(context, categoryId, data.IntArg(1, 1), cancellationToken),
@@ -178,12 +209,24 @@ public sealed class TelegramUpdateHandler(
         if (update.CallbackQuery is { } callbackQuery)
         {
             var chatId = callbackQuery.Message?.Chat.Id ?? callbackQuery.From.Id;
-            return new BotContext(chatId, callbackQuery.From.Id, callbackQuery.From.FirstName, callbackQuery.Message?.MessageId, callbackQuery.Id);
+            return new BotContext(
+                chatId,
+                callbackQuery.From.Id,
+                callbackQuery.From.FirstName,
+                callbackQuery.Message?.MessageId,
+                callbackQuery.Id,
+                callbackQuery.From.LanguageCode);
         }
 
         if (update.Message is { From: { } from } message)
         {
-            return new BotContext(message.Chat.Id, from.Id, from.FirstName, MessageId: null, CallbackQueryId: null);
+            return new BotContext(
+                message.Chat.Id,
+                from.Id,
+                from.FirstName,
+                MessageId: null,
+                CallbackQueryId: null,
+                from.LanguageCode);
         }
 
         return null;

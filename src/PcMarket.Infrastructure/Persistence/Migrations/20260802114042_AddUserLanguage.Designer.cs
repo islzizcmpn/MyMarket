@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NpgsqlTypes;
@@ -12,9 +13,11 @@ using PcMarket.Infrastructure.Persistence;
 namespace PcMarket.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(PcMarketDbContext))]
-    partial class PcMarketDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260802114042_AddUserLanguage")]
+    partial class AddUserLanguage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

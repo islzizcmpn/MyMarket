@@ -10,6 +10,7 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
     public void Configure(EntityTypeBuilder<ApplicationUser> b)
     {
         b.Property(x => x.FullName).HasMaxLength(200);
+        b.Property(x => x.Language).HasMaxLength(8);
         b.HasIndex(x => x.TelegramUserId).IsUnique().HasFilter("\"TelegramUserId\" IS NOT NULL");
     }
 }

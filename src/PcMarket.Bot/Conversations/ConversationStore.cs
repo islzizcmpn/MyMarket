@@ -21,6 +21,13 @@ public interface IConversationStore
     /// <summary>Records one wrong guess, discarding the code once <see cref="OtpPolicy.MaxAttempts"/> is
     /// reached. Without this a caller could work through all 1,000,000 six-digit codes.</summary>
     Task CountFailedOtpAttemptAsync(long telegramUserId, CancellationToken cancellationToken = default);
+
+    /// <summary>The language a chat with no linked account chose, or null when it never chose one. Kept apart
+    /// from <see cref="ConversationState"/>, which expires within the half hour: a language is a preference,
+    /// not a step in a flow.</summary>
+    Task<string?> GetLanguageAsync(long telegramUserId, CancellationToken cancellationToken = default);
+
+    Task SetLanguageAsync(long telegramUserId, string culture, CancellationToken cancellationToken = default);
 }
 
 /// <summary>Redis-backed conversation state (via <see cref="ICacheService"/>). State expires on its own, so
@@ -29,6 +36,10 @@ public sealed class ConversationStore(ICacheService cache) : IConversationStore
 {
     private static readonly TimeSpan StateTtl = TimeSpan.FromMinutes(30);
     private static readonly TimeSpan OtpTtl = OtpPolicy.Ttl;
+
+    /// <summary>How long a guest's language choice is remembered. Long enough that a returning shopper is not
+    /// asked twice; the moment they link an account the choice moves onto the account and stops expiring.</summary>
+    private static readonly TimeSpan LanguageTtl = TimeSpan.FromDays(180);
 
     public async Task<ConversationState> GetAsync(long telegramUserId, CancellationToken cancellationToken = default) =>
         await cache.GetAsync<ConversationState>(StateKey(telegramUserId), cancellationToken) ?? ConversationState.Empty;
@@ -70,7 +81,15 @@ public sealed class ConversationStore(ICacheService cache) : IConversationStore
         await cache.SetAsync(key, attempts.ToString(), OtpTtl, cancellationToken);
     }
 
+    public Task<string?> GetLanguageAsync(long telegramUserId, CancellationToken cancellationToken = default) =>
+        cache.GetAsync<string>(LanguageKey(telegramUserId), cancellationToken);
+
+    public Task SetLanguageAsync(long telegramUserId, string culture, CancellationToken cancellationToken = default) =>
+        cache.SetAsync(LanguageKey(telegramUserId), culture, LanguageTtl, cancellationToken);
+
     private static string StateKey(long telegramUserId) => $"bot:state:{telegramUserId}";
+
+    private static string LanguageKey(long telegramUserId) => $"bot:lang:{telegramUserId}";
 
     private static string OtpKey(long telegramUserId) => $"bot:otp:{telegramUserId}";
 

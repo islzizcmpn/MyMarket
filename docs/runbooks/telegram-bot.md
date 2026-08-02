@@ -31,6 +31,57 @@ dotnet user-secrets set "Telegram:BotToken" "..." --project src/PcMarket.Api
 
 ## Bringing the bot up
 
+**Fast path (Windows, after the bot is already configured once):** **double-click
+`scripts/start-telegram-bot.cmd`**. It starts Docker Desktop if needed, brings up the stack, waits
+for both quick tunnels, writes their URLs into `.env`, restarts the API, and re-registers the
+webhook — the manual steps below, automated. Safe to re-run any time, e.g. after a PC restart.
+Requires `TELEGRAM_ENABLED=true`, `TELEGRAM_BOT_TOKEN` and `TELEGRAM_WEBHOOK_SECRET` already set in
+`.env` (steps 1-3 below, one-time setup).
+
+Use the `.cmd`, not the `.ps1`, unless you are already in a terminal. PowerShell's default execution
+policy on Windows client is `Restricted`, so double-clicking the `.ps1` (or "Run with PowerShell")
+refuses to run it and the window closes before the error can be read. The wrapper passes
+`-ExecutionPolicy Bypass` **for that one process only** — it changes no machine setting — and pauses
+at the end so the result stays on screen.
+
+From an existing terminal, either of these works:
+
+```powershell
+.\scripts\start-telegram-bot.cmd
+```
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-telegram-bot.ps1
+```
+
+### After changing code, pass `-Build`
+
+```powershell
+.\scripts\start-telegram-bot.cmd -Build
+```
+
+Without it the stack comes up from the **image that is already on disk**. `docker compose up -d`
+recreates the *container* but never rebuilds the *image*, so a plain restart happily runs code from
+hours ago — the bot answers normally, and only the behaviour you just wrote is missing. Nothing in the
+logs says so; the giveaway is comparing timestamps:
+
+```bash
+docker image inspect pcmarket/api:dev --format "{{.Created}}"
+```
+
+If that is older than your edits, you are looking at stale code. To rebuild only the API and leave the
+running tunnels (and therefore the registered webhook) untouched:
+
+```bash
+docker compose --profile dev up -d --build api
+```
+
+Schema changes need nothing extra in dev: `DB_MIGRATE_ON_STARTUP=true` means the API applies pending
+migrations as it boots. In production that switch is off — see `deploy.md`.
+
+Manual steps, for first-time setup or when the script's assumptions don't hold (non-Windows,
+production, troubleshooting):
+
 1. **Create the bot** with @BotFather, `/newbot`. Keep the token.
 2. **Generate a webhook secret.** Telegram only accepts `A-Z a-z 0-9 _ -`, so hex — not base64:
 
@@ -139,9 +190,37 @@ does not retry the same update.
 
 ## Commands
 
-`/start` `/menu` `/help` `/catalog` `/search <query>` `/cart` `/orders` `/link` `/unlink`
+`/start` `/menu` `/help` `/catalog` `/search <query>` `/cart` `/orders` `/language` `/link` `/unlink`
 
 Most navigation is inline keyboards rather than commands.
+
+## Languages
+
+The bot speaks Russian, Uzbek and English — the same three the storefront ships in — reachable from the
+**🌐 Language** button in the main menu or `/language`. Labels in the panel are written in the language
+they select, so a customer who cannot read the current one can still find their own.
+
+Which language a chat gets, in order:
+
+1. the language stored on the **linked account** (`AspNetUsers.Language`) — it lives on the account rather
+   than in bot session state, so it survives a Redis flush and is available to any other client that wants
+   it (the storefront still picks its culture from its own cookie today, so it does not read this column
+   yet);
+2. for a chat with no account yet, the guest choice in Redis under `bot:lang:{telegramUserId}` (180-day
+   TTL), which is copied onto the account the moment they link — unless the account already carries one;
+3. the language the customer's **own Telegram app** is in, when it is one of the three;
+4. Russian.
+
+Only the bot's own wording comes from `BotPhrases`. Category and product names are translated by the
+Application layer: the update handler puts the chosen language on `CultureInfo.CurrentUICulture`, which
+is what `ILanguageContext` reads, so those names arrive already translated — or fall back to their
+English column when the back office has not translated them yet.
+
+New-order alerts are written in the language of the account behind `Telegram:AdminChatId`. A group or
+channel belongs to no one account, so alerts posted there are in Russian.
+
+Adding a language is a three-line change to `ContentLanguages.All` plus a translation per entry in
+`BotPhrases`; a unit test fails if any phrase is left untranslated.
 
 **Account linking** has two routes, and they cost different amounts:
 
@@ -181,6 +260,8 @@ keyboard it sent earlier.
 | `set-webhook` returns 400 | `PublicApiUrl` or `WebhookSecretToken` unset |
 | Telegram rejects the URL at registration | Not HTTPS, or a private/unreachable address |
 | A button press does nothing at all, log shows `400 ... is invalid: Wrong HTTP URL` | A URL button points somewhere Telegram cannot reach, and it rejects the **whole** message. Usually `PUBLIC_STOREFRONT_URL` left on `localhost`. `PublicUrl.IsReachableByTelegram` now drops such buttons, so this should only appear for URLs it wrongly accepts |
+| Bot works, but a button/message you just wrote is missing | The container is running an older image. `docker compose up -d` recreates the container without rebuilding — compare `docker image inspect pcmarket/api:dev --format "{{.Created}}"` against your edits, then re-run with `-Build` (see "After changing code") |
+| A new column is missing / EF throws `column ... does not exist` | The image is current but the migration never ran: check `DB_MIGRATE_ON_STARTUP` and `select "MigrationId" from "__EFMigrationsHistory" order by 1 desc limit 3;` |
 | Bot answers but forgets context mid-checkout | Redis unavailable or the 30-minute state TTL expired |
 | Orders placed, no admin alert | `AdminChatId` unset, or the bot has never been messaged by that chat — Telegram forbids opening a conversation first |
 | Alerts stopped after moving to a group | Group ids are negative and change when a group is upgraded to a supergroup; re-read the id |

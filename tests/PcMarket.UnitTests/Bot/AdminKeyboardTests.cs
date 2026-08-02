@@ -11,7 +11,7 @@ public class AdminKeyboardTests
     public void AdminOrderActions_OffersOnlyTheStateMachinesNextStates()
     {
         var orderId = Guid.NewGuid();
-        var buttons = Labels(BotKeyboards.AdminOrderActions(orderId, OrderStatus.Processing));
+        var buttons = Labels(BotKeyboards.AdminOrderActions("en", orderId, OrderStatus.Processing));
 
         Assert.Contains("➡️ Shipped", buttons);
         Assert.Contains("➡️ Cancelled", buttons);
@@ -23,7 +23,7 @@ public class AdminKeyboardTests
     [Fact]
     public void AdminOrderActions_OnATerminalOrder_OffersNoTransitions()
     {
-        var buttons = Labels(BotKeyboards.AdminOrderActions(Guid.NewGuid(), OrderStatus.Cancelled));
+        var buttons = Labels(BotKeyboards.AdminOrderActions("en", Guid.NewGuid(), OrderStatus.Cancelled));
 
         Assert.DoesNotContain(buttons, label => label.StartsWith("➡️", StringComparison.Ordinal));
     }
@@ -31,8 +31,8 @@ public class AdminKeyboardTests
     [Fact]
     public void OrderDetail_OffersCancelOnlyWhileCancellingIsLegal()
     {
-        Assert.Contains("✖️ Cancel order", Labels(BotKeyboards.OrderDetail(Order(OrderStatus.Processing), null)));
-        Assert.DoesNotContain("✖️ Cancel order", Labels(BotKeyboards.OrderDetail(Order(OrderStatus.Delivered), null)));
+        Assert.Contains("✖️ Cancel order", Labels(BotKeyboards.OrderDetail("en", Order(OrderStatus.Processing), null)));
+        Assert.DoesNotContain("✖️ Cancel order", Labels(BotKeyboards.OrderDetail("en", Order(OrderStatus.Delivered), null)));
     }
 
     private static List<string> Labels(Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup markup) =>

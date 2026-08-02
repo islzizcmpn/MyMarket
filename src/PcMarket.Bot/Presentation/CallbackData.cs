@@ -43,6 +43,12 @@ public static class BotCommands
     public const string Search = "search";
     public const string Link = "link";
 
+    /// <summary>Opens the language panel.</summary>
+    public const string Language = "lang";
+
+    /// <summary><c>sl:{languageCode}</c></summary>
+    public const string SetLanguage = "sl";
+
     /// <summary><c>ao:{orderId}</c></summary>
     public const string AdminOrder = "ao";
 

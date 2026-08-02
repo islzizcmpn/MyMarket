@@ -5,6 +5,7 @@ using PcMarket.Application.Abstractions.Messaging;
 using PcMarket.Bot.Configuration;
 using PcMarket.Bot.Conversations;
 using PcMarket.Bot.Handlers;
+using PcMarket.Bot.Localization;
 using PcMarket.Bot.Notifications;
 using PcMarket.Bot.Runtime;
 using PcMarket.Domain.Ordering.Events;
@@ -31,6 +32,8 @@ public static class DependencyInjection
         services.AddScoped<CartFlow>();
         services.AddScoped<OrderFlow>();
         services.AddScoped<AdminFlow>();
+        services.AddScoped<LanguageFlow>();
+        services.AddScoped<BotLanguageService>();
         services.AddScoped<TelegramUpdateHandler>();
 
         services.AddScoped<IDomainEventHandler<OrderPlacedEvent>, TelegramAdminAlertHandler>();

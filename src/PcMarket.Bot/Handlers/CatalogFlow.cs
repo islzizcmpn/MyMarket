@@ -23,11 +23,19 @@ public sealed class CatalogFlow(
         var tree = await catalog.GetCategoryTreeAsync(cancellationToken);
         if (tree.Count == 0)
         {
-            await responder.ReplyAsync(context, "The catalog is empty right now.", BotKeyboards.MainMenu(true), cancellationToken);
+            await responder.ReplyAsync(
+                context,
+                BotPhrases.Get(context.Culture, Phrase.CatalogEmpty),
+                BotKeyboards.MainMenu(context.Culture, true),
+                cancellationToken);
             return;
         }
 
-        await responder.ReplyAsync(context, "<b>Catalog</b>\n\nPick a category:", BotKeyboards.Categories(tree), cancellationToken);
+        await responder.ReplyAsync(
+            context,
+            BotPhrases.Get(context.Culture, Phrase.CatalogPick),
+            BotKeyboards.Categories(context.Culture, tree),
+            cancellationToken);
     }
 
     public async Task ShowCategoryAsync(BotContext context, Guid categoryId, int page, CancellationToken cancellationToken = default)
@@ -48,13 +56,13 @@ public sealed class CatalogFlow(
         var hasNext = (long)page * pageSize < products.Total;
         var header = $"<b>{BotText.Escape(category.Name)}</b>\n\n" +
                      (products.Total == 0
-                         ? "No products in this category yet."
-                         : $"{products.Total} product(s) · page {page}");
+                         ? BotPhrases.Get(context.Culture, Phrase.CategoryEmpty)
+                         : BotPhrases.Format(context.Culture, Phrase.CategoryCount, products.Total, page));
 
         await responder.ReplyAsync(
             context,
             header,
-            BotKeyboards.CategoryPage(category, products.Items, page, hasNext),
+            BotKeyboards.CategoryPage(context.Culture, category, products.Items, page, hasNext),
             cancellationToken);
     }
 
@@ -63,14 +71,18 @@ public sealed class CatalogFlow(
         var product = await catalog.GetProductByIdAsync(productId, cancellationToken);
         if (product is null)
         {
-            await responder.ReplyAsync(context, "That product is no longer available.", BotKeyboards.MainMenu(true), cancellationToken);
+            await responder.ReplyAsync(
+                context,
+                BotPhrases.Get(context.Culture, Phrase.ProductGone),
+                BotKeyboards.MainMenu(context.Culture, true),
+                cancellationToken);
             return;
         }
 
         await responder.ReplyAsync(
             context,
-            BotText.Product(product),
-            BotKeyboards.Product(product, _settings.StorefrontUrl),
+            BotText.Product(context.Culture, product),
+            BotKeyboards.Product(context.Culture, product, _settings.StorefrontUrl),
             cancellationToken);
     }
 
@@ -78,7 +90,7 @@ public sealed class CatalogFlow(
     {
         var state = await conversations.GetAsync(context.TelegramUserId, cancellationToken);
         await conversations.SetAsync(context.TelegramUserId, state with { Stage = BotStage.AwaitingSearch }, cancellationToken);
-        await responder.ReplyAsync(context, "🔎 What are you looking for? Send me a product name or keyword.", keyboard: null, cancellationToken);
+        await responder.ReplyAsync(context, BotPhrases.Get(context.Culture, Phrase.SearchPrompt), keyboard: null, cancellationToken);
     }
 
     public async Task SearchAsync(BotContext context, string term, CancellationToken cancellationToken = default)
@@ -94,16 +106,16 @@ public sealed class CatalogFlow(
         {
             await responder.ReplyAsync(
                 context,
-                $"Nothing found for <b>{BotText.Escape(term)}</b>. Try another keyword or browse the catalog.",
-                BotKeyboards.MainMenu(true),
+                BotPhrases.Format(context.Culture, Phrase.SearchNoResults, BotText.Escape(term)),
+                BotKeyboards.MainMenu(context.Culture, true),
                 cancellationToken);
             return;
         }
 
         await responder.ReplyAsync(
             context,
-            $"<b>Results for “{BotText.Escape(term)}”</b>\n\n{results.Total} match(es):",
-            BotKeyboards.SearchResults(results.Items),
+            BotPhrases.Format(context.Culture, Phrase.SearchResults, BotText.Escape(term), results.Total),
+            BotKeyboards.SearchResults(context.Culture, results.Items),
             cancellationToken);
     }
 

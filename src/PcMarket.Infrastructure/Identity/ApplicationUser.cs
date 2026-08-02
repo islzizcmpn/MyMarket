@@ -11,5 +11,9 @@ public class ApplicationUser : IdentityUser<Guid>
     /// <summary>Telegram user id once the account is linked to the bot; null otherwise.</summary>
     public long? TelegramUserId { get; set; }
 
+    /// <summary>Two-letter language the customer chose to be addressed in, or null while they have not chosen
+    /// one — in which case each client falls back to its own default.</summary>
+    public string? Language { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

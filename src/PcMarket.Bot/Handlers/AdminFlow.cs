@@ -22,14 +22,18 @@ public sealed class AdminFlow(AdminOrderService adminOrders, BotSession session,
         var detail = await adminOrders.GetAsync(orderId, cancellationToken);
         if (detail is null)
         {
-            await responder.ReplyAsync(context, "Order not found.", BotKeyboards.MainMenu(true), cancellationToken);
+            await responder.ReplyAsync(
+                context,
+                BotPhrases.Get(context.Culture, Phrase.AdminOrderNotFound),
+                BotKeyboards.MainMenu(context.Culture, true),
+                cancellationToken);
             return;
         }
 
         await responder.ReplyAsync(
             context,
-            BotText.NewOrderAlert(detail.Order, detail.Customer?.Phone),
-            BotKeyboards.AdminOrderActions(detail.Order.Id, detail.Order.Status),
+            BotText.NewOrderAlert(context.Culture, detail.Order, detail.Customer?.Phone),
+            BotKeyboards.AdminOrderActions(context.Culture, detail.Order.Id, detail.Order.Status),
             cancellationToken);
     }
 
@@ -43,11 +47,14 @@ public sealed class AdminFlow(AdminOrderService adminOrders, BotSession session,
         }
 
         var detail = await adminOrders.AdvanceStatusAsync(orderId, status, $"telegram:{link.Phone ?? link.UserId.ToString()}", cancellationToken);
-        await responder.AcknowledgeAsync(context, $"Status → {status}", cancellationToken);
+        await responder.AcknowledgeAsync(
+            context,
+            BotPhrases.Format(context.Culture, Phrase.AdminStatusToast, BotPhrases.OrderStatusName(context.Culture, status)),
+            cancellationToken);
         await responder.ReplyAsync(
             context,
-            BotText.NewOrderAlert(detail.Order, detail.Customer?.Phone),
-            BotKeyboards.AdminOrderActions(detail.Order.Id, detail.Order.Status),
+            BotText.NewOrderAlert(context.Culture, detail.Order, detail.Customer?.Phone),
+            BotKeyboards.AdminOrderActions(context.Culture, detail.Order.Id, detail.Order.Status),
             cancellationToken);
     }
 
@@ -63,7 +70,7 @@ public sealed class AdminFlow(AdminOrderService adminOrders, BotSession session,
     private Task DenyAsync(BotContext context, CancellationToken cancellationToken) =>
         responder.ReplyAsync(
             context,
-            "You need a linked manager account to do that.",
-            BotKeyboards.MainMenu(true),
+            BotPhrases.Get(context.Culture, Phrase.AdminDenied),
+            BotKeyboards.MainMenu(context.Culture, true),
             cancellationToken);
 }

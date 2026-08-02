@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PcMarket.Application.Abstractions.Events;
+using PcMarket.Application.Abstractions.Localization;
 using PcMarket.Application.Admin;
 using PcMarket.Bot.Configuration;
 using PcMarket.Bot.Handlers;
@@ -15,6 +16,7 @@ namespace PcMarket.Bot.Notifications;
 public sealed class TelegramAdminAlertHandler(
     AdminOrderService adminOrders,
     BotResponder responder,
+    IUserLanguageStore userLanguages,
     IOptions<TelegramSettings> settings,
     ILogger<TelegramAdminAlertHandler> logger) : IDomainEventHandler<OrderPlacedEvent>
 {
@@ -32,10 +34,15 @@ public sealed class TelegramAdminAlertHandler(
             return;
         }
 
+        // A private chat's id is the manager's own Telegram user id, so their chosen language is on the account
+        // behind it. A group or channel belongs to nobody in particular and gets the bot's default.
+        var culture = BotLanguages.Normalize(
+            await userLanguages.GetByTelegramUserIdAsync(adminChatId, cancellationToken));
+
         await responder.SendAsync(
             adminChatId,
-            BotText.NewOrderAlert(detail.Order, detail.Customer?.Phone),
-            BotKeyboards.AdminOrderAlert(detail.Order.Id),
+            BotText.NewOrderAlert(culture, detail.Order, detail.Customer?.Phone),
+            BotKeyboards.AdminOrderAlert(culture, detail.Order.Id),
             cancellationToken);
     }
 }
