@@ -208,6 +208,75 @@ See the detailed plan in [mobile_app/plan.md](mobile_app/plan.md).
 - [x] Backup script (`pg_dump` + MinIO sync) and runbooks (deploy, restore, gateway onboarding) under `docs/`. (`scripts/backup.sh` → timestamped `postgres.dump` (`-Fc`) + `media/` mirror + `manifest.txt`, with retention pruning and a guard that fails the run if the media mirror did not reach the host; `scripts/restore.sh` stops the app, recreates the database, restores both, and re-applies the bucket policy behind a typed confirmation. Both **executed for real** against the running stack. Runbooks: `docs/runbooks/{deploy,restore,gateway-onboarding}.md`.)
 - [x] README with local `docker compose up` quickstart and configuration reference. (Two quickstarts — full stack in containers, and infra-only for `dotnet run` development — plus a deployment/operations section and a `.env` configuration table alongside the existing app-settings one.)
 
+### Phase 12 — Shared storefront shell (header, nav, sidebar, footer)
+- [ ] Top contact bar (`TopContactBar.razor`): brand logo far left, then "Call us" + placeholder phone `+998000000000`, "Working hours Mon–Sat 9.00–18.00", and Instagram/Facebook/Telegram icon links far right — all through `IStringLocalizer<SharedResource>` (`Shell.CallUs`, `Shell.WorkingHours`, …) with RU/UZ/EN entries in `SharedResource*.resx`.
+- [ ] Main navigation row (`MainNav.razor`): Home, Payment and delivery, Stock, Reviews, Service Center, Contacts, PC Configurator, plus a Telegram-icon "Order on Telegram" link out to the channel; the active item renders in `--brand` red. Routes land in Phases 13–19, so this phase ships links + placeholder pages.
+- [ ] Utility row beneath the nav (`HeaderUtilityRow.razor`): cart icon with item badge and a search toggle. (Currency switching is its own Phase 20.)
+- [ ] Left category sidebar (`CategorySidebar.razor`) rendering **only the app's real categories** from the live tree (`CatalogApiClient.GetCategoriesAsync` → `/api/v1/catalog/categories`, currently Computers/Laptops/Memory/Accessories/Mice) — no invented pcmarket.uz list. Each row gets a leading category icon, and a sticky red "Go to PC Configurator" button pins to the bottom of the sidebar rail. Note: the reference site's sidebar (Printers and MFPs, All-in-one PCs, Monitors, Projectors, UPS, …) is *catalog data*, not shell markup — matching it is a seeding task, not this phase.
+- [ ] Fixed right-edge contact rail (`FloatingContactRail.razor`): stacked Telegram and call buttons in `--brand`, visible on every page and collapsing on narrow viewports.
+- [ ] Shared footer (`SiteFooter.razor`): PC MARKET logo, "Online store of computer equipment and components" tagline, "Official partner:" + NVIDIA/ASUS partner logos, a Pages column (Payment and delivery, About the company, Service Center, Reviews, PC Configurator), a two-column Catalog list driven by the real category tree, and a Contacts column with the placeholder phone, the address "Uzbekistan, Tashkent, Yunusabad district, 13th quarter, 2A, Trade Complex 'Lion', Landmark 'Mega Planet'" in accent red, and the social icons. Replaces the current one-line copyright footer.
+- [ ] Compose all pieces into the shell so every page inherits them (`MainLayout.razor` + `Components/Layout/Shell/`), styled only from the existing charcoal/red/Play tokens in `app.css` (`--bg`, `--surface`, `--brand`, `--line`, `--muted`) so both themes follow automatically — the reference pages render correctly in light as well as dark.
+
+### Phase 13 — Home page content
+- [ ] Full-bleed hero carousel at the top of `Home.razor` (reference slide: a dark "Офис под ключ" promo with headline, sub-copy, and a red accent line).
+- [ ] Category circle links — round product images inside a red ring with the category name beneath, driven by the real category tree from Phase 12.
+- [ ] "Bestsellers 2026" and "We recommend" product carousels reusing **real catalog products** (`CatalogApiClient.GetProductsAsync`) in a new `ProductCarousel.razor`; each carousel has prev/next arrows and an "N / M" page counter in its top-right, and cards show a multi-image dot indicator, price, and a red "Add to cart" button (extending the existing `ProductCard.razor`).
+- [ ] "How we work" three-step section — circular outline icons on a connecting rule: Deciding on the product / Payment / Free shipping, each with a short caption.
+- [ ] "Build a computer to suit your taste!" configurator promo — PC hero image, a red "Go to PC Configurator" button, and two secondary links (Assembling a computer with Intel, Build a PC with AMD) pointing at the Phase 19 entry paths.
+- [ ] "What they say about us" testimonials carousel (name + city + quote cards, arrows + counter, a "Read all reviews" link to the Phase 18 Telegram channel), then "They trust us" partner logos and "Brands" — both circular-logo carousels with their own counters.
+- [ ] All headings, step copy, and testimonial text through `IStringLocalizer<SharedResource>` (RU/UZ/EN); static sections hardcoded to the reference design, themed from `app.css` tokens with no new colors.
+
+### Phase 14 — Payment and delivery page
+- [ ] Route `/payment-and-delivery` (`PaymentAndDelivery.razor`) with breadcrumb Home › Payment and delivery and a wide delivery hero image carrying the intro paragraph as overlay text.
+- [ ] Large red "0 sum" circle badge overlapping the hero, with "FREE DELIVERY IN TASHKENT" set beneath it in heavy caps.
+- [ ] "DELIVERY TO REGIONS OF UZBEKISTAN" terms and an "EXCHANGE OR RETURN" policy section.
+- [ ] "ATTENTION!" operator notice as a full-width darker panel (`--surface` over `--bg`), followed by the "DELIVERY OF THE ORDER" terms.
+- [ ] "PAYMENT METHODS" block — three circular outline icons with captions: CASH, CASHLESS PAYMENT, PAYMENT BY UZCARD.
+- [ ] Every string in `SharedResource*.resx` under a `PaymentDelivery.*` prefix (RU/UZ/EN) — no literal copy in the `.razor`.
+
+### Phase 15 — Contacts page
+- [ ] Route `/contacts` (`Contacts.razor`) with breadcrumb Home › About the company and the "NEED COMPUTER EQUIPMENT?" heading.
+- [ ] Three large circular contact nodes joined by a horizontal rule: "Our Telegram" (paper-plane icon), the placeholder phone `+998000000000` (phone icon), and "Our mail" (envelope icon) using a **dummy placeholder address** — the reference's `sale@pcmarket.uz` is deliberately *not* reused.
+- [ ] About-the-company paragraphs plus the ASUS/NVIDIA authorized-partner certificate image.
+- [ ] "We are on the map" — a full-width embedded Google Map `<iframe>` (no API key) pinned to the Yunusabad address from Phase 12's footer.
+- [ ] All copy localized under `Contacts.*` (RU/UZ/EN); verify the page in both themes, since the reference renders it light and dark.
+
+### Phase 16 — Service Center page
+- [ ] Route `/service-center` (`ServiceCenter.razor`) with breadcrumb Home › Service Center and a two-column service-partner layout.
+- [ ] AVTECH column, using muted "Address: / Phone number: / Opening hours:" labels above white values: "Tashkent city, Yakkasaray district, st. Abdullah Kahar, 49A", placeholder phone, Mon–Fri 9:00–18:00 / Sat–Sun Closed.
+- [ ] LLC "NG Service" column: "100171, Uzbekistan, Tashkent, Yashnabad district, Korasuv Street (former Lisunov), Bldg. 2", landmark line, working hours 9:00–18:00, days off Saturday–Sunday, the "cash desk and equipment warehouse close at 17:30" note, placeholder phone, and a placeholder service-center website.
+- [ ] Shared "Warranty obligations do not apply in the following cases:" list — all 14 exclusion bullets from the reference (physical/thermal damage, misuse, bad installation, missed preventive work, external circumstances, foreign objects, unauthorized repair, transport damage, non-original consumables, out-of-spec voltage, unlicensed software/viruses, damaged or absent warranty seal, missing serial number).
+- [ ] **Two** embedded Google Map `<iframe>`s (no API key), one per service center, placed under their respective columns.
+- [ ] Everything localized under `ServiceCenter.*` (RU/UZ/EN) and themed from `app.css`.
+
+### Phase 17 — Stock (news & promotions)
+- [ ] Stock list route `/stock` (`Stock.razor`) — a red-underlined "Stock" section tab, breadcrumb Home › Stock, then article cards: banner image, red-underlined title, excerpt, and a right-aligned solid red "READ MORE" button.
+- [ ] Article detail route `/stock/{slug}` (`StockArticle.razor`) rendering one promotion's banner, title, and body.
+- [ ] Seed 2–3 dummy articles so both pages have content (reusing the Phase 6 `CmsBlock` content path if it fits, otherwise a minimal `StockArticle` model).
+- [ ] Card labels, "Read more", and dummy copy localized under `Stock.*` (RU/UZ/EN); cards reuse the existing surface/shadow tokens.
+
+### Phase 18 — Reviews
+- [ ] Reviews nav entry opens the Telegram reviews channel `https://t.me/otzivPCmarket` ("Отзывы PC Market") in a new tab via `target="_blank" rel="noopener"` — **no in-app reviews page**; the home-page "Read all reviews" link from Phase 13 points at the same URL.
+- [ ] Localize the nav label under `Nav.Reviews` (RU/UZ/EN); the destination URL is a config constant, not a translated string.
+
+### Phase 19 — PC Configurator (build-your-own-PC tool)
+- [ ] In-app configurator at `/configurator` — **not** a link to `configurator.pcmarket.uz`; every component, price, and image comes from this app's own catalog/API. It renders in its own slim chrome (logo, "Write to us"/"Call us"/"Working hours", a red progress rule under a centered "CONFIGURATOR" title) rather than the Phase 12 storefront shell.
+- [ ] Entry screen "Select the type of configurator you need" — three stacked wide cards, image left and caption right, highlighting in red on hover/selection: Build a PC with Intel, Build a PC with AMD, Ready-made assemblies.
+- [ ] Left "Menu" column — collapsible accordions: **COMPONENTS** (Motherboard, Processor, Cooling system, OZU, Hard disk drives (HDD), SATA SSD drives, M.2 SSD drive, Video cards, power unit, PC case), **ACCESSORIES** (Monitor, Keyboard Mouse, Headphones, UPS, DVD-RW optical drive, Wi-Fi adapters, Gaming chairs, Gaming tables, GAMPAD gaming joysticks, Gaming steering wheel), and **SOFTWARE** (operating system, Antivirus).
+- [ ] Center column — one red-underlined section per category with per-category filter chips ("All" plus: sockets `GEN-12 | LGA-1700`, `GEN-13 | LGA-1700`, `GEN-14 | LGA-1700`, `LGA 1851` for boards/CPUs; Water Cooling / Air Cooling; DDR4 / DDR5; capacity chips for HDD/SATA SSD/M.2; brand chips for video cards, cases, chairs, headphones; wattage chips for PSUs; size chips for monitors; Keyboard + Mouse / Keyboards / Mice).
+- [ ] Each component row: selection checkbox, model name, an info (ⓘ) icon, and a **relative price delta in UZS** (`+1,000,000 UZS` / `−395,000 UZS`, blank at the base part); the selected row gains a quantity stepper. Hovering or selecting a row shows a large floating product image beside the list.
+- [ ] Right "Your assembly" panel — build-type title with case artwork, the running build grouped by category (`1 x ASUS PRIME H610M-K D4 LGA 1700`), a red "Full specification" link, a live "Total amount: … UZS", a red **Buy** button handing off to the existing cart/checkout (`StoreCart` → `/checkout`), and outline "Copy the configuration link" and "Save as PDF" actions (a shareable build permalink and a PDF export — both new capabilities, scoped in the sub-phase split below).
+- [ ] Real reference data exists to model against — motherboards MSI PRO H610M-S/E/G, Gigabyte H610M K/B760M/Z890, ASUS PRIME H610M-K & B760M-K across LGA-1700 and LGA-1851; Intel Core i3/i5/i7/i9 and Core Ultra 5/7/9 processors; ID-Cooling, Deepcool, and MSI air/water coolers.
+- [ ] Fully localized (RU/UZ/EN) under `Configurator.*` and themed from the charcoal/red/Play tokens in `app.css`.
+- [ ] **Large feature — sub-phases to be designed and split out before implementation**: component + socket/compatibility data model, category/accessory/software menu UI, per-category filter chips, relative-pricing engine, assembly/total panel, shareable configuration link, PDF export, and checkout hand-off.
+
+### Phase 20 — Multi-currency support (UZS / USD / RUB)
+- [ ] Currency switcher in the header utility row (UZS / USD / RUB, active option underlined in red), persisted per-visitor like the language cookie.
+- [ ] A rate source and conversion layer — decide and document whether rates are static/configured, admin-set, or pulled from an external FX source; catalog prices are stored in one base currency and converted for display.
+- [ ] Resolve the open pricing question: the reference shows storefront prices in USD but the configurator totals in UZS — define the single base currency and how each surface converts.
+- [ ] Decide whether orders may be placed in a non-base currency or whether the switcher is display-only at checkout (checkout/`StoreCart` implications).
+- [ ] All currency labels localized (RU/UZ/EN); amounts formatted per-currency. Open feature — settle the rate source and checkout behavior before implementing.
+
 ## Testing Approach
 - **Unit tests** (`PcMarket.UnitTests`, xUnit): domain state machine (valid/invalid order transitions),
   Money/slug value objects, payment signature verification, validators, mapping correctness.
