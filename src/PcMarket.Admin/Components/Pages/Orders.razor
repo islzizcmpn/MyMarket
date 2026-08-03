@@ -1,34 +1,34 @@
 @page "/orders"
 @inherits AdminPageBase
 
-<PageTitle>Orders — Admin</PageTitle>
+<PageTitle>@L["Orders.PageTitle"]</PageTitle>
 <div class="topbar">
-    <h1>Orders</h1>
+    <h1>@L["Nav.Orders"]</h1>
     <div class="page-actions">
-        <input placeholder="Order #…" @bind="_search" @bind:event="oninput" @onkeydown="OnKey" />
+        <input placeholder="@L["Orders.SearchPlaceholder"]" @bind="_search" @bind:event="oninput" @onkeydown="OnKey" />
         <select @bind="_status" @bind:after="Reload">
-            <option value="">All statuses</option>
-            @foreach (var s in Enum.GetValues<OrderStatus>()) { <option value="@s">@s</option> }
+            <option value="">@L["Orders.AllStatuses"]</option>
+            @foreach (var s in Enum.GetValues<OrderStatus>()) { <option value="@s">@L.EnumName(s)</option> }
         </select>
     </div>
 </div>
 
 @if (_loading) { <div class="spinner"></div> }
-else if (_result is null || _result.Items.Count == 0) { <div class="card pad"><p class="muted">No orders.</p></div> }
+else if (_result is null || _result.Items.Count == 0) { <div class="card pad"><p class="muted">@L["Orders.Empty"]</p></div> }
 else
 {
     <div class="card">
         <table class="table">
-            <thead><tr><th>Order</th><th>Customer</th><th>Status</th><th>Payment</th><th>Total</th><th>Placed</th></tr></thead>
+            <thead><tr><th>@L["Orders.Order"]</th><th>@L["Orders.Customer"]</th><th>@L["Common.Status"]</th><th>@L["Common.Payment"]</th><th>@L["Common.Total"]</th><th>@L["Orders.Placed"]</th></tr></thead>
             <tbody>
                 @foreach (var o in _result.Items)
                 {
                     <tr>
                         <td><a href="@($"/orders/{o.Id}")">@o.Number</a></td>
                         <td>@(o.CustomerPhone ?? "—")</td>
-                        <td><span class="status status--@o.Status.ToString().ToLower()">@o.Status</span></td>
-                        <td>@o.PaymentMethod / @o.PaymentStatus</td>
-                        <td>@Format.Money(o.Total)</td>
+                        <td><span class="status status--@o.Status.ToString().ToLower()">@L.EnumName(o.Status)</span></td>
+                        <td>@L.EnumName(o.PaymentMethod) / @L.EnumName(o.PaymentStatus)</td>
+                        <td>@Format.Money(L, o.Total)</td>
                         <td class="muted">@o.CreatedAt.LocalDateTime.ToString("g")</td>
                     </tr>
                 }
@@ -38,9 +38,9 @@ else
     @if (_result.TotalPages > 1)
     {
         <div class="page-actions" style="justify-content:center; margin-top:16px;">
-            <button class="btn btn--ghost btn--sm" disabled="@(_page <= 1)" @onclick="() => Go(_page - 1)">← Prev</button>
-            <span class="muted">Page @_page of @_result.TotalPages</span>
-            <button class="btn btn--ghost btn--sm" disabled="@(_page >= _result.TotalPages)" @onclick="() => Go(_page + 1)">Next →</button>
+            <button class="btn btn--ghost btn--sm" disabled="@(_page <= 1)" @onclick="() => Go(_page - 1)">@L["Common.Prev"]</button>
+            <span class="muted">@L["Common.PageOf", _page, _result.TotalPages]</span>
+            <button class="btn btn--ghost btn--sm" disabled="@(_page >= _result.TotalPages)" @onclick="() => Go(_page + 1)">@L["Common.Next"]</button>
         </div>
     }
 }

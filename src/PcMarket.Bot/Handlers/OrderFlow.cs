@@ -5,6 +5,7 @@ using PcMarket.Bot.Conversations;
 using PcMarket.Bot.Presentation;
 using PcMarket.Contracts.Orders;
 using PcMarket.Domain.Common;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace PcMarket.Bot.Handlers;
 
@@ -46,63 +47,71 @@ public sealed class OrderFlow(
         var state = await conversations.GetAsync(context.TelegramUserId, cancellationToken);
         await conversations.SetAsync(
             context.TelegramUserId,
-            state with { Stage = BotStage.None, Region = null, City = null, Street = null },
+            state with { Stage = BotStage.AwaitingLocation, Latitude = null, Longitude = null, House = null },
             cancellationToken);
 
+        // The prompt edits the message the button was on, but the request-location button lives on a *reply*
+        // keyboard, which can only arrive with a new message - hence the two sends.
         await responder.ReplyAsync(
             context,
             BotPhrases.Format(context.Culture, Phrase.CheckoutHeader, BotText.Money(context.Culture, cart.Subtotal)),
-            BotKeyboards.Regions(context.Culture),
+            keyboard: null,
+            cancellationToken);
+
+        await responder.SendAsync(
+            context.ChatId,
+            BotPhrases.Get(context.Culture, Phrase.ShareLocationButton),
+            BotKeyboards.RequestLocation(context.Culture),
             cancellationToken);
     }
 
-    public async Task SetRegionAsync(BotContext context, int regionIndex, CancellationToken cancellationToken = default)
+    /// <summary>Accepts the pin Telegram delivered and moves on to the one thing a pin cannot say: which door.</summary>
+    public async Task SetLocationAsync(
+        BotContext context,
+        double latitude,
+        double longitude,
+        CancellationToken cancellationToken = default)
     {
-        if (regionIndex < 0 || regionIndex >= UzbekistanRegions.All.Count)
+        var state = await conversations.GetAsync(context.TelegramUserId, cancellationToken);
+        await conversations.SetAsync(
+            context.TelegramUserId,
+            state with { Latitude = latitude, Longitude = longitude, Stage = BotStage.AwaitingHouse },
+            cancellationToken);
+
+        // Clearing the reply keyboard matters: leaving it up invites a second pin where a flat number is
+        // expected, and the customer would have no obvious way back to their normal keyboard.
+        await responder.SendAsync(
+            context.ChatId,
+            BotPhrases.Get(context.Culture, Phrase.LocationReceived),
+            new ReplyKeyboardRemove(),
+            cancellationToken);
+    }
+
+    /// <summary>Nudges a customer who typed an address instead of sharing a pin. Checkout cannot continue
+    /// without one, so this repeats the request rather than falling back to a typed address.</summary>
+    public Task AskForLocationAsync(BotContext context, CancellationToken cancellationToken = default) =>
+        responder.SendAsync(
+            context.ChatId,
+            BotPhrases.Get(context.Culture, Phrase.LocationNeeded),
+            BotKeyboards.RequestLocation(context.Culture),
+            cancellationToken);
+
+    public async Task SetHouseAsync(BotContext context, string house, CancellationToken cancellationToken = default)
+    {
+        var state = await conversations.GetAsync(context.TelegramUserId, cancellationToken);
+        if (state.Latitude is null || state.Longitude is null)
         {
-            await BeginCheckoutAsync(context, cancellationToken);
+            // The pin expired out of Redis mid-checkout; asking again beats placing an order nobody can deliver.
+            await AskForLocationAsync(context, cancellationToken);
             return;
         }
 
-        var region = UzbekistanRegions.All[regionIndex];
-        var state = await conversations.GetAsync(context.TelegramUserId, cancellationToken);
-        await conversations.SetAsync(
-            context.TelegramUserId,
-            state with { Region = region, Stage = BotStage.AwaitingCity },
-            cancellationToken);
-
-        await responder.ReplyAsync(
-            context,
-            BotPhrases.Format(context.Culture, Phrase.RegionChosen, BotText.Escape(region)),
-            keyboard: null,
-            cancellationToken);
-    }
-
-    public async Task SetCityAsync(BotContext context, string city, CancellationToken cancellationToken = default)
-    {
-        var state = await conversations.GetAsync(context.TelegramUserId, cancellationToken);
-        await conversations.SetAsync(
-            context.TelegramUserId,
-            state with { City = city.Trim(), Stage = BotStage.AwaitingStreet },
-            cancellationToken);
-
-        await responder.ReplyAsync(
-            context,
-            BotPhrases.Get(context.Culture, Phrase.CityChosen),
-            keyboard: null,
-            cancellationToken);
-    }
-
-    public async Task SetStreetAsync(BotContext context, string street, CancellationToken cancellationToken = default)
-    {
-        var state = await conversations.GetAsync(context.TelegramUserId, cancellationToken);
-        var updated = state with { Street = street.Trim(), Stage = BotStage.None };
+        var updated = state with { House = house.Trim(), Stage = BotStage.None };
         await conversations.SetAsync(context.TelegramUserId, updated, cancellationToken);
 
-        var address = $"{updated.Region}, {updated.City}, {updated.Street}";
         await responder.ReplyAsync(
             context,
-            BotPhrases.Format(context.Culture, Phrase.DeliveringTo, BotText.Escape(address)),
+            BotPhrases.Format(context.Culture, Phrase.DeliveringTo, BotText.Escape(updated.House)),
             BotKeyboards.PaymentMethods(context.Culture),
             cancellationToken);
     }
@@ -121,22 +130,30 @@ public sealed class OrderFlow(
         }
 
         var state = await conversations.GetAsync(context.TelegramUserId, cancellationToken);
-        if (state.Region is null || state.City is null || state.Street is null)
+        if (state.Latitude is null || state.Longitude is null || state.House is null)
         {
             await BeginCheckoutAsync(context, cancellationToken);
             return;
         }
 
+        // Region and city stay empty for a bot order: the pin says where this is, far more precisely than a
+        // region name would, and inventing one from coordinates would need a geocoding service.
         var request = new CreateOrderRequest(
             method,
             DeliveryType.Courier,
             AddressId: null,
-            new ShippingAddressDto(state.Region, state.City, state.Street, null));
+            new ShippingAddressDto(
+                Region: string.Empty,
+                City: string.Empty,
+                Street: state.House,
+                Details: null,
+                Latitude: state.Latitude,
+                Longitude: state.Longitude));
 
         var order = await orders.CreateAsync(link.UserId, request, cancellationToken);
         await conversations.SetAsync(
             context.TelegramUserId,
-            state with { Stage = BotStage.None, Region = null, City = null, Street = null },
+            state with { Stage = BotStage.None, Latitude = null, Longitude = null, House = null },
             cancellationToken);
 
         string? paymentUrl = null;

@@ -3,6 +3,7 @@ using System.Net;
 using System.Text;
 using PcMarket.Contracts.Cart;
 using PcMarket.Contracts.Catalog;
+using PcMarket.Contracts.Common;
 using PcMarket.Contracts.Orders;
 
 namespace PcMarket.Bot.Presentation;
@@ -145,6 +146,17 @@ public static class BotText
 
         text.Append(BotPhrases.Get(culture, Phrase.AlertItems)).Append(": ").Append(order.Items.Sum(i => i.Qty)).Append('\n')
             .Append(BotPhrases.Get(culture, Phrase.AlertDeliverTo)).Append(": ").Append(Escape(Address(order.ShippingAddress)));
+
+        // For a bot order the pin is the address, so the manager gets it as tappable links rather than as
+        // numbers they would have to copy into a map app themselves.
+        if (order.ShippingAddress is { Latitude: { } latitude, Longitude: { } longitude })
+        {
+            text.Append('\n').Append(BotPhrases.Get(culture, Phrase.AlertLocation)).Append(": ")
+                .Append("<a href=\"").Append(MapLinks.Google(latitude, longitude)).Append("\">Google</a>")
+                .Append(" · ")
+                .Append("<a href=\"").Append(MapLinks.Yandex(latitude, longitude)).Append("\">Yandex</a>")
+                .Append(" (").Append(MapLinks.Coordinates(latitude, longitude)).Append(')');
+        }
 
         return text.ToString();
     }

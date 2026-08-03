@@ -1,16 +1,16 @@
 @page "/audit"
 @inherits AdminPageBase
 
-<PageTitle>Audit log — Admin</PageTitle>
-<div class="topbar"><h1>Audit log</h1></div>
+<PageTitle>@L["Audit.PageTitle"]</PageTitle>
+<div class="topbar"><h1>@L["Nav.Audit"]</h1></div>
 
 @if (_loading) { <div class="spinner"></div> }
-else if (_result is null || _result.Items.Count == 0) { <div class="card pad"><p class="muted">No audit entries yet.</p></div> }
+else if (_result is null || _result.Items.Count == 0) { <div class="card pad"><p class="muted">@L["Audit.Empty"]</p></div> }
 else
 {
     <div class="card">
         <table class="table">
-            <thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Entity</th><th>Summary</th></tr></thead>
+            <thead><tr><th>@L["Audit.When"]</th><th>@L["Audit.Actor"]</th><th>@L["Audit.Action"]</th><th>@L["Audit.Entity"]</th><th>@L["Audit.Summary"]</th></tr></thead>
             <tbody>
                 @foreach (var e in _result.Items)
                 {
@@ -28,9 +28,9 @@ else
     @if (_result.TotalPages > 1)
     {
         <div class="page-actions" style="justify-content:center; margin-top:16px;">
-            <button class="btn btn--ghost btn--sm" disabled="@(_page <= 1)" @onclick="() => Go(_page - 1)">← Prev</button>
-            <span class="muted">Page @_page of @_result.TotalPages</span>
-            <button class="btn btn--ghost btn--sm" disabled="@(_page >= _result.TotalPages)" @onclick="() => Go(_page + 1)">Next →</button>
+            <button class="btn btn--ghost btn--sm" disabled="@(_page <= 1)" @onclick="() => Go(_page - 1)">@L["Common.Prev"]</button>
+            <span class="muted">@L["Common.PageOf", _page, _result.TotalPages]</span>
+            <button class="btn btn--ghost btn--sm" disabled="@(_page >= _result.TotalPages)" @onclick="() => Go(_page + 1)">@L["Common.Next"]</button>
         </div>
     }
 }

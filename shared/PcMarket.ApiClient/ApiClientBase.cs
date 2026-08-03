@@ -48,6 +48,12 @@ public abstract class ApiClientBase(HttpClient http, IApiTokenProvider tokens)
         return await ReadAsync<TResult>(response, cancellationToken);
     }
 
+    protected async Task PutAsync<TBody>(string url, TBody body, CancellationToken cancellationToken)
+    {
+        using var response = await SendAsync(HttpMethod.Put, url, JsonContent.Create(body, options: ApiJson.Options), cancellationToken);
+        await EnsureAsync(response, cancellationToken);
+    }
+
     /// <summary>PUT that returns <c>default</c> on 404 (for updates to a possibly-missing resource).</summary>
     protected async Task<TResult?> PutOrDefaultAsync<TBody, TResult>(string url, TBody body, CancellationToken cancellationToken)
     {

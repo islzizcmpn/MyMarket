@@ -8,6 +8,10 @@ public sealed class UsersApiClient(HttpClient http, IApiTokenProvider tokens) : 
     public Task<UserProfileDto?> GetProfileAsync(CancellationToken cancellationToken = default) =>
         GetOrDefaultAsync<UserProfileDto>("users/me", cancellationToken);
 
+    /// <summary>Stores the caller's preferred language on their account, where every client can read it.</summary>
+    public Task SetLanguageAsync(string culture, CancellationToken cancellationToken = default) =>
+        PutAsync("users/me/language", new UpdateLanguageRequest(culture), cancellationToken);
+
     public Task<IReadOnlyList<AddressDto>> ListAddressesAsync(CancellationToken cancellationToken = default) =>
         GetAsync<IReadOnlyList<AddressDto>>("users/me/addresses", cancellationToken);
 

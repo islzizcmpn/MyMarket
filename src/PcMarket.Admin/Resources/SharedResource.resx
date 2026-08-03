@@ -1,0 +1,648 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Neutral (English) back-office strings. Culture-specific overrides live in SharedResource.ru.resx
+    and SharedResource.uz.resx; anything missing there falls back to this file.
+
+    Only the panel's own chrome belongs here. Catalog data (product, category and brand names) is
+    shown as the canonical value the editor is about to change, never as a translation.
+  -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="Common.Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Common.Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Common.Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Common.Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Common.Back" xml:space="preserve">
+    <value>← Back</value>
+  </data>
+  <data name="Common.Prev" xml:space="preserve">
+    <value>← Prev</value>
+  </data>
+  <data name="Common.Next" xml:space="preserve">
+    <value>Next →</value>
+  </data>
+  <data name="Common.PageOf" xml:space="preserve">
+    <value>Page {0} of {1}</value>
+    <comment>{0} is the current page, {1} the total.</comment>
+  </data>
+  <data name="Common.Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="Common.No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Common.Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Common.Slug" xml:space="preserve">
+    <value>Slug</value>
+  </data>
+  <data name="Common.Products" xml:space="preserve">
+    <value>Products</value>
+  </data>
+  <data name="Common.Sort" xml:space="preserve">
+    <value>Sort</value>
+  </data>
+  <data name="Common.Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="Common.Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Common.Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Common.Payment" xml:space="preserve">
+    <value>Payment</value>
+  </data>
+  <data name="Common.Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Common.Phone" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="Common.Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Common.Translated" xml:space="preserve">
+    <value>Translated</value>
+  </data>
+  <data name="Common.English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Common.None" xml:space="preserve">
+    <value>— none —</value>
+  </data>
+  <data name="Common.Select" xml:space="preserve">
+    <value>— select —</value>
+  </data>
+  <data name="Common.SearchPlaceholder" xml:space="preserve">
+    <value>Search…</value>
+  </data>
+  <data name="Common.Currency" xml:space="preserve">
+    <value>UZS</value>
+    <comment>Currency word after an amount, e.g. "650 000 UZS".</comment>
+  </data>
+  <data name="Common.TranslationFallback" xml:space="preserve">
+    <value>Leave a language empty to fall back to the English text.</value>
+  </data>
+
+  <data name="Nav.Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Nav.Products" xml:space="preserve">
+    <value>Products</value>
+  </data>
+  <data name="Nav.Categories" xml:space="preserve">
+    <value>Categories</value>
+  </data>
+  <data name="Nav.Brands" xml:space="preserve">
+    <value>Brands</value>
+  </data>
+  <data name="Nav.Content" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="Nav.Orders" xml:space="preserve">
+    <value>Orders</value>
+  </data>
+  <data name="Nav.Import" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="Nav.Audit" xml:space="preserve">
+    <value>Audit log</value>
+  </data>
+  <data name="Nav.SignOut" xml:space="preserve">
+    <value>Sign out</value>
+  </data>
+  <data name="Header.SignedIn" xml:space="preserve">
+    <value>Signed in · {0}</value>
+    <comment>{0} is the comma-separated list of the manager's roles.</comment>
+  </data>
+  <data name="Header.Language" xml:space="preserve">
+    <value>Language</value>
+    <comment>Accessible label for the RU / UZ / EN switcher.</comment>
+  </data>
+  <data name="App.Error" xml:space="preserve">
+    <value>An unhandled error has occurred.</value>
+  </data>
+  <data name="App.Reload" xml:space="preserve">
+    <value>Reload</value>
+  </data>
+
+  <data name="Login.PageTitle" xml:space="preserve">
+    <value>Admin sign in</value>
+  </data>
+  <data name="Login.Subtitle" xml:space="preserve">
+    <value>Sign in with an Admin or Manager account.</value>
+  </data>
+  <data name="Login.SignIn" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="Login.SigningIn" xml:space="preserve">
+    <value>Signing in…</value>
+  </data>
+  <data name="Login.NoAccess" xml:space="preserve">
+    <value>This account does not have back-office access.</value>
+  </data>
+
+  <data name="Dashboard.PageTitle" xml:space="preserve">
+    <value>Dashboard — PCMarket Admin</value>
+  </data>
+  <data name="Dashboard.Title" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Dashboard.OrdersTotal" xml:space="preserve">
+    <value>Orders total</value>
+  </data>
+  <data name="Dashboard.OrdersToday" xml:space="preserve">
+    <value>Orders today</value>
+  </data>
+  <data name="Dashboard.Pending" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="Dashboard.RevenueTotal" xml:space="preserve">
+    <value>Revenue total</value>
+  </data>
+  <data name="Dashboard.RevenueToday" xml:space="preserve">
+    <value>Revenue today</value>
+  </data>
+  <data name="Dashboard.LowStock" xml:space="preserve">
+    <value>Low stock</value>
+  </data>
+  <data name="Dashboard.Feed" xml:space="preserve">
+    <value>Live new-order feed</value>
+  </data>
+  <data name="Dashboard.Connected" xml:space="preserve">
+    <value>connected</value>
+  </data>
+  <data name="Dashboard.Offline" xml:space="preserve">
+    <value>offline</value>
+  </data>
+  <data name="Dashboard.FeedEmpty" xml:space="preserve">
+    <value>Waiting for new orders… place an order in the storefront to see it appear here in real time.</value>
+  </data>
+  <data name="Dashboard.NewOrder" xml:space="preserve">
+    <value>new order received</value>
+  </data>
+
+  <data name="Products.PageTitle" xml:space="preserve">
+    <value>Products — Admin</value>
+  </data>
+  <data name="Products.New" xml:space="preserve">
+    <value>+ New product</value>
+  </data>
+  <data name="Products.Empty" xml:space="preserve">
+    <value>No products found.</value>
+  </data>
+  <data name="Products.Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="Products.Brand" xml:space="preserve">
+    <value>Brand</value>
+  </data>
+  <data name="Products.From" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="Products.Stock" xml:space="preserve">
+    <value>Stock</value>
+  </data>
+
+  <data name="Orders.PageTitle" xml:space="preserve">
+    <value>Orders — Admin</value>
+  </data>
+  <data name="Orders.SearchPlaceholder" xml:space="preserve">
+    <value>Order #…</value>
+  </data>
+  <data name="Orders.AllStatuses" xml:space="preserve">
+    <value>All statuses</value>
+  </data>
+  <data name="Orders.Empty" xml:space="preserve">
+    <value>No orders.</value>
+  </data>
+  <data name="Orders.Order" xml:space="preserve">
+    <value>Order</value>
+  </data>
+  <data name="Orders.Customer" xml:space="preserve">
+    <value>Customer</value>
+  </data>
+  <data name="Orders.Placed" xml:space="preserve">
+    <value>Placed</value>
+  </data>
+
+  <data name="OrderDetail.PageTitle" xml:space="preserve">
+    <value>Order — Admin</value>
+  </data>
+  <data name="OrderDetail.Title" xml:space="preserve">
+    <value>Order {0}</value>
+    <comment>{0} is the order number.</comment>
+  </data>
+  <data name="OrderDetail.NotFound" xml:space="preserve">
+    <value>Order not found.</value>
+  </data>
+  <data name="OrderDetail.Items" xml:space="preserve">
+    <value>Items</value>
+  </data>
+  <data name="OrderDetail.History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="OrderDetail.AdvanceTo" xml:space="preserve">
+    <value>Advance to</value>
+  </data>
+  <data name="OrderDetail.Advance" xml:space="preserve">
+    <value>Advance</value>
+  </data>
+  <data name="OrderDetail.Refund" xml:space="preserve">
+    <value>Refund</value>
+  </data>
+  <data name="OrderDetail.Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="OrderDetail.OrderCount" xml:space="preserve">
+    <value>Orders</value>
+  </data>
+  <data name="OrderDetail.Method" xml:space="preserve">
+    <value>Method</value>
+  </data>
+  <data name="OrderDetail.Delivery" xml:space="preserve">
+    <value>Delivery</value>
+  </data>
+  <data name="OrderDetail.Address" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="OrderDetail.Coordinates" xml:space="preserve">
+    <value>Coordinates</value>
+  </data>
+  <data name="OrderDetail.OpenInGoogle" xml:space="preserve">
+    <value>Open in Google Maps</value>
+  </data>
+  <data name="OrderDetail.OpenInYandex" xml:space="preserve">
+    <value>Open in Yandex Maps</value>
+  </data>
+  <data name="OrderDetail.NoLocation" xml:space="preserve">
+    <value>No map pin — this order was placed with a written address.</value>
+  </data>
+
+  <data name="Categories.PageTitle" xml:space="preserve">
+    <value>Categories — Admin</value>
+  </data>
+  <data name="Categories.Add" xml:space="preserve">
+    <value>Add category</value>
+  </data>
+  <data name="Categories.Edit" xml:space="preserve">
+    <value>Edit category</value>
+  </data>
+  <data name="Categories.Parent" xml:space="preserve">
+    <value>Parent</value>
+  </data>
+  <data name="Categories.SortOrder" xml:space="preserve">
+    <value>Sort order</value>
+  </data>
+  <data name="Categories.Inactive" xml:space="preserve">
+    <value>(inactive)</value>
+  </data>
+
+  <data name="Brands.PageTitle" xml:space="preserve">
+    <value>Brands — Admin</value>
+  </data>
+  <data name="Brands.Add" xml:space="preserve">
+    <value>Add brand</value>
+  </data>
+  <data name="Brands.Edit" xml:space="preserve">
+    <value>Edit brand</value>
+  </data>
+  <data name="Brands.LogoUrl" xml:space="preserve">
+    <value>Logo URL (optional)</value>
+  </data>
+
+  <data name="Content.PageTitle" xml:space="preserve">
+    <value>Content — Admin</value>
+  </data>
+  <data name="Content.Title" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="Content.Banners" xml:space="preserve">
+    <value>Banners</value>
+  </data>
+  <data name="Content.AddBanner" xml:space="preserve">
+    <value>Add banner</value>
+  </data>
+  <data name="Content.EditBanner" xml:space="preserve">
+    <value>Edit banner</value>
+  </data>
+  <data name="Content.Subtitle" xml:space="preserve">
+    <value>Subtitle</value>
+  </data>
+  <data name="Content.ImageUrl" xml:space="preserve">
+    <value>Image URL</value>
+  </data>
+  <data name="Content.LinkUrl" xml:space="preserve">
+    <value>Link URL</value>
+  </data>
+  <data name="Content.Blocks" xml:space="preserve">
+    <value>CMS blocks</value>
+  </data>
+  <data name="Content.AddBlock" xml:space="preserve">
+    <value>Add block</value>
+  </data>
+  <data name="Content.EditBlock" xml:space="preserve">
+    <value>Edit block</value>
+  </data>
+  <data name="Content.Key" xml:space="preserve">
+    <value>Key</value>
+  </data>
+  <data name="Content.Body" xml:space="preserve">
+    <value>Body</value>
+  </data>
+
+  <data name="ProductEdit.New" xml:space="preserve">
+    <value>New product</value>
+  </data>
+  <data name="ProductEdit.Edit" xml:space="preserve">
+    <value>Edit product</value>
+  </data>
+  <data name="ProductEdit.Saved" xml:space="preserve">
+    <value>Saved.</value>
+  </data>
+  <data name="ProductEdit.Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="ProductEdit.SlugOptional" xml:space="preserve">
+    <value>Slug (optional)</value>
+  </data>
+  <data name="ProductEdit.SlugPlaceholder" xml:space="preserve">
+    <value>auto from name</value>
+  </data>
+  <data name="ProductEdit.Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="ProductEdit.Specs" xml:space="preserve">
+    <value>Specifications</value>
+  </data>
+  <data name="ProductEdit.SpecKey" xml:space="preserve">
+    <value>Key</value>
+  </data>
+  <data name="ProductEdit.SpecValue" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="ProductEdit.AddSpec" xml:space="preserve">
+    <value>+ Add spec</value>
+  </data>
+  <data name="ProductEdit.Variants" xml:space="preserve">
+    <value>Variants</value>
+  </data>
+  <data name="ProductEdit.Sku" xml:space="preserve">
+    <value>SKU</value>
+  </data>
+  <data name="ProductEdit.Price" xml:space="preserve">
+    <value>Price</value>
+  </data>
+  <data name="ProductEdit.OldPrice" xml:space="preserve">
+    <value>Old price</value>
+  </data>
+  <data name="ProductEdit.AddVariant" xml:space="preserve">
+    <value>+ Add variant</value>
+  </data>
+  <data name="ProductEdit.Images" xml:space="preserve">
+    <value>Images</value>
+  </data>
+  <data name="ProductEdit.Primary" xml:space="preserve">
+    <value>primary</value>
+  </data>
+  <data name="ProductEdit.AddImage" xml:space="preserve">
+    <value>+ Add image URL</value>
+  </data>
+  <data name="ProductEdit.Upload" xml:space="preserve">
+    <value>Upload to MinIO</value>
+  </data>
+  <data name="ProductEdit.Uploading" xml:space="preserve">
+    <value>uploading…</value>
+  </data>
+  <data name="ProductEdit.Save" xml:space="preserve">
+    <value>Save product</value>
+  </data>
+  <data name="ProductEdit.Saving" xml:space="preserve">
+    <value>Saving…</value>
+  </data>
+  <data name="ProductEdit.SelectCategory" xml:space="preserve">
+    <value>Please select a category.</value>
+  </data>
+
+  <data name="Import.PageTitle" xml:space="preserve">
+    <value>Import — Admin</value>
+  </data>
+  <data name="Import.Title" xml:space="preserve">
+    <value>Catalog import</value>
+  </data>
+  <data name="Import.Intro" xml:space="preserve">
+    <value>Paste a catalog JSON document (same shape as demo-catalog.json: brands, categories, products). Import is idempotent — existing slugs are skipped.</value>
+  </data>
+  <data name="Import.Done" xml:space="preserve">
+    <value>Import complete.</value>
+  </data>
+  <data name="Import.Run" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="Import.Running" xml:space="preserve">
+    <value>Importing…</value>
+  </data>
+
+  <data name="Audit.PageTitle" xml:space="preserve">
+    <value>Audit log — Admin</value>
+  </data>
+  <data name="Audit.Empty" xml:space="preserve">
+    <value>No audit entries yet.</value>
+  </data>
+  <data name="Audit.When" xml:space="preserve">
+    <value>When</value>
+  </data>
+  <data name="Audit.Actor" xml:space="preserve">
+    <value>Actor</value>
+  </data>
+  <data name="Audit.Action" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="Audit.Entity" xml:space="preserve">
+    <value>Entity</value>
+  </data>
+  <data name="Audit.Summary" xml:space="preserve">
+    <value>Summary</value>
+  </data>
+
+  <data name="NotFound.Title" xml:space="preserve">
+    <value>Not Found</value>
+  </data>
+  <data name="NotFound.Body" xml:space="preserve">
+    <value>Sorry, the content you are looking for does not exist.</value>
+  </data>
+  <data name="ErrorPage.PageTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="ErrorPage.Title" xml:space="preserve">
+    <value>Error.</value>
+  </data>
+  <data name="ErrorPage.Subtitle" xml:space="preserve">
+    <value>An error occurred while processing your request.</value>
+  </data>
+  <data name="ErrorPage.RequestId" xml:space="preserve">
+    <value>Request ID:</value>
+  </data>
+  <data name="ErrorPage.DevMode" xml:space="preserve">
+    <value>Development Mode</value>
+  </data>
+  <data name="ErrorPage.DevModeBody" xml:space="preserve">
+    <value>Swapping to the Development environment will display more detailed information about the error that occurred.</value>
+  </data>
+  <data name="ErrorPage.DevModeWarning" xml:space="preserve">
+    <value>The Development environment shouldn't be enabled for deployed applications. It can result in displaying sensitive information from exceptions to end users. For local debugging, enable the Development environment by setting the ASPNETCORE_ENVIRONMENT environment variable to Development and restarting the app.</value>
+    <comment>ASPNETCORE_ENVIRONMENT and Development are literal tokens — do not translate them.</comment>
+  </data>
+  <data name="Reconnect.Rejoining" xml:space="preserve">
+    <value>Rejoining the server…</value>
+  </data>
+  <data name="Reconnect.RetryPrefix" xml:space="preserve">
+    <value>Rejoin failed… trying again in</value>
+    <comment>The countdown number and Reconnect.RetrySuffix follow this text.</comment>
+  </data>
+  <data name="Reconnect.RetrySuffix" xml:space="preserve">
+    <value>seconds.</value>
+  </data>
+  <data name="Reconnect.Failed" xml:space="preserve">
+    <value>Failed to rejoin.</value>
+  </data>
+  <data name="Reconnect.RetryOrReload" xml:space="preserve">
+    <value>Please retry or reload the page.</value>
+  </data>
+  <data name="Reconnect.Retry" xml:space="preserve">
+    <value>Retry</value>
+  </data>
+  <data name="Reconnect.Paused" xml:space="preserve">
+    <value>The session has been paused by the server.</value>
+  </data>
+  <data name="Reconnect.ResumeFailed" xml:space="preserve">
+    <value>Failed to resume the session.</value>
+  </data>
+  <data name="Reconnect.Resume" xml:space="preserve">
+    <value>Resume</value>
+  </data>
+
+  <data name="Enum.OrderStatus.Created" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="Enum.OrderStatus.AwaitingPayment" xml:space="preserve">
+    <value>Awaiting payment</value>
+  </data>
+  <data name="Enum.OrderStatus.Paid" xml:space="preserve">
+    <value>Paid</value>
+  </data>
+  <data name="Enum.OrderStatus.Processing" xml:space="preserve">
+    <value>Processing</value>
+  </data>
+  <data name="Enum.OrderStatus.Shipped" xml:space="preserve">
+    <value>Shipped</value>
+  </data>
+  <data name="Enum.OrderStatus.Delivered" xml:space="preserve">
+    <value>Delivered</value>
+  </data>
+  <data name="Enum.OrderStatus.Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="Enum.OrderStatus.Refunded" xml:space="preserve">
+    <value>Refunded</value>
+  </data>
+  <data name="Enum.PaymentStatus.None" xml:space="preserve">
+    <value>Not required</value>
+  </data>
+  <data name="Enum.PaymentStatus.Pending" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="Enum.PaymentStatus.Paid" xml:space="preserve">
+    <value>Paid</value>
+  </data>
+  <data name="Enum.PaymentStatus.Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="Enum.PaymentStatus.Refunded" xml:space="preserve">
+    <value>Refunded</value>
+  </data>
+  <data name="Enum.PaymentMethod.Cash" xml:space="preserve">
+    <value>Cash on delivery</value>
+  </data>
+  <data name="Enum.PaymentMethod.Click" xml:space="preserve">
+    <value>Click</value>
+  </data>
+  <data name="Enum.PaymentMethod.Payme" xml:space="preserve">
+    <value>Payme</value>
+  </data>
+  <data name="Enum.PaymentMethod.Uzcard" xml:space="preserve">
+    <value>Uzcard</value>
+  </data>
+  <data name="Enum.PaymentMethod.Humo" xml:space="preserve">
+    <value>Humo</value>
+  </data>
+</root>

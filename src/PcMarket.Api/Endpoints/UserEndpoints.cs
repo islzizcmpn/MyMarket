@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using PcMarket.Application.Abstractions.Identity;
+using PcMarket.Application.Abstractions.Localization;
 using PcMarket.Application.Users;
 using PcMarket.Contracts.Users;
 using PcMarket.Infrastructure.Identity;
@@ -24,7 +25,24 @@ public static class UserEndpoints
 
             var roles = await userManager.GetRolesAsync(user);
             return Results.Ok(new UserProfileDto(
-                user.Id, user.PhoneNumber, user.Email, user.FullName, roles.ToList(), user.TelegramUserId is not null));
+                user.Id, user.PhoneNumber, user.Email, user.FullName, roles.ToList(), user.TelegramUserId is not null, user.Language));
+        });
+
+        // The language lives on the account rather than in each client's own storage, so a manager who
+        // switches the admin panel to Uzbek is also addressed in Uzbek by the bot.
+        group.MapPut("/me/language", async (
+            UpdateLanguageRequest request,
+            ICurrentUser currentUser,
+            IUserLanguageStore languages,
+            CancellationToken ct) =>
+        {
+            if (!LanguageCodes.IsSupported(request.Culture))
+            {
+                return Results.BadRequest(new { error = $"Unsupported language '{request.Culture}'." });
+            }
+
+            await languages.SetAsync(currentUser.UserId!.Value, LanguageCodes.Normalize(request.Culture), ct);
+            return Results.NoContent();
         });
 
         group.MapGet("/me/addresses", async (

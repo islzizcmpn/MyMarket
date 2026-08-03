@@ -31,7 +31,16 @@ input, select, textarea, button { font-family: inherit; }
 
 .main { padding: 24px 28px; overflow-x: auto; }
 .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
-.topbar .who { color: var(--muted); font-size: .85rem; }
+.topbar .who { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: .85rem; }
+
+.lang-switch { display: inline-flex; align-items: center; gap: 2px; }
+.lang-switch__item {
+    background: none; border: 0; border-radius: 7px; padding: 4px 7px;
+    color: var(--muted); font-size: .82rem; font-weight: 700; cursor: pointer;
+}
+.lang-switch__item:hover:not(:disabled) { background: var(--panel-2); color: var(--ink); }
+.lang-switch__item.is-active { color: var(--brand); background: var(--panel-2); cursor: default; }
+.lang-switch__sep { color: var(--line); font-size: .82rem; user-select: none; }
 
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
 .pad { padding: 18px; }

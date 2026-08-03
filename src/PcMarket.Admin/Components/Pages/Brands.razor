@@ -1,8 +1,8 @@
 @page "/brands"
 @inherits AdminPageBase
 
-<PageTitle>Brands — Admin</PageTitle>
-<div class="topbar"><h1>Brands</h1></div>
+<PageTitle>@L["Brands.PageTitle"]</PageTitle>
+<div class="topbar"><h1>@L["Nav.Brands"]</h1></div>
 
 @if (_loading) { <div class="spinner"></div> }
 else
@@ -11,7 +11,7 @@ else
     <div class="grid" style="grid-template-columns: 1fr 340px;">
         <div class="card">
             <table class="table">
-                <thead><tr><th>Name</th><th>Slug</th><th>Products</th><th></th></tr></thead>
+                <thead><tr><th>@L["Common.Name"]</th><th>@L["Common.Slug"]</th><th>@L["Common.Products"]</th><th></th></tr></thead>
                 <tbody>
                     @foreach (var b in _items)
                     {
@@ -20,8 +20,8 @@ else
                             <td class="muted">@b.Slug</td>
                             <td>@b.ProductCount</td>
                             <td class="page-actions">
-                                <button class="btn btn--ghost btn--sm" @onclick="() => Edit(b)">Edit</button>
-                                <button class="btn btn--danger btn--sm" @onclick="() => Delete(b.Id)">Delete</button>
+                                <button class="btn btn--ghost btn--sm" @onclick="() => Edit(b)">@L["Common.Edit"]</button>
+                                <button class="btn btn--danger btn--sm" @onclick="() => Delete(b.Id)">@L["Common.Delete"]</button>
                             </td>
                         </tr>
                     }
@@ -30,12 +30,12 @@ else
         </div>
 
         <div class="card pad" style="height:fit-content;">
-            <h3>@(_editId is null ? "Add brand" : "Edit brand")</h3>
-            <div class="field"><label>Name</label><input @bind="_name" /></div>
-            <div class="field"><label>Logo URL (optional)</label><input @bind="_logoUrl" /></div>
+            <h3>@(_editId is null ? L["Brands.Add"] : L["Brands.Edit"])</h3>
+            <div class="field"><label>@L["Common.Name"]</label><input @bind="_name" /></div>
+            <div class="field"><label>@L["Brands.LogoUrl"]</label><input @bind="_logoUrl" /></div>
             <div class="page-actions">
-                <button class="btn btn--primary" @onclick="Save">Save</button>
-                @if (_editId is not null) { <button class="btn btn--ghost" @onclick="Reset">Cancel</button> }
+                <button class="btn btn--primary" @onclick="Save">@L["Common.Save"]</button>
+                @if (_editId is not null) { <button class="btn btn--ghost" @onclick="Reset">@L["Common.Cancel"]</button> }
             </div>
         </div>
     </div>

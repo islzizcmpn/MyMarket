@@ -1,12 +1,19 @@
 namespace PcMarket.Contracts.Users;
 
+/// <param name="Language">The language this user chose to be addressed in, or null while they never chose
+/// one — a client that reads null applies its own default rather than assuming one here.</param>
 public sealed record UserProfileDto(
     Guid Id,
     string? Phone,
     string? Email,
     string? FullName,
     IReadOnlyList<string> Roles,
-    bool TelegramLinked);
+    bool TelegramLinked,
+    string? Language);
+
+/// <summary>Sets the caller's preferred language. The code is validated against the languages the system
+/// actually supports, so an unknown one is rejected rather than stored and silently ignored later.</summary>
+public sealed record UpdateLanguageRequest(string Culture);
 
 public sealed record AddressDto(
     Guid Id,

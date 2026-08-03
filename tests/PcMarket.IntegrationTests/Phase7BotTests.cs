@@ -79,18 +79,20 @@ public class Phase7BotTests(ApiFactory factory) : IClassFixture<ApiFactory>
             (await db.Carts.Include(c => c.Items).SingleAsync(c => c.UserId == userId)).Items.Single().ProductVariantId);
         Assert.Equal(variantId, mergedVariantId);
 
-        // 3. Checkout: region button, then city and street as free text, then cash on delivery.
+        // 3. Checkout: a shared location pin, then the house and flat as free text, then cash on delivery.
         await DispatchAsync(Button(BotCommands.Checkout));
-        await DispatchAsync(Button(CallbackData.Of(BotCommands.Region, 0)));
-        await DispatchAsync(Command("Chilonzor"));
-        await DispatchAsync(Command("Amir Temur 1"));
+        await DispatchAsync(Pin(41.311081, 69.240562));
+        await DispatchAsync(Command("12, flat 5"));
         await DispatchAsync(Button(CallbackData.Of(BotCommands.PaymentMethod, (int)Dto.PaymentMethod.Cash)));
 
         var order = await WithDbAsync(db => db.Orders.Include(o => o.Items).SingleAsync(o => o.UserId == userId));
         // Cash on delivery skips AwaitingPayment and lands straight in Processing.
         Assert.Equal(OrderStatus.Processing, order.Status);
-        Assert.Equal("Toshkent shahri", order.ShippingAddress.Region);
-        Assert.Equal("Amir Temur 1", order.ShippingAddress.Street);
+        // The pin is the address for a bot order: it is what the courier navigates to, so it has to survive
+        // the round trip into the order's JSON address snapshot.
+        Assert.Equal(41.311081, order.ShippingAddress.Latitude);
+        Assert.Equal(69.240562, order.ShippingAddress.Longitude);
+        Assert.Equal("12, flat 5", order.ShippingAddress.Street);
         Assert.Single(order.Items);
 
         // 4. The customer's own linked account must not be able to drive admin transitions.
@@ -147,6 +149,22 @@ public class Phase7BotTests(ApiFactory factory) : IClassFixture<ApiFactory>
                 Chat = new Chat { Id = telegramUserId, Type = ChatType.Private },
                 From = new User { Id = telegramUserId, FirstName = "Tester" },
                 Text = text
+            }
+        };
+
+    /// <summary>A shared location, the way Telegram delivers one when the customer taps the request-location
+    /// button.</summary>
+    private static Update Pin(double latitude, double longitude, long telegramUserId = ShopperTelegramId) =>
+        new()
+        {
+            Id = Random.Shared.Next(1, int.MaxValue),
+            Message = new Message
+            {
+                Id = Random.Shared.Next(1, int.MaxValue),
+                Date = DateTime.UtcNow,
+                Chat = new Chat { Id = telegramUserId, Type = ChatType.Private },
+                From = new User { Id = telegramUserId, FirstName = "Tester" },
+                Location = new Location { Latitude = latitude, Longitude = longitude }
             }
         };
 

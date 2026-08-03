@@ -58,6 +58,7 @@ public enum Phrase
     AlertCustomer,
     AlertItems,
     AlertDeliverTo,
+    AlertLocation,
 
     AlreadyLinked,
     LinkPromptShareOnly,
@@ -84,8 +85,9 @@ public enum Phrase
 
     CheckoutNeedsAccount,
     CheckoutHeader,
-    RegionChosen,
-    CityChosen,
+    ShareLocationButton,
+    LocationNeeded,
+    LocationReceived,
     DeliveringTo,
     OrderPlacedHeader,
     OrderPlacedPayHeader,
@@ -329,6 +331,7 @@ public static class BotPhrases
         [Phrase.AlertCustomer] = new("Покупатель", "Xaridor", "Customer"),
         [Phrase.AlertItems] = new("Позиций", "Mahsulotlar", "Items"),
         [Phrase.AlertDeliverTo] = new("Доставить", "Manzil", "Deliver to"),
+        [Phrase.AlertLocation] = new("На карте", "Xaritada", "On the map"),
 
         [Phrase.AlreadyLinked] = new(
             "Этот чат уже привязан к <b>{0}</b>.\nОтправьте /unlink, чтобы отвязать.",
@@ -427,17 +430,27 @@ public static class BotPhrases
             "Buyurtma berish uchun avval PcMarket hisobingizni bog‘lang — savat saqlanib qoladi.",
             "To check out, link your PcMarket account first — your cart carries over."),
         [Phrase.CheckoutHeader] = new(
-            "<b>Оформление заказа</b>\n\nИтого: <b>{0}</b>\n\nВ какой регион доставить?",
-            "<b>Buyurtma berish</b>\n\nJami: <b>{0}</b>\n\nQaysi viloyatga yetkazamiz?",
-            "<b>Checkout</b>\n\nTotal: <b>{0}</b>\n\nWhich region do we deliver to?"),
-        [Phrase.RegionChosen] = new(
-            "Регион: <b>{0}</b>\n\nТеперь отправьте <b>город или район</b>.",
-            "Viloyat: <b>{0}</b>\n\nEndi <b>shahar yoki tumanni</b> yuboring.",
-            "Region: <b>{0}</b>\n\nNow send me the <b>city or district</b>."),
-        [Phrase.CityChosen] = new(
-            "Принято. Теперь отправьте <b>улицу и номер дома</b>.",
-            "Qabul qilindi. Endi <b>ko‘cha va uy raqamini</b> yuboring.",
-            "Got it. Now send me the <b>street and house number</b>."),
+            "<b>Оформление заказа</b>\n\nИтого: <b>{0}</b>\n\nОтправьте, пожалуйста, вашу <b>геолокацию</b> — " +
+            "по ней курьер вас найдёт. Нажмите кнопку ниже.",
+            "<b>Buyurtma berish</b>\n\nJami: <b>{0}</b>\n\nIltimos, <b>joylashuvingizni</b> yuboring — kuryer " +
+            "sizni shu orqali topadi. Quyidagi tugmani bosing.",
+            "<b>Checkout</b>\n\nTotal: <b>{0}</b>\n\nPlease send your <b>location</b> — that is how the courier " +
+            "finds you. Tap the button below."),
+        [Phrase.ShareLocationButton] = new(
+            "📍 Отправить геолокацию",
+            "📍 Joylashuvni yuborish",
+            "📍 Send my location"),
+        [Phrase.LocationNeeded] = new(
+            "Чтобы оформить заказ, нужна геолокация. Нажмите кнопку <b>📍 Отправить геолокацию</b> ниже " +
+            "(в Telegram: скрепка → Геопозиция).",
+            "Buyurtma berish uchun joylashuv kerak. Quyidagi <b>📍 Joylashuvni yuborish</b> tugmasini bosing " +
+            "(Telegramda: qisqich → Joylashuv).",
+            "We need your location to place the order. Tap <b>📍 Send my location</b> below (in Telegram: " +
+            "the paperclip → Location)."),
+        [Phrase.LocationReceived] = new(
+            "📍 Геолокация получена.\n\nТеперь напишите <b>номер дома и квартиры</b> (например, <code>12, кв. 5</code>).",
+            "📍 Joylashuv qabul qilindi.\n\nEndi <b>uy va xonadon raqamini</b> yozing (masalan, <code>12, 5-xonadon</code>).",
+            "📍 Location received.\n\nNow send your <b>house and flat number</b> (for example <code>12, flat 5</code>)."),
         [Phrase.DeliveringTo] = new(
             "Доставка: <b>{0}</b>\n\nКак хотите оплатить?",
             "Yetkazib berish: <b>{0}</b>\n\nQanday to‘lamoqchisiz?",

@@ -8,8 +8,14 @@ public enum BotStage
     AwaitingPhone = 1,
     AwaitingOtp = 2,
     AwaitingSearch = 3,
-    AwaitingCity = 4,
-    AwaitingStreet = 5
+
+    /// <summary>Checkout is waiting for a map pin. Values 4 and 5 belonged to the typed city and street steps
+    /// this replaced; they are left unused so a conversation held in Redis when the bot was updated falls
+    /// through to a search rather than into some other step.</summary>
+    AwaitingLocation = 6,
+
+    /// <summary>Checkout is waiting for the house and flat number that the pin cannot give.</summary>
+    AwaitingHouse = 7
 }
 
 /// <summary>Per-Telegram-user conversation state, held in Redis with a short TTL. Deliberately small: it
@@ -27,9 +33,11 @@ public sealed record ConversationState
     /// must be verified through the auth service rather than the bot's own code.</summary>
     public bool PendingRegistration { get; init; }
 
-    public string? Region { get; init; }
+    /// <summary>Delivery pin shared during checkout.</summary>
+    public double? Latitude { get; init; }
 
-    public string? City { get; init; }
+    public double? Longitude { get; init; }
 
-    public string? Street { get; init; }
+    /// <summary>House and flat number typed after the pin — the part of an address a map cannot supply.</summary>
+    public string? House { get; init; }
 }

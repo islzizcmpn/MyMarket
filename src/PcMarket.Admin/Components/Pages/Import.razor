@@ -1,19 +1,19 @@
 @page "/import"
 @inherits AdminPageBase
 
-<PageTitle>Import — Admin</PageTitle>
-<div class="topbar"><h1>Catalog import</h1></div>
+<PageTitle>@L["Import.PageTitle"]</PageTitle>
+<div class="topbar"><h1>@L["Import.Title"]</h1></div>
 
 <div class="card pad" style="max-width:760px;">
-    <p class="muted">Paste a catalog JSON document (same shape as <code>demo-catalog.json</code>: brands, categories, products). Import is idempotent — existing slugs are skipped.</p>
+    <p class="muted">@L["Import.Intro"]</p>
 
     @if (_error is not null) { <div class="alert alert--error">@_error</div> }
-    @if (_done) { <div class="alert alert--ok">Import complete.</div> }
+    @if (_done) { <div class="alert alert--ok">@L["Import.Done"]</div> }
 
     <div class="field">
         <textarea rows="16" style="font-family:monospace;" @bind="_json" placeholder='{ "brands": [], "categories": [], "products": [] }'></textarea>
     </div>
-    <button class="btn btn--primary" disabled="@_busy" @onclick="Run">@(_busy ? "Importing…" : "Import")</button>
+    <button class="btn btn--primary" disabled="@_busy" @onclick="Run">@(_busy ? L["Import.Running"] : L["Import.Run"])</button>
 </div>
 
 @code {

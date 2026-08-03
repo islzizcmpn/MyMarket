@@ -98,6 +98,19 @@ public sealed class TelegramUpdateHandler(
             return;
         }
 
+        if (message.Location is { } location)
+        {
+            // Only meaningful mid-checkout; a pin sent at any other time is ignored rather than treated as
+            // an address for an order that does not exist yet.
+            var stage = (await conversations.GetAsync(context.TelegramUserId, cancellationToken)).Stage;
+            if (stage is BotStage.AwaitingLocation or BotStage.AwaitingHouse)
+            {
+                await orders.SetLocationAsync(context, location.Latitude, location.Longitude, cancellationToken);
+            }
+
+            return;
+        }
+
         var text = message.Text?.Trim();
         if (string.IsNullOrEmpty(text))
         {
@@ -120,11 +133,13 @@ public sealed class TelegramUpdateHandler(
             case BotStage.AwaitingOtp:
                 await account.HandleOtpAsync(context, text, cancellationToken);
                 break;
-            case BotStage.AwaitingCity:
-                await orders.SetCityAsync(context, text, cancellationToken);
+            case BotStage.AwaitingLocation:
+                // Typing an address here is the obvious mistake to make, so it gets the button again rather
+                // than being searched for as a product name.
+                await orders.AskForLocationAsync(context, cancellationToken);
                 break;
-            case BotStage.AwaitingStreet:
-                await orders.SetStreetAsync(context, text, cancellationToken);
+            case BotStage.AwaitingHouse:
+                await orders.SetHouseAsync(context, text, cancellationToken);
                 break;
             default:
                 await catalog.SearchAsync(context, text, cancellationToken);
@@ -175,7 +190,6 @@ public sealed class TelegramUpdateHandler(
                 cart.RemoveAsync(context, itemId, cancellationToken),
             BotCommands.Cart => cart.ShowCartAsync(context, cancellationToken),
             BotCommands.Checkout => orders.BeginCheckoutAsync(context, cancellationToken),
-            BotCommands.Region => orders.SetRegionAsync(context, data.IntArg(0, -1), cancellationToken),
             BotCommands.PaymentMethod when TryPaymentMethod(data.IntArg(0, -1), out var method) =>
                 orders.PlaceOrderAsync(context, method, cancellationToken),
             BotCommands.Orders => orders.ShowOrdersAsync(context, cancellationToken),

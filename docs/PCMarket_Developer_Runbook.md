@@ -99,9 +99,34 @@ Default seeded credentials (from `DbSeeder.cs`):
 The password can be overridden by the `SEED_ADMIN_PASSWORD` environment variable;
 if it isn't set, the default above applies.
 
-> The admin panel interface is intentionally English-only. It is the back-office
-> tool, not the customer storefront — the RU/UZ/EN language switcher is a
-> storefront feature.
+### 4.1 — Panel language
+
+The panel ships in Russian, Uzbek and English, switched with the **RU | UZ | EN**
+control in the top bar. It opens in Russian until someone chooses otherwise.
+
+The choice is stored on the account (`AspNetUsers.Language`, via
+`PUT /api/v1/users/me/language`) — the same column the Telegram bot reads — so a
+manager who switches the panel to Uzbek is also addressed in Uzbek by the bot, on
+any machine they sign in from. A culture cookie carries the choice into the next
+request, because a Blazor Server circuit takes its culture from the HTTP request
+that opens it; that is also why switching triggers a full page load, and why the
+account's language is applied by a redirect right after sign-in.
+
+Panel strings live in `src/PcMarket.Admin/Resources/SharedResource{,.ru,.uz}.resx`
+and are reached with `@L["Key"]` (`AdminPageBase` injects `L`; standalone
+components inject `IStringLocalizer<SharedResource>` themselves). Order and payment
+states go through `L.EnumName(value)`, which reads `Enum.<Type>.<Value>`.
+
+What is **not** translated is catalog data. Product, category and brand names are
+shown as the canonical English value the editor is about to change, with the other
+languages in their own per-language fields — otherwise saving a form would
+overwrite the canonical column with whatever language the editor happened to be
+reading in.
+
+Note `InvariantGlobalization=false` in `PcMarket.Admin.csproj`: it overrides the
+solution-wide default, and without it `CultureInfo("ru")` throws and no `.resx`
+resolves. Any image for this project must ship ICU — the Debian-based `aspnet`
+images do, Alpine and chiselled variants need `libicu` added.
 
 ---
 

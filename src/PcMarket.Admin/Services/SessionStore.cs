@@ -1,5 +1,6 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.Extensions.Localization;
 
 namespace PcMarket.Admin.Services;
 
@@ -34,12 +35,14 @@ public sealed class SessionStore(ProtectedSessionStorage storage)
     }
 }
 
-/// <summary>Money presentation for the admin UI.</summary>
+/// <summary>Money presentation for the admin UI. Digits are grouped by spaces the way the storefront writes
+/// them; the currency word comes from the panel's own string table, so it follows the chosen language.</summary>
 public static class Format
 {
-    private static readonly CultureInfo Uz = Build();
+    private static readonly CultureInfo Grouped = Build();
 
-    public static string Money(decimal amount) => $"{amount.ToString("#,0", Uz)} so‘m";
+    public static string Money(IStringLocalizer localizer, decimal amount) =>
+        $"{amount.ToString("#,0", Grouped)} {localizer["Common.Currency"]}";
 
     private static CultureInfo Build()
     {

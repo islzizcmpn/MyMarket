@@ -175,7 +175,9 @@ public sealed class OrderService(IApplicationDbContext db, IPaymentProviderResol
                 Region = inline.Region,
                 City = inline.City,
                 Street = inline.Street,
-                Details = inline.Details
+                Details = inline.Details,
+                Latitude = inline.Latitude,
+                Longitude = inline.Longitude
             };
         }
 

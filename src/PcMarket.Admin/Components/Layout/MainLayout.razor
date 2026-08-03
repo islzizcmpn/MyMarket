@@ -3,6 +3,7 @@
 @inject AdminSession Session
 @inject SessionStore Store
 @inject NavigationManager Nav
+@inject IStringLocalizer<SharedResource> L
 
 @if (!_ready)
 {
@@ -17,20 +18,23 @@ else
     <div class="shell">
         <aside class="sidebar">
             <div class="brand">PC<span>Market</span> Admin</div>
-            <NavLink class="navlink" href="/" Match="NavLinkMatch.All">📊 Dashboard</NavLink>
-            <NavLink class="navlink" href="/products">📦 Products</NavLink>
-            <NavLink class="navlink" href="/categories">🗂 Categories</NavLink>
-            <NavLink class="navlink" href="/brands">🏷 Brands</NavLink>
-            <NavLink class="navlink" href="/content">🖼 Content</NavLink>
-            <NavLink class="navlink" href="/orders">🧾 Orders</NavLink>
-            <NavLink class="navlink" href="/import">⬆ Import</NavLink>
-            <NavLink class="navlink" href="/audit">🔎 Audit log</NavLink>
-            <a class="navlink signout" @onclick="SignOut" style="cursor:pointer;">🚪 Sign out</a>
+            <NavLink class="navlink" href="/" Match="NavLinkMatch.All">📊 @L["Nav.Dashboard"]</NavLink>
+            <NavLink class="navlink" href="/products">📦 @L["Nav.Products"]</NavLink>
+            <NavLink class="navlink" href="/categories">🗂 @L["Nav.Categories"]</NavLink>
+            <NavLink class="navlink" href="/brands">🏷 @L["Nav.Brands"]</NavLink>
+            <NavLink class="navlink" href="/content">🖼 @L["Nav.Content"]</NavLink>
+            <NavLink class="navlink" href="/orders">🧾 @L["Nav.Orders"]</NavLink>
+            <NavLink class="navlink" href="/import">⬆ @L["Nav.Import"]</NavLink>
+            <NavLink class="navlink" href="/audit">🔎 @L["Nav.Audit"]</NavLink>
+            <a class="navlink signout" @onclick="SignOut" style="cursor:pointer;">🚪 @L["Nav.SignOut"]</a>
         </aside>
         <div class="main">
             <div class="topbar">
                 <div></div>
-                <div class="who">Signed in · @string.Join(", ", Session.Roles)</div>
+                <div class="who">
+                    <LanguageSwitcher />
+                    <span>@L["Header.SignedIn", string.Join(", ", Session.Roles)]</span>
+                </div>
             </div>
             @Body
         </div>
@@ -38,8 +42,8 @@ else
 }
 
 <div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
+    @L["App.Error"]
+    <a href="." class="reload">@L["App.Reload"]</a>
     <span class="dismiss">🗙</span>
 </div>
 

@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Russian back-office strings. Anything missing here falls back to SharedResource.resx (English). -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="Common.Save" xml:space="preserve">
+    <value>Сохранить</value>
+  </data>
+  <data name="Common.Cancel" xml:space="preserve">
+    <value>Отмена</value>
+  </data>
+  <data name="Common.Edit" xml:space="preserve">
+    <value>Изменить</value>
+  </data>
+  <data name="Common.Delete" xml:space="preserve">
+    <value>Удалить</value>
+  </data>
+  <data name="Common.Back" xml:space="preserve">
+    <value>← Назад</value>
+  </data>
+  <data name="Common.Prev" xml:space="preserve">
+    <value>← Назад</value>
+  </data>
+  <data name="Common.Next" xml:space="preserve">
+    <value>Вперёд →</value>
+  </data>
+  <data name="Common.PageOf" xml:space="preserve">
+    <value>Страница {0} из {1}</value>
+  </data>
+  <data name="Common.Yes" xml:space="preserve">
+    <value>Да</value>
+  </data>
+  <data name="Common.No" xml:space="preserve">
+    <value>Нет</value>
+  </data>
+  <data name="Common.Name" xml:space="preserve">
+    <value>Название</value>
+  </data>
+  <data name="Common.Slug" xml:space="preserve">
+    <value>Slug</value>
+  </data>
+  <data name="Common.Products" xml:space="preserve">
+    <value>Товары</value>
+  </data>
+  <data name="Common.Sort" xml:space="preserve">
+    <value>Порядок</value>
+  </data>
+  <data name="Common.Active" xml:space="preserve">
+    <value>Активен</value>
+  </data>
+  <data name="Common.Title" xml:space="preserve">
+    <value>Заголовок</value>
+  </data>
+  <data name="Common.Status" xml:space="preserve">
+    <value>Статус</value>
+  </data>
+  <data name="Common.Payment" xml:space="preserve">
+    <value>Оплата</value>
+  </data>
+  <data name="Common.Total" xml:space="preserve">
+    <value>Итого</value>
+  </data>
+  <data name="Common.Phone" xml:space="preserve">
+    <value>Телефон</value>
+  </data>
+  <data name="Common.Password" xml:space="preserve">
+    <value>Пароль</value>
+  </data>
+  <data name="Common.Translated" xml:space="preserve">
+    <value>Переводы</value>
+  </data>
+  <data name="Common.English" xml:space="preserve">
+    <value>английский</value>
+  </data>
+  <data name="Common.None" xml:space="preserve">
+    <value>— нет —</value>
+  </data>
+  <data name="Common.Select" xml:space="preserve">
+    <value>— выберите —</value>
+  </data>
+  <data name="Common.SearchPlaceholder" xml:space="preserve">
+    <value>Поиск…</value>
+  </data>
+  <data name="Common.Currency" xml:space="preserve">
+    <value>сум</value>
+  </data>
+  <data name="Common.TranslationFallback" xml:space="preserve">
+    <value>Оставьте язык пустым — будет показан английский текст.</value>
+  </data>
+
+  <data name="Nav.Dashboard" xml:space="preserve">
+    <value>Панель</value>
+  </data>
+  <data name="Nav.Products" xml:space="preserve">
+    <value>Товары</value>
+  </data>
+  <data name="Nav.Categories" xml:space="preserve">
+    <value>Категории</value>
+  </data>
+  <data name="Nav.Brands" xml:space="preserve">
+    <value>Бренды</value>
+  </data>
+  <data name="Nav.Content" xml:space="preserve">
+    <value>Контент</value>
+  </data>
+  <data name="Nav.Orders" xml:space="preserve">
+    <value>Заказы</value>
+  </data>
+  <data name="Nav.Import" xml:space="preserve">
+    <value>Импорт</value>
+  </data>
+  <data name="Nav.Audit" xml:space="preserve">
+    <value>Журнал действий</value>
+  </data>
+  <data name="Nav.SignOut" xml:space="preserve">
+    <value>Выйти</value>
+  </data>
+  <data name="Header.SignedIn" xml:space="preserve">
+    <value>Вы вошли · {0}</value>
+  </data>
+  <data name="Header.Language" xml:space="preserve">
+    <value>Язык</value>
+  </data>
+  <data name="App.Error" xml:space="preserve">
+    <value>Произошла непредвиденная ошибка.</value>
+  </data>
+  <data name="App.Reload" xml:space="preserve">
+    <value>Перезагрузить</value>
+  </data>
+
+  <data name="Login.PageTitle" xml:space="preserve">
+    <value>Вход в панель управления</value>
+  </data>
+  <data name="Login.Subtitle" xml:space="preserve">
+    <value>Войдите под учётной записью администратора или менеджера.</value>
+  </data>
+  <data name="Login.SignIn" xml:space="preserve">
+    <value>Войти</value>
+  </data>
+  <data name="Login.SigningIn" xml:space="preserve">
+    <value>Вход…</value>
+  </data>
+  <data name="Login.NoAccess" xml:space="preserve">
+    <value>У этой учётной записи нет доступа к панели управления.</value>
+  </data>
+
+  <data name="Dashboard.PageTitle" xml:space="preserve">
+    <value>Панель управления — PCMarket Admin</value>
+  </data>
+  <data name="Dashboard.Title" xml:space="preserve">
+    <value>Панель управления</value>
+  </data>
+  <data name="Dashboard.OrdersTotal" xml:space="preserve">
+    <value>Всего заказов</value>
+  </data>
+  <data name="Dashboard.OrdersToday" xml:space="preserve">
+    <value>Заказов сегодня</value>
+  </data>
+  <data name="Dashboard.Pending" xml:space="preserve">
+    <value>В ожидании</value>
+  </data>
+  <data name="Dashboard.RevenueTotal" xml:space="preserve">
+    <value>Общая выручка</value>
+  </data>
+  <data name="Dashboard.RevenueToday" xml:space="preserve">
+    <value>Выручка сегодня</value>
+  </data>
+  <data name="Dashboard.LowStock" xml:space="preserve">
+    <value>Заканчиваются</value>
+  </data>
+  <data name="Dashboard.Feed" xml:space="preserve">
+    <value>Лента новых заказов</value>
+  </data>
+  <data name="Dashboard.Connected" xml:space="preserve">
+    <value>на связи</value>
+  </data>
+  <data name="Dashboard.Offline" xml:space="preserve">
+    <value>нет связи</value>
+  </data>
+  <data name="Dashboard.FeedEmpty" xml:space="preserve">
+    <value>Ждём новые заказы… оформите заказ в магазине, и он появится здесь сразу же.</value>
+  </data>
+  <data name="Dashboard.NewOrder" xml:space="preserve">
+    <value>получен новый заказ</value>
+  </data>
+
+  <data name="Products.PageTitle" xml:space="preserve">
+    <value>Товары — Панель управления</value>
+  </data>
+  <data name="Products.New" xml:space="preserve">
+    <value>+ Новый товар</value>
+  </data>
+  <data name="Products.Empty" xml:space="preserve">
+    <value>Товары не найдены.</value>
+  </data>
+  <data name="Products.Category" xml:space="preserve">
+    <value>Категория</value>
+  </data>
+  <data name="Products.Brand" xml:space="preserve">
+    <value>Бренд</value>
+  </data>
+  <data name="Products.From" xml:space="preserve">
+    <value>Цена от</value>
+  </data>
+  <data name="Products.Stock" xml:space="preserve">
+    <value>Остаток</value>
+  </data>
+
+  <data name="Orders.PageTitle" xml:space="preserve">
+    <value>Заказы — Панель управления</value>
+  </data>
+  <data name="Orders.SearchPlaceholder" xml:space="preserve">
+    <value>Номер заказа…</value>
+  </data>
+  <data name="Orders.AllStatuses" xml:space="preserve">
+    <value>Все статусы</value>
+  </data>
+  <data name="Orders.Empty" xml:space="preserve">
+    <value>Заказов нет.</value>
+  </data>
+  <data name="Orders.Order" xml:space="preserve">
+    <value>Заказ</value>
+  </data>
+  <data name="Orders.Customer" xml:space="preserve">
+    <value>Покупатель</value>
+  </data>
+  <data name="Orders.Placed" xml:space="preserve">
+    <value>Оформлен</value>
+  </data>
+
+  <data name="OrderDetail.PageTitle" xml:space="preserve">
+    <value>Заказ — Панель управления</value>
+  </data>
+  <data name="OrderDetail.Title" xml:space="preserve">
+    <value>Заказ {0}</value>
+  </data>
+  <data name="OrderDetail.NotFound" xml:space="preserve">
+    <value>Заказ не найден.</value>
+  </data>
+  <data name="OrderDetail.Items" xml:space="preserve">
+    <value>Позиции</value>
+  </data>
+  <data name="OrderDetail.History" xml:space="preserve">
+    <value>История</value>
+  </data>
+  <data name="OrderDetail.AdvanceTo" xml:space="preserve">
+    <value>Перевести в</value>
+  </data>
+  <data name="OrderDetail.Advance" xml:space="preserve">
+    <value>Перевести</value>
+  </data>
+  <data name="OrderDetail.Refund" xml:space="preserve">
+    <value>Вернуть</value>
+  </data>
+  <data name="OrderDetail.Unknown" xml:space="preserve">
+    <value>Неизвестно</value>
+  </data>
+  <data name="OrderDetail.OrderCount" xml:space="preserve">
+    <value>Заказов</value>
+  </data>
+  <data name="OrderDetail.Method" xml:space="preserve">
+    <value>Способ</value>
+  </data>
+  <data name="OrderDetail.Delivery" xml:space="preserve">
+    <value>Доставка</value>
+  </data>
+  <data name="OrderDetail.Address" xml:space="preserve">
+    <value>Адрес</value>
+  </data>
+  <data name="OrderDetail.Coordinates" xml:space="preserve">
+    <value>Координаты</value>
+  </data>
+  <data name="OrderDetail.OpenInGoogle" xml:space="preserve">
+    <value>Открыть в Google Картах</value>
+  </data>
+  <data name="OrderDetail.OpenInYandex" xml:space="preserve">
+    <value>Открыть в Яндекс Картах</value>
+  </data>
+  <data name="OrderDetail.NoLocation" xml:space="preserve">
+    <value>Геометки нет — заказ оформлен с текстовым адресом.</value>
+  </data>
+
+  <data name="Categories.PageTitle" xml:space="preserve">
+    <value>Категории — Панель управления</value>
+  </data>
+  <data name="Categories.Add" xml:space="preserve">
+    <value>Новая категория</value>
+  </data>
+  <data name="Categories.Edit" xml:space="preserve">
+    <value>Изменение категории</value>
+  </data>
+  <data name="Categories.Parent" xml:space="preserve">
+    <value>Родительская</value>
+  </data>
+  <data name="Categories.SortOrder" xml:space="preserve">
+    <value>Порядок</value>
+  </data>
+  <data name="Categories.Inactive" xml:space="preserve">
+    <value>(неактивна)</value>
+  </data>
+
+  <data name="Brands.PageTitle" xml:space="preserve">
+    <value>Бренды — Панель управления</value>
+  </data>
+  <data name="Brands.Add" xml:space="preserve">
+    <value>Новый бренд</value>
+  </data>
+  <data name="Brands.Edit" xml:space="preserve">
+    <value>Изменение бренда</value>
+  </data>
+  <data name="Brands.LogoUrl" xml:space="preserve">
+    <value>Ссылка на логотип (необязательно)</value>
+  </data>
+
+  <data name="Content.PageTitle" xml:space="preserve">
+    <value>Контент — Панель управления</value>
+  </data>
+  <data name="Content.Title" xml:space="preserve">
+    <value>Контент</value>
+  </data>
+  <data name="Content.Banners" xml:space="preserve">
+    <value>Баннеры</value>
+  </data>
+  <data name="Content.AddBanner" xml:space="preserve">
+    <value>Новый баннер</value>
+  </data>
+  <data name="Content.EditBanner" xml:space="preserve">
+    <value>Изменение баннера</value>
+  </data>
+  <data name="Content.Subtitle" xml:space="preserve">
+    <value>Подзаголовок</value>
+  </data>
+  <data name="Content.ImageUrl" xml:space="preserve">
+    <value>Ссылка на изображение</value>
+  </data>
+  <data name="Content.LinkUrl" xml:space="preserve">
+    <value>Ссылка</value>
+  </data>
+  <data name="Content.Blocks" xml:space="preserve">
+    <value>CMS-блоки</value>
+  </data>
+  <data name="Content.AddBlock" xml:space="preserve">
+    <value>Новый блок</value>
+  </data>
+  <data name="Content.EditBlock" xml:space="preserve">
+    <value>Изменение блока</value>
+  </data>
+  <data name="Content.Key" xml:space="preserve">
+    <value>Ключ</value>
+  </data>
+  <data name="Content.Body" xml:space="preserve">
+    <value>Текст</value>
+  </data>
+
+  <data name="ProductEdit.New" xml:space="preserve">
+    <value>Новый товар</value>
+  </data>
+  <data name="ProductEdit.Edit" xml:space="preserve">
+    <value>Изменение товара</value>
+  </data>
+  <data name="ProductEdit.Saved" xml:space="preserve">
+    <value>Сохранено.</value>
+  </data>
+  <data name="ProductEdit.Details" xml:space="preserve">
+    <value>Основное</value>
+  </data>
+  <data name="ProductEdit.SlugOptional" xml:space="preserve">
+    <value>Slug (необязательно)</value>
+  </data>
+  <data name="ProductEdit.SlugPlaceholder" xml:space="preserve">
+    <value>создаётся из названия</value>
+  </data>
+  <data name="ProductEdit.Description" xml:space="preserve">
+    <value>Описание</value>
+  </data>
+  <data name="ProductEdit.Specs" xml:space="preserve">
+    <value>Характеристики</value>
+  </data>
+  <data name="ProductEdit.SpecKey" xml:space="preserve">
+    <value>Параметр</value>
+  </data>
+  <data name="ProductEdit.SpecValue" xml:space="preserve">
+    <value>Значение</value>
+  </data>
+  <data name="ProductEdit.AddSpec" xml:space="preserve">
+    <value>+ Добавить характеристику</value>
+  </data>
+  <data name="ProductEdit.Variants" xml:space="preserve">
+    <value>Варианты</value>
+  </data>
+  <data name="ProductEdit.Sku" xml:space="preserve">
+    <value>Артикул</value>
+  </data>
+  <data name="ProductEdit.Price" xml:space="preserve">
+    <value>Цена</value>
+  </data>
+  <data name="ProductEdit.OldPrice" xml:space="preserve">
+    <value>Старая цена</value>
+  </data>
+  <data name="ProductEdit.AddVariant" xml:space="preserve">
+    <value>+ Добавить вариант</value>
+  </data>
+  <data name="ProductEdit.Images" xml:space="preserve">
+    <value>Изображения</value>
+  </data>
+  <data name="ProductEdit.Primary" xml:space="preserve">
+    <value>основное</value>
+  </data>
+  <data name="ProductEdit.AddImage" xml:space="preserve">
+    <value>+ Добавить ссылку</value>
+  </data>
+  <data name="ProductEdit.Upload" xml:space="preserve">
+    <value>Загрузить в MinIO</value>
+  </data>
+  <data name="ProductEdit.Uploading" xml:space="preserve">
+    <value>загрузка…</value>
+  </data>
+  <data name="ProductEdit.Save" xml:space="preserve">
+    <value>Сохранить товар</value>
+  </data>
+  <data name="ProductEdit.Saving" xml:space="preserve">
+    <value>Сохранение…</value>
+  </data>
+  <data name="ProductEdit.SelectCategory" xml:space="preserve">
+    <value>Выберите категорию.</value>
+  </data>
+
+  <data name="Import.PageTitle" xml:space="preserve">
+    <value>Импорт — Панель управления</value>
+  </data>
+  <data name="Import.Title" xml:space="preserve">
+    <value>Импорт каталога</value>
+  </data>
+  <data name="Import.Intro" xml:space="preserve">
+    <value>Вставьте JSON каталога (та же структура, что и demo-catalog.json: бренды, категории, товары). Импорт идемпотентен — существующие slug пропускаются.</value>
+  </data>
+  <data name="Import.Done" xml:space="preserve">
+    <value>Импорт завершён.</value>
+  </data>
+  <data name="Import.Run" xml:space="preserve">
+    <value>Импортировать</value>
+  </data>
+  <data name="Import.Running" xml:space="preserve">
+    <value>Импорт…</value>
+  </data>
+
+  <data name="Audit.PageTitle" xml:space="preserve">
+    <value>Журнал действий — Панель управления</value>
+  </data>
+  <data name="Audit.Empty" xml:space="preserve">
+    <value>Записей пока нет.</value>
+  </data>
+  <data name="Audit.When" xml:space="preserve">
+    <value>Когда</value>
+  </data>
+  <data name="Audit.Actor" xml:space="preserve">
+    <value>Кто</value>
+  </data>
+  <data name="Audit.Action" xml:space="preserve">
+    <value>Действие</value>
+  </data>
+  <data name="Audit.Entity" xml:space="preserve">
+    <value>Объект</value>
+  </data>
+  <data name="Audit.Summary" xml:space="preserve">
+    <value>Описание</value>
+  </data>
+
+  <data name="NotFound.Title" xml:space="preserve">
+    <value>Страница не найдена</value>
+  </data>
+  <data name="NotFound.Body" xml:space="preserve">
+    <value>К сожалению, запрашиваемая страница не существует.</value>
+  </data>
+  <data name="ErrorPage.PageTitle" xml:space="preserve">
+    <value>Ошибка</value>
+  </data>
+  <data name="ErrorPage.Title" xml:space="preserve">
+    <value>Ошибка.</value>
+  </data>
+  <data name="ErrorPage.Subtitle" xml:space="preserve">
+    <value>При обработке запроса произошла ошибка.</value>
+  </data>
+  <data name="ErrorPage.RequestId" xml:space="preserve">
+    <value>Идентификатор запроса:</value>
+  </data>
+  <data name="ErrorPage.DevMode" xml:space="preserve">
+    <value>Режим разработки</value>
+  </data>
+  <data name="ErrorPage.DevModeBody" xml:space="preserve">
+    <value>Переключение на окружение Development покажет более подробную информацию о произошедшей ошибке.</value>
+  </data>
+  <data name="ErrorPage.DevModeWarning" xml:space="preserve">
+    <value>Окружение Development не следует включать в развёрнутых приложениях: пользователи могут увидеть конфиденциальные данные из исключений. Для локальной отладки задайте переменной окружения ASPNETCORE_ENVIRONMENT значение Development и перезапустите приложение.</value>
+  </data>
+  <data name="Reconnect.Rejoining" xml:space="preserve">
+    <value>Переподключаемся к серверу…</value>
+  </data>
+  <data name="Reconnect.RetryPrefix" xml:space="preserve">
+    <value>Не удалось переподключиться… повтор через</value>
+  </data>
+  <data name="Reconnect.RetrySuffix" xml:space="preserve">
+    <value>с.</value>
+  </data>
+  <data name="Reconnect.Failed" xml:space="preserve">
+    <value>Не удалось переподключиться.</value>
+  </data>
+  <data name="Reconnect.RetryOrReload" xml:space="preserve">
+    <value>Повторите попытку или обновите страницу.</value>
+  </data>
+  <data name="Reconnect.Retry" xml:space="preserve">
+    <value>Повторить</value>
+  </data>
+  <data name="Reconnect.Paused" xml:space="preserve">
+    <value>Сессия приостановлена сервером.</value>
+  </data>
+  <data name="Reconnect.ResumeFailed" xml:space="preserve">
+    <value>Не удалось возобновить сессию.</value>
+  </data>
+  <data name="Reconnect.Resume" xml:space="preserve">
+    <value>Возобновить</value>
+  </data>
+
+  <data name="Enum.OrderStatus.Created" xml:space="preserve">
+    <value>Создан</value>
+  </data>
+  <data name="Enum.OrderStatus.AwaitingPayment" xml:space="preserve">
+    <value>Ожидает оплаты</value>
+  </data>
+  <data name="Enum.OrderStatus.Paid" xml:space="preserve">
+    <value>Оплачен</value>
+  </data>
+  <data name="Enum.OrderStatus.Processing" xml:space="preserve">
+    <value>В обработке</value>
+  </data>
+  <data name="Enum.OrderStatus.Shipped" xml:space="preserve">
+    <value>Отправлен</value>
+  </data>
+  <data name="Enum.OrderStatus.Delivered" xml:space="preserve">
+    <value>Доставлен</value>
+  </data>
+  <data name="Enum.OrderStatus.Cancelled" xml:space="preserve">
+    <value>Отменён</value>
+  </data>
+  <data name="Enum.OrderStatus.Refunded" xml:space="preserve">
+    <value>Возврат оформлен</value>
+  </data>
+  <data name="Enum.PaymentStatus.None" xml:space="preserve">
+    <value>Не требуется</value>
+  </data>
+  <data name="Enum.PaymentStatus.Pending" xml:space="preserve">
+    <value>Ожидается</value>
+  </data>
+  <data name="Enum.PaymentStatus.Paid" xml:space="preserve">
+    <value>Оплачено</value>
+  </data>
+  <data name="Enum.PaymentStatus.Failed" xml:space="preserve">
+    <value>Ошибка оплаты</value>
+  </data>
+  <data name="Enum.PaymentStatus.Refunded" xml:space="preserve">
+    <value>Возвращено</value>
+  </data>
+  <data name="Enum.PaymentMethod.Cash" xml:space="preserve">
+    <value>Наличными при получении</value>
+  </data>
+  <data name="Enum.PaymentMethod.Click" xml:space="preserve">
+    <value>Click</value>
+  </data>
+  <data name="Enum.PaymentMethod.Payme" xml:space="preserve">
+    <value>Payme</value>
+  </data>
+  <data name="Enum.PaymentMethod.Uzcard" xml:space="preserve">
+    <value>Uzcard</value>
+  </data>
+  <data name="Enum.PaymentMethod.Humo" xml:space="preserve">
+    <value>Humo</value>
+  </data>
+</root>

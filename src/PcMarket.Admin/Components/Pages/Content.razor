@@ -1,8 +1,8 @@
 @page "/content"
 @inherits AdminPageBase
 
-<PageTitle>Content — Admin</PageTitle>
-<div class="topbar"><h1>Content</h1></div>
+<PageTitle>@L["Content.PageTitle"]</PageTitle>
+<div class="topbar"><h1>@L["Content.Title"]</h1></div>
 
 @if (_loading) { <div class="spinner"></div> }
 else
@@ -11,9 +11,9 @@ else
 
     <div class="grid" style="grid-template-columns: 1fr 340px;">
         <div class="card">
-            <div class="pad"><h3>Banners</h3></div>
+            <div class="pad"><h3>@L["Content.Banners"]</h3></div>
             <table class="table">
-                <thead><tr><th>Title</th><th>Translated</th><th>Sort</th><th>Active</th><th></th></tr></thead>
+                <thead><tr><th>@L["Common.Title"]</th><th>@L["Common.Translated"]</th><th>@L["Common.Sort"]</th><th>@L["Common.Active"]</th><th></th></tr></thead>
                 <tbody>
                     @foreach (var b in _banners)
                     {
@@ -21,10 +21,10 @@ else
                             <td>@b.Title</td>
                             <td class="muted">@TranslatedLanguages(b.Translations)</td>
                             <td>@b.SortOrder</td>
-                            <td>@(b.IsActive ? "Yes" : "No")</td>
+                            <td>@(b.IsActive ? L["Common.Yes"] : L["Common.No"])</td>
                             <td class="page-actions">
-                                <button class="btn btn--ghost btn--sm" @onclick="() => EditBanner(b)">Edit</button>
-                                <button class="btn btn--danger btn--sm" @onclick="() => DeleteBanner(b.Id)">Delete</button>
+                                <button class="btn btn--ghost btn--sm" @onclick="() => EditBanner(b)">@L["Common.Edit"]</button>
+                                <button class="btn btn--danger btn--sm" @onclick="() => DeleteBanner(b.Id)">@L["Common.Delete"]</button>
                             </td>
                         </tr>
                     }
@@ -32,32 +32,32 @@ else
             </table>
         </div>
         <div class="card pad" style="height:fit-content;">
-            <h3>@(_bannerId is null ? "Add banner" : "Edit banner")</h3>
-            <div class="field"><label>Title <span class="muted">· English</span></label><input @bind="_bTitle" /></div>
-            <TranslationFields Field="Title" Label="Title" Values="_bTranslations" />
-            <div class="field"><label>Subtitle <span class="muted">· English</span></label><input @bind="_bSubtitle" /></div>
-            <TranslationFields Field="Subtitle" Label="Subtitle" Values="_bTranslations" />
+            <h3>@(_bannerId is null ? L["Content.AddBanner"] : L["Content.EditBanner"])</h3>
+            <div class="field"><label>@L["Common.Title"] <span class="muted">· @L["Common.English"]</span></label><input @bind="_bTitle" /></div>
+            <TranslationFields Field="Title" Label="@L["Common.Title"]" Values="_bTranslations" />
+            <div class="field"><label>@L["Content.Subtitle"] <span class="muted">· @L["Common.English"]</span></label><input @bind="_bSubtitle" /></div>
+            <TranslationFields Field="Subtitle" Label="@L["Content.Subtitle"]" Values="_bTranslations" />
             <p class="muted" style="font-size:.8rem; margin:-4px 0 12px;">
-                Leave a language empty to fall back to the English text.
+                @L["Common.TranslationFallback"]
             </p>
-            <div class="field"><label>Image URL</label><input @bind="_bImage" /></div>
-            <div class="field"><label>Link URL</label><input @bind="_bLink" placeholder="/catalog" /></div>
+            <div class="field"><label>@L["Content.ImageUrl"]</label><input @bind="_bImage" /></div>
+            <div class="field"><label>@L["Content.LinkUrl"]</label><input @bind="_bLink" placeholder="/catalog" /></div>
             <div class="row">
-                <div class="field"><label>Sort</label><input type="number" @bind="_bSort" /></div>
-                <div class="field"><label>Active</label><select @bind="_bActive"><option value="true">Yes</option><option value="false">No</option></select></div>
+                <div class="field"><label>@L["Common.Sort"]</label><input type="number" @bind="_bSort" /></div>
+                <div class="field"><label>@L["Common.Active"]</label><select @bind="_bActive"><option value="true">@L["Common.Yes"]</option><option value="false">@L["Common.No"]</option></select></div>
             </div>
             <div class="page-actions">
-                <button class="btn btn--primary" @onclick="SaveBanner">Save</button>
-                @if (_bannerId is not null) { <button class="btn btn--ghost" @onclick="ResetBanner">Cancel</button> }
+                <button class="btn btn--primary" @onclick="SaveBanner">@L["Common.Save"]</button>
+                @if (_bannerId is not null) { <button class="btn btn--ghost" @onclick="ResetBanner">@L["Common.Cancel"]</button> }
             </div>
         </div>
     </div>
 
     <div class="grid" style="grid-template-columns: 1fr 340px; margin-top:18px;">
         <div class="card">
-            <div class="pad"><h3>CMS blocks</h3></div>
+            <div class="pad"><h3>@L["Content.Blocks"]</h3></div>
             <table class="table">
-                <thead><tr><th>Key</th><th>Title</th><th>Translated</th><th>Active</th><th></th></tr></thead>
+                <thead><tr><th>@L["Content.Key"]</th><th>@L["Common.Title"]</th><th>@L["Common.Translated"]</th><th>@L["Common.Active"]</th><th></th></tr></thead>
                 <tbody>
                     @foreach (var c in _blocks)
                     {
@@ -65,10 +65,10 @@ else
                             <td><code>@c.Key</code></td>
                             <td>@c.Title</td>
                             <td class="muted">@TranslatedLanguages(c.Translations)</td>
-                            <td>@(c.IsActive ? "Yes" : "No")</td>
+                            <td>@(c.IsActive ? L["Common.Yes"] : L["Common.No"])</td>
                             <td class="page-actions">
-                                <button class="btn btn--ghost btn--sm" @onclick="() => EditBlock(c)">Edit</button>
-                                <button class="btn btn--danger btn--sm" @onclick="() => DeleteBlock(c.Id)">Delete</button>
+                                <button class="btn btn--ghost btn--sm" @onclick="() => EditBlock(c)">@L["Common.Edit"]</button>
+                                <button class="btn btn--danger btn--sm" @onclick="() => DeleteBlock(c.Id)">@L["Common.Delete"]</button>
                             </td>
                         </tr>
                     }
@@ -76,19 +76,19 @@ else
             </table>
         </div>
         <div class="card pad" style="height:fit-content;">
-            <h3>@(_blockId is null ? "Add block" : "Edit block")</h3>
-            <div class="field"><label>Key</label><input @bind="_cKey" placeholder="home-intro" /></div>
-            <div class="field"><label>Title <span class="muted">· English</span></label><input @bind="_cTitle" /></div>
-            <TranslationFields Field="Title" Label="Title" Values="_cTranslations" />
-            <div class="field"><label>Body <span class="muted">· English</span></label><textarea rows="4" @bind="_cBody"></textarea></div>
-            <TranslationFields Field="Body" Label="Body" Values="_cTranslations" Multiline="true" />
+            <h3>@(_blockId is null ? L["Content.AddBlock"] : L["Content.EditBlock"])</h3>
+            <div class="field"><label>@L["Content.Key"]</label><input @bind="_cKey" placeholder="home-intro" /></div>
+            <div class="field"><label>@L["Common.Title"] <span class="muted">· @L["Common.English"]</span></label><input @bind="_cTitle" /></div>
+            <TranslationFields Field="Title" Label="@L["Common.Title"]" Values="_cTranslations" />
+            <div class="field"><label>@L["Content.Body"] <span class="muted">· @L["Common.English"]</span></label><textarea rows="4" @bind="_cBody"></textarea></div>
+            <TranslationFields Field="Body" Label="@L["Content.Body"]" Values="_cTranslations" Multiline="true" />
             <p class="muted" style="font-size:.8rem; margin:-4px 0 12px;">
-                Leave a language empty to fall back to the English text.
+                @L["Common.TranslationFallback"]
             </p>
-            <div class="field"><label>Active</label><select @bind="_cActive"><option value="true">Yes</option><option value="false">No</option></select></div>
+            <div class="field"><label>@L["Common.Active"]</label><select @bind="_cActive"><option value="true">@L["Common.Yes"]</option><option value="false">@L["Common.No"]</option></select></div>
             <div class="page-actions">
-                <button class="btn btn--primary" @onclick="SaveBlock">Save</button>
-                @if (_blockId is not null) { <button class="btn btn--ghost" @onclick="ResetBlock">Cancel</button> }
+                <button class="btn btn--primary" @onclick="SaveBlock">@L["Common.Save"]</button>
+                @if (_blockId is not null) { <button class="btn btn--ghost" @onclick="ResetBlock">@L["Common.Cancel"]</button> }
             </div>
         </div>
     </div>

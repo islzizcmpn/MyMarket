@@ -4,9 +4,9 @@
 @inject IConfiguration Config
 @implements IAsyncDisposable
 
-<PageTitle>Dashboard — PCMarket Admin</PageTitle>
+<PageTitle>@L["Dashboard.PageTitle"]</PageTitle>
 
-<div class="topbar"><h1>Dashboard</h1></div>
+<div class="topbar"><h1>@L["Dashboard.Title"]</h1></div>
 
 @if (_loading)
 {
@@ -15,22 +15,22 @@
 else if (_stats is not null)
 {
     <div class="stat-grid">
-        <div class="stat"><div class="label">Orders total</div><div class="value">@_stats.TotalOrders</div></div>
-        <div class="stat"><div class="label">Orders today</div><div class="value">@_stats.OrdersToday</div></div>
-        <div class="stat"><div class="label">Pending</div><div class="value">@_stats.PendingOrders</div></div>
-        <div class="stat"><div class="label">Revenue total</div><div class="value" style="font-size:1.15rem;">@Format.Money(_stats.RevenueTotal)</div></div>
-        <div class="stat"><div class="label">Revenue today</div><div class="value" style="font-size:1.15rem;">@Format.Money(_stats.RevenueToday)</div></div>
-        <div class="stat"><div class="label">Products</div><div class="value">@_stats.ProductCount</div></div>
-        <div class="stat"><div class="label">Low stock</div><div class="value">@_stats.LowStockCount</div></div>
+        <div class="stat"><div class="label">@L["Dashboard.OrdersTotal"]</div><div class="value">@_stats.TotalOrders</div></div>
+        <div class="stat"><div class="label">@L["Dashboard.OrdersToday"]</div><div class="value">@_stats.OrdersToday</div></div>
+        <div class="stat"><div class="label">@L["Dashboard.Pending"]</div><div class="value">@_stats.PendingOrders</div></div>
+        <div class="stat"><div class="label">@L["Dashboard.RevenueTotal"]</div><div class="value" style="font-size:1.15rem;">@Format.Money(L, _stats.RevenueTotal)</div></div>
+        <div class="stat"><div class="label">@L["Dashboard.RevenueToday"]</div><div class="value" style="font-size:1.15rem;">@Format.Money(L, _stats.RevenueToday)</div></div>
+        <div class="stat"><div class="label">@L["Common.Products"]</div><div class="value">@_stats.ProductCount</div></div>
+        <div class="stat"><div class="label">@L["Dashboard.LowStock"]</div><div class="value">@_stats.LowStockCount</div></div>
     </div>
 
     <div class="card pad" style="margin-top:20px;">
-        <h3>Live new-order feed
-            <span class="pill @(_connected ? "pill--ok" : "pill--off")" style="margin-left:8px;">@(_connected ? "connected" : "offline")</span>
+        <h3>@L["Dashboard.Feed"]
+            <span class="pill @(_connected ? "pill--ok" : "pill--off")" style="margin-left:8px;">@(_connected ? L["Dashboard.Connected"] : L["Dashboard.Offline"])</span>
         </h3>
         @if (_feed.Count == 0)
         {
-            <p class="muted">Waiting for new orders… place an order in the storefront to see it appear here in real time.</p>
+            <p class="muted">@L["Dashboard.FeedEmpty"]</p>
         }
         else
         {
@@ -38,7 +38,7 @@ else if (_stats is not null)
             {
                 <div class="feed-item">
                     <strong><a href="@($"/orders/{notice.OrderId}")">@notice.OrderNumber</a></strong>
-                    <span class="muted"> · new order received</span>
+                    <span class="muted"> · @L["Dashboard.NewOrder"]</span>
                 </div>
             }
         }

@@ -2,11 +2,11 @@
 @page "/products/{Id:guid}"
 @inherits AdminPageBase
 
-<PageTitle>@(IsNew ? "New product" : "Edit product") — Admin</PageTitle>
+<PageTitle>@Heading — Admin</PageTitle>
 
 <div class="topbar">
-    <h1>@(IsNew ? "New product" : "Edit product")</h1>
-    <a class="btn btn--ghost" href="/products">← Back</a>
+    <h1>@Heading</h1>
+    <a class="btn btn--ghost" href="/products">@L["Common.Back"]</a>
 </div>
 
 @if (_loading)
@@ -16,49 +16,49 @@
 else
 {
     @if (_error is not null) { <div class="alert alert--error">@_error</div> }
-    @if (_saved) { <div class="alert alert--ok">Saved.</div> }
+    @if (_saved) { <div class="alert alert--ok">@L["ProductEdit.Saved"]</div> }
 
     <div class="grid" style="grid-template-columns: 1fr 1fr;">
         <div class="card pad">
-            <h3>Details</h3>
-            <div class="field"><label>Name</label><input @bind="_name" /></div>
-            <div class="field"><label>Slug (optional)</label><input @bind="_slug" placeholder="auto from name" /></div>
+            <h3>@L["ProductEdit.Details"]</h3>
+            <div class="field"><label>@L["Common.Name"]</label><input @bind="_name" /></div>
+            <div class="field"><label>@L["ProductEdit.SlugOptional"]</label><input @bind="_slug" placeholder="@L["ProductEdit.SlugPlaceholder"]" /></div>
             <div class="row">
-                <div class="field"><label>Category</label>
+                <div class="field"><label>@L["Products.Category"]</label>
                     <select @bind="_categoryId">
-                        <option value="">— select —</option>
+                        <option value="">@L["Common.Select"]</option>
                         @foreach (var c in _categories) { <option value="@c.Id">@c.Name</option> }
                     </select>
                 </div>
-                <div class="field"><label>Brand</label>
+                <div class="field"><label>@L["Products.Brand"]</label>
                     <select @bind="_brandId">
-                        <option value="">— none —</option>
+                        <option value="">@L["Common.None"]</option>
                         @foreach (var b in _brands) { <option value="@b.Id">@b.Name</option> }
                     </select>
                 </div>
             </div>
-            <div class="field"><label>Description</label><textarea rows="3" @bind="_description"></textarea></div>
-            <label style="display:flex; gap:8px; align-items:center;"><input type="checkbox" @bind="_isActive" style="width:auto;" /> Active</label>
+            <div class="field"><label>@L["ProductEdit.Description"]</label><textarea rows="3" @bind="_description"></textarea></div>
+            <label style="display:flex; gap:8px; align-items:center;"><input type="checkbox" @bind="_isActive" style="width:auto;" /> @L["Common.Active"]</label>
         </div>
 
         <div class="card pad">
-            <h3>Specifications</h3>
+            <h3>@L["ProductEdit.Specs"]</h3>
             @foreach (var spec in _specs)
             {
                 <div class="row" style="align-items:end;">
-                    <div class="field"><input placeholder="Key" @bind="spec.Key" /></div>
-                    <div class="field"><input placeholder="Value" @bind="spec.Value" /></div>
+                    <div class="field"><input placeholder="@L["ProductEdit.SpecKey"]" @bind="spec.Key" /></div>
+                    <div class="field"><input placeholder="@L["ProductEdit.SpecValue"]" @bind="spec.Value" /></div>
                     <button class="btn btn--ghost btn--sm" style="flex:0;" @onclick="() => _specs.Remove(spec)">✕</button>
                 </div>
             }
-            <button class="btn btn--ghost btn--sm" @onclick="() => _specs.Add(new SpecRow())">+ Add spec</button>
+            <button class="btn btn--ghost btn--sm" @onclick="() => _specs.Add(new SpecRow())">@L["ProductEdit.AddSpec"]</button>
         </div>
     </div>
 
     <div class="card pad" style="margin-top:16px;">
-        <h3>Variants</h3>
+        <h3>@L["ProductEdit.Variants"]</h3>
         <table class="table">
-            <thead><tr><th>SKU</th><th>Price</th><th>Old price</th><th>Stock</th><th>Active</th><th></th></tr></thead>
+            <thead><tr><th>@L["ProductEdit.Sku"]</th><th>@L["ProductEdit.Price"]</th><th>@L["ProductEdit.OldPrice"]</th><th>@L["Products.Stock"]</th><th>@L["Common.Active"]</th><th></th></tr></thead>
             <tbody>
                 @foreach (var v in _variants)
                 {
@@ -73,36 +73,36 @@ else
                 }
             </tbody>
         </table>
-        <button class="btn btn--ghost btn--sm" @onclick="AddVariant">+ Add variant</button>
+        <button class="btn btn--ghost btn--sm" @onclick="AddVariant">@L["ProductEdit.AddVariant"]</button>
     </div>
 
     <div class="card pad" style="margin-top:16px;">
-        <h3>Images</h3>
+        <h3>@L["ProductEdit.Images"]</h3>
         @foreach (var img in _images)
         {
             <div class="row" style="align-items:end;">
                 <div class="field" style="flex:3;"><input placeholder="https://…" @bind="img.Url" /></div>
                 <label style="flex:0; white-space:nowrap; display:flex; gap:6px; align-items:center;">
-                    <input type="radio" name="primary" checked="@img.IsPrimary" @onchange="() => SetPrimary(img)" style="width:auto;" /> primary
+                    <input type="radio" name="primary" checked="@img.IsPrimary" @onchange="() => SetPrimary(img)" style="width:auto;" /> @L["ProductEdit.Primary"]
                 </label>
                 <button class="btn btn--ghost btn--sm" style="flex:0;" @onclick="() => _images.Remove(img)">✕</button>
             </div>
         }
         <div class="page-actions">
-            <button class="btn btn--ghost btn--sm" @onclick="() => _images.Add(new ImageRow())">+ Add image URL</button>
+            <button class="btn btn--ghost btn--sm" @onclick="() => _images.Add(new ImageRow())">@L["ProductEdit.AddImage"]</button>
             <label class="btn btn--ghost btn--sm" style="cursor:pointer;">
-                Upload to MinIO
+                @L["ProductEdit.Upload"]
                 <InputFile OnChange="OnUpload" accept="image/*" style="display:none;" />
             </label>
-            @if (_uploading) { <span class="muted">uploading…</span> }
+            @if (_uploading) { <span class="muted">@L["ProductEdit.Uploading"]</span> }
         </div>
     </div>
 
     <div class="page-actions" style="margin-top:18px;">
-        <button class="btn btn--primary" disabled="@_saving" @onclick="Save">@(_saving ? "Saving…" : "Save product")</button>
+        <button class="btn btn--primary" disabled="@_saving" @onclick="Save">@(_saving ? L["ProductEdit.Saving"] : L["ProductEdit.Save"])</button>
         @if (!IsNew)
         {
-            <button class="btn btn--danger" @onclick="Delete">Delete</button>
+            <button class="btn btn--danger" @onclick="Delete">@L["Common.Delete"]</button>
         }
     </div>
 }
@@ -110,6 +110,8 @@ else
 @code {
     [Parameter] public Guid? Id { get; set; }
     private bool IsNew => Id is null;
+
+    private string Heading => IsNew ? L["ProductEdit.New"] : L["ProductEdit.Edit"];
 
     private sealed class SpecRow { public string Key { get; set; } = ""; public string Value { get; set; } = ""; }
     private sealed class VariantRow { public Guid? Id { get; set; } public string Sku { get; set; } = ""; public decimal Price { get; set; } public decimal? OldPrice { get; set; } public int StockQty { get; set; } public bool IsActive { get; set; } = true; public IReadOnlyDictionary<string, string> Attributes { get; set; } = new Dictionary<string, string>(); }
@@ -181,7 +183,7 @@ else
     {
         if (!Guid.TryParse(_categoryId, out var categoryId))
         {
-            _error = "Please select a category.";
+            _error = L["ProductEdit.SelectCategory"];
             return;
         }
 

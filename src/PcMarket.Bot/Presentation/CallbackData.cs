@@ -23,9 +23,6 @@ public static class BotCommands
 
     public const string Checkout = "co";
 
-    /// <summary><c>rg:{regionIndex}</c></summary>
-    public const string Region = "rg";
-
     /// <summary><c>pm:{paymentMethodValue}</c></summary>
     public const string PaymentMethod = "pm";
 

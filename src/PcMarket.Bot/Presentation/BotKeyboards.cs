@@ -183,27 +183,15 @@ public static class BotKeyboards
         return new InlineKeyboardMarkup(rows);
     }
 
-    public static InlineKeyboardMarkup Regions(string culture)
-    {
-        var rows = new List<List<InlineKeyboardButton>>();
-        for (var index = 0; index < UzbekistanRegions.All.Count; index += 2)
+    /// <summary>Reply keyboard asking the customer to pin where they are. Telegram's own request-location
+    /// button is the only route that yields real coordinates — a typed address cannot be turned into a pin
+    /// without a geocoding service, and a pin is what actually gets a courier to the door.</summary>
+    public static ReplyKeyboardMarkup RequestLocation(string culture) =>
+        new(KeyboardButton.WithRequestLocation(BotPhrases.Get(culture, Phrase.ShareLocationButton)))
         {
-            var row = new List<InlineKeyboardButton>
-            {
-                InlineKeyboardButton.WithCallbackData(UzbekistanRegions.All[index], CallbackData.Of(BotCommands.Region, index))
-            };
-
-            if (index + 1 < UzbekistanRegions.All.Count)
-            {
-                row.Add(InlineKeyboardButton.WithCallbackData(UzbekistanRegions.All[index + 1], CallbackData.Of(BotCommands.Region, index + 1)));
-            }
-
-            rows.Add(row);
-        }
-
-        rows.Add([InlineKeyboardButton.WithCallbackData(BotPhrases.Get(culture, Phrase.BackToCart), BotCommands.Cart)]);
-        return new InlineKeyboardMarkup(rows);
-    }
+            ResizeKeyboard = true,
+            OneTimeKeyboard = true
+        };
 
     public static InlineKeyboardMarkup PaymentMethods(string culture)
     {

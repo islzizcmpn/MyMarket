@@ -1,13 +1,13 @@
 @page "/products"
 @inherits AdminPageBase
 
-<PageTitle>Products — Admin</PageTitle>
+<PageTitle>@L["Products.PageTitle"]</PageTitle>
 
 <div class="topbar">
-    <h1>Products</h1>
+    <h1>@L["Nav.Products"]</h1>
     <div class="page-actions">
-        <input placeholder="Search…" @bind="_search" @bind:event="oninput" @onkeydown="OnKey" />
-        <a class="btn btn--primary" href="/products/new">+ New product</a>
+        <input placeholder="@L["Common.SearchPlaceholder"]" @bind="_search" @bind:event="oninput" @onkeydown="OnKey" />
+        <a class="btn btn--primary" href="/products/new">@L["Products.New"]</a>
     </div>
 </div>
 
@@ -17,13 +17,13 @@
 }
 else if (_result is null || _result.Items.Count == 0)
 {
-    <div class="card pad"><p class="muted">No products found.</p></div>
+    <div class="card pad"><p class="muted">@L["Products.Empty"]</p></div>
 }
 else
 {
     <div class="card">
         <table class="table">
-            <thead><tr><th>Name</th><th>Category</th><th>Brand</th><th>From</th><th>Stock</th><th>Active</th><th></th></tr></thead>
+            <thead><tr><th>@L["Common.Name"]</th><th>@L["Products.Category"]</th><th>@L["Products.Brand"]</th><th>@L["Products.From"]</th><th>@L["Products.Stock"]</th><th>@L["Common.Active"]</th><th></th></tr></thead>
             <tbody>
                 @foreach (var p in _result.Items)
                 {
@@ -31,10 +31,10 @@ else
                         <td><a href="@($"/products/{p.Id}")">@p.Name</a></td>
                         <td>@p.CategoryName</td>
                         <td>@(p.BrandName ?? "—")</td>
-                        <td>@Format.Money(p.PriceFrom)</td>
+                        <td>@Format.Money(L, p.PriceFrom)</td>
                         <td>@p.TotalStock</td>
-                        <td>@(p.IsActive ? "Yes" : "No")</td>
-                        <td><a class="btn btn--ghost btn--sm" href="@($"/products/{p.Id}")">Edit</a></td>
+                        <td>@(p.IsActive ? L["Common.Yes"] : L["Common.No"])</td>
+                        <td><a class="btn btn--ghost btn--sm" href="@($"/products/{p.Id}")">@L["Common.Edit"]</a></td>
                     </tr>
                 }
             </tbody>
@@ -43,9 +43,9 @@ else
     @if (_result.TotalPages > 1)
     {
         <div class="page-actions" style="justify-content:center; margin-top:16px;">
-            <button class="btn btn--ghost btn--sm" disabled="@(_page <= 1)" @onclick="() => Go(_page - 1)">← Prev</button>
-            <span class="muted">Page @_page of @_result.TotalPages</span>
-            <button class="btn btn--ghost btn--sm" disabled="@(_page >= _result.TotalPages)" @onclick="() => Go(_page + 1)">Next →</button>
+            <button class="btn btn--ghost btn--sm" disabled="@(_page <= 1)" @onclick="() => Go(_page - 1)">@L["Common.Prev"]</button>
+            <span class="muted">@L["Common.PageOf", _page, _result.TotalPages]</span>
+            <button class="btn btn--ghost btn--sm" disabled="@(_page >= _result.TotalPages)" @onclick="() => Go(_page + 1)">@L["Common.Next"]</button>
         </div>
     }
 }

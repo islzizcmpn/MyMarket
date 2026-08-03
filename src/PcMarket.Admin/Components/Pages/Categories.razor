@@ -1,8 +1,8 @@
 @page "/categories"
 @inherits AdminPageBase
 
-<PageTitle>Categories — Admin</PageTitle>
-<div class="topbar"><h1>Categories</h1></div>
+<PageTitle>@L["Categories.PageTitle"]</PageTitle>
+<div class="topbar"><h1>@L["Nav.Categories"]</h1></div>
 
 @if (_loading) { <div class="spinner"></div> }
 else
@@ -11,19 +11,19 @@ else
     <div class="grid" style="grid-template-columns: 1fr 340px;">
         <div class="card">
             <table class="table">
-                <thead><tr><th>Name</th><th>Translated</th><th>Slug</th><th>Sort</th><th>Products</th><th></th></tr></thead>
+                <thead><tr><th>@L["Common.Name"]</th><th>@L["Common.Translated"]</th><th>@L["Common.Slug"]</th><th>@L["Common.Sort"]</th><th>@L["Common.Products"]</th><th></th></tr></thead>
                 <tbody>
                     @foreach (var c in _items)
                     {
                         <tr>
-                            <td>@c.Name @(c.IsActive ? "" : "(inactive)")</td>
+                            <td>@c.Name @(c.IsActive ? "" : L["Categories.Inactive"])</td>
                             <td class="muted">@TranslatedLanguages(c.Translations)</td>
                             <td class="muted">@c.Slug</td>
                             <td>@c.SortOrder</td>
                             <td>@c.ProductCount</td>
                             <td class="page-actions">
-                                <button class="btn btn--ghost btn--sm" @onclick="() => Edit(c)">Edit</button>
-                                <button class="btn btn--danger btn--sm" @onclick="() => Delete(c.Id)">Delete</button>
+                                <button class="btn btn--ghost btn--sm" @onclick="() => Edit(c)">@L["Common.Edit"]</button>
+                                <button class="btn btn--danger btn--sm" @onclick="() => Delete(c.Id)">@L["Common.Delete"]</button>
                             </td>
                         </tr>
                     }
@@ -32,28 +32,28 @@ else
         </div>
 
         <div class="card pad" style="height:fit-content;">
-            <h3>@(_editId is null ? "Add category" : "Edit category")</h3>
+            <h3>@(_editId is null ? L["Categories.Add"] : L["Categories.Edit"])</h3>
             <div class="field">
-                <label>Name <span class="muted">· English</span></label>
+                <label>@L["Common.Name"] <span class="muted">· @L["Common.English"]</span></label>
                 <input @bind="_name" />
             </div>
-            <TranslationFields Field="Name" Label="Name" Values="_translations" />
+            <TranslationFields Field="Name" Label="@L["Common.Name"]" Values="_translations" />
             <p class="muted" style="font-size:.8rem; margin:-4px 0 12px;">
-                Leave a language empty to fall back to the English name.
+                @L["Common.TranslationFallback"]
             </p>
-            <div class="field"><label>Parent</label>
+            <div class="field"><label>@L["Categories.Parent"]</label>
                 <select @bind="_parentId">
-                    <option value="">— none —</option>
+                    <option value="">@L["Common.None"]</option>
                     @foreach (var c in _items.Where(x => x.Id != _editId)) { <option value="@c.Id">@c.Name</option> }
                 </select>
             </div>
             <div class="row">
-                <div class="field"><label>Sort order</label><input type="number" @bind="_sortOrder" /></div>
-                <div class="field"><label>Active</label><select @bind="_isActive"><option value="true">Yes</option><option value="false">No</option></select></div>
+                <div class="field"><label>@L["Categories.SortOrder"]</label><input type="number" @bind="_sortOrder" /></div>
+                <div class="field"><label>@L["Common.Active"]</label><select @bind="_isActive"><option value="true">@L["Common.Yes"]</option><option value="false">@L["Common.No"]</option></select></div>
             </div>
             <div class="page-actions">
-                <button class="btn btn--primary" @onclick="Save">Save</button>
-                @if (_editId is not null) { <button class="btn btn--ghost" @onclick="Reset">Cancel</button> }
+                <button class="btn btn--primary" @onclick="Save">@L["Common.Save"]</button>
+                @if (_editId is not null) { <button class="btn btn--ghost" @onclick="Reset">@L["Common.Cancel"]</button> }
             </div>
         </div>
     </div>

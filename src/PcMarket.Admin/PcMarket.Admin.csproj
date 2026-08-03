@@ -14,6 +14,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    <!--
+      Overrides the solution-wide InvariantGlobalization=true from Directory.Build.props, for the same
+      reason the storefront does: the panel is localized (ru/uz/en), and invariant mode makes
+      CultureInfo("ru") throw and stops the culture-specific resources under Resources/ from resolving.
+      Any container image built for this project must therefore ship ICU (the Debian-based aspnet images
+      do; Alpine and chiseled variants need libicu added explicitly).
+    -->
+    <InvariantGlobalization>false</InvariantGlobalization>
   </PropertyGroup>
 
 </Project>

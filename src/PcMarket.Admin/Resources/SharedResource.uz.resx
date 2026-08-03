@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Uzbek (Latin) back-office strings. Anything missing here falls back to SharedResource.resx (English). -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="Common.Save" xml:space="preserve">
+    <value>Saqlash</value>
+  </data>
+  <data name="Common.Cancel" xml:space="preserve">
+    <value>Bekor qilish</value>
+  </data>
+  <data name="Common.Edit" xml:space="preserve">
+    <value>Tahrirlash</value>
+  </data>
+  <data name="Common.Delete" xml:space="preserve">
+    <value>O‘chirish</value>
+  </data>
+  <data name="Common.Back" xml:space="preserve">
+    <value>← Orqaga</value>
+  </data>
+  <data name="Common.Prev" xml:space="preserve">
+    <value>← Oldingi</value>
+  </data>
+  <data name="Common.Next" xml:space="preserve">
+    <value>Keyingi →</value>
+  </data>
+  <data name="Common.PageOf" xml:space="preserve">
+    <value>{1} dan {0}-sahifa</value>
+  </data>
+  <data name="Common.Yes" xml:space="preserve">
+    <value>Ha</value>
+  </data>
+  <data name="Common.No" xml:space="preserve">
+    <value>Yo‘q</value>
+  </data>
+  <data name="Common.Name" xml:space="preserve">
+    <value>Nomi</value>
+  </data>
+  <data name="Common.Slug" xml:space="preserve">
+    <value>Slug</value>
+  </data>
+  <data name="Common.Products" xml:space="preserve">
+    <value>Mahsulotlar</value>
+  </data>
+  <data name="Common.Sort" xml:space="preserve">
+    <value>Tartib</value>
+  </data>
+  <data name="Common.Active" xml:space="preserve">
+    <value>Faol</value>
+  </data>
+  <data name="Common.Title" xml:space="preserve">
+    <value>Sarlavha</value>
+  </data>
+  <data name="Common.Status" xml:space="preserve">
+    <value>Holati</value>
+  </data>
+  <data name="Common.Payment" xml:space="preserve">
+    <value>To‘lov</value>
+  </data>
+  <data name="Common.Total" xml:space="preserve">
+    <value>Jami</value>
+  </data>
+  <data name="Common.Phone" xml:space="preserve">
+    <value>Telefon</value>
+  </data>
+  <data name="Common.Password" xml:space="preserve">
+    <value>Parol</value>
+  </data>
+  <data name="Common.Translated" xml:space="preserve">
+    <value>Tarjimalar</value>
+  </data>
+  <data name="Common.English" xml:space="preserve">
+    <value>inglizcha</value>
+  </data>
+  <data name="Common.None" xml:space="preserve">
+    <value>— yo‘q —</value>
+  </data>
+  <data name="Common.Select" xml:space="preserve">
+    <value>— tanlang —</value>
+  </data>
+  <data name="Common.SearchPlaceholder" xml:space="preserve">
+    <value>Qidiruv…</value>
+  </data>
+  <data name="Common.Currency" xml:space="preserve">
+    <value>so‘m</value>
+  </data>
+  <data name="Common.TranslationFallback" xml:space="preserve">
+    <value>Tilni bo‘sh qoldirsangiz, inglizcha matn ko‘rsatiladi.</value>
+  </data>
+
+  <data name="Nav.Dashboard" xml:space="preserve">
+    <value>Boshqaruv paneli</value>
+  </data>
+  <data name="Nav.Products" xml:space="preserve">
+    <value>Mahsulotlar</value>
+  </data>
+  <data name="Nav.Categories" xml:space="preserve">
+    <value>Bo‘limlar</value>
+  </data>
+  <data name="Nav.Brands" xml:space="preserve">
+    <value>Brendlar</value>
+  </data>
+  <data name="Nav.Content" xml:space="preserve">
+    <value>Kontent</value>
+  </data>
+  <data name="Nav.Orders" xml:space="preserve">
+    <value>Buyurtmalar</value>
+  </data>
+  <data name="Nav.Import" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="Nav.Audit" xml:space="preserve">
+    <value>Amallar jurnali</value>
+  </data>
+  <data name="Nav.SignOut" xml:space="preserve">
+    <value>Chiqish</value>
+  </data>
+  <data name="Header.SignedIn" xml:space="preserve">
+    <value>Kirdingiz · {0}</value>
+  </data>
+  <data name="Header.Language" xml:space="preserve">
+    <value>Til</value>
+  </data>
+  <data name="App.Error" xml:space="preserve">
+    <value>Kutilmagan xatolik yuz berdi.</value>
+  </data>
+  <data name="App.Reload" xml:space="preserve">
+    <value>Qayta yuklash</value>
+  </data>
+
+  <data name="Login.PageTitle" xml:space="preserve">
+    <value>Boshqaruv paneliga kirish</value>
+  </data>
+  <data name="Login.Subtitle" xml:space="preserve">
+    <value>Administrator yoki menejer hisobi bilan kiring.</value>
+  </data>
+  <data name="Login.SignIn" xml:space="preserve">
+    <value>Kirish</value>
+  </data>
+  <data name="Login.SigningIn" xml:space="preserve">
+    <value>Kirilmoqda…</value>
+  </data>
+  <data name="Login.NoAccess" xml:space="preserve">
+    <value>Bu hisobda boshqaruv paneliga ruxsat yo‘q.</value>
+  </data>
+
+  <data name="Dashboard.PageTitle" xml:space="preserve">
+    <value>Boshqaruv paneli — PCMarket Admin</value>
+  </data>
+  <data name="Dashboard.Title" xml:space="preserve">
+    <value>Boshqaruv paneli</value>
+  </data>
+  <data name="Dashboard.OrdersTotal" xml:space="preserve">
+    <value>Jami buyurtmalar</value>
+  </data>
+  <data name="Dashboard.OrdersToday" xml:space="preserve">
+    <value>Bugungi buyurtmalar</value>
+  </data>
+  <data name="Dashboard.Pending" xml:space="preserve">
+    <value>Kutilmoqda</value>
+  </data>
+  <data name="Dashboard.RevenueTotal" xml:space="preserve">
+    <value>Jami tushum</value>
+  </data>
+  <data name="Dashboard.RevenueToday" xml:space="preserve">
+    <value>Bugungi tushum</value>
+  </data>
+  <data name="Dashboard.LowStock" xml:space="preserve">
+    <value>Zaxira kam</value>
+  </data>
+  <data name="Dashboard.Feed" xml:space="preserve">
+    <value>Yangi buyurtmalar tasmasi</value>
+  </data>
+  <data name="Dashboard.Connected" xml:space="preserve">
+    <value>ulangan</value>
+  </data>
+  <data name="Dashboard.Offline" xml:space="preserve">
+    <value>ulanmagan</value>
+  </data>
+  <data name="Dashboard.FeedEmpty" xml:space="preserve">
+    <value>Yangi buyurtmalar kutilmoqda… do‘konda buyurtma bering va u shu yerda darhol paydo bo‘ladi.</value>
+  </data>
+  <data name="Dashboard.NewOrder" xml:space="preserve">
+    <value>yangi buyurtma keldi</value>
+  </data>
+
+  <data name="Products.PageTitle" xml:space="preserve">
+    <value>Mahsulotlar — Boshqaruv paneli</value>
+  </data>
+  <data name="Products.New" xml:space="preserve">
+    <value>+ Yangi mahsulot</value>
+  </data>
+  <data name="Products.Empty" xml:space="preserve">
+    <value>Mahsulotlar topilmadi.</value>
+  </data>
+  <data name="Products.Category" xml:space="preserve">
+    <value>Bo‘lim</value>
+  </data>
+  <data name="Products.Brand" xml:space="preserve">
+    <value>Brend</value>
+  </data>
+  <data name="Products.From" xml:space="preserve">
+    <value>Narxi</value>
+  </data>
+  <data name="Products.Stock" xml:space="preserve">
+    <value>Qoldiq</value>
+  </data>
+
+  <data name="Orders.PageTitle" xml:space="preserve">
+    <value>Buyurtmalar — Boshqaruv paneli</value>
+  </data>
+  <data name="Orders.SearchPlaceholder" xml:space="preserve">
+    <value>Buyurtma raqami…</value>
+  </data>
+  <data name="Orders.AllStatuses" xml:space="preserve">
+    <value>Barcha holatlar</value>
+  </data>
+  <data name="Orders.Empty" xml:space="preserve">
+    <value>Buyurtmalar yo‘q.</value>
+  </data>
+  <data name="Orders.Order" xml:space="preserve">
+    <value>Buyurtma</value>
+  </data>
+  <data name="Orders.Customer" xml:space="preserve">
+    <value>Xaridor</value>
+  </data>
+  <data name="Orders.Placed" xml:space="preserve">
+    <value>Berilgan</value>
+  </data>
+
+  <data name="OrderDetail.PageTitle" xml:space="preserve">
+    <value>Buyurtma — Boshqaruv paneli</value>
+  </data>
+  <data name="OrderDetail.Title" xml:space="preserve">
+    <value>{0} buyurtmasi</value>
+  </data>
+  <data name="OrderDetail.NotFound" xml:space="preserve">
+    <value>Buyurtma topilmadi.</value>
+  </data>
+  <data name="OrderDetail.Items" xml:space="preserve">
+    <value>Mahsulotlar</value>
+  </data>
+  <data name="OrderDetail.History" xml:space="preserve">
+    <value>Tarix</value>
+  </data>
+  <data name="OrderDetail.AdvanceTo" xml:space="preserve">
+    <value>Holatga o‘tkazish</value>
+  </data>
+  <data name="OrderDetail.Advance" xml:space="preserve">
+    <value>O‘tkazish</value>
+  </data>
+  <data name="OrderDetail.Refund" xml:space="preserve">
+    <value>Pulni qaytarish</value>
+  </data>
+  <data name="OrderDetail.Unknown" xml:space="preserve">
+    <value>Noma’lum</value>
+  </data>
+  <data name="OrderDetail.OrderCount" xml:space="preserve">
+    <value>Buyurtmalar</value>
+  </data>
+  <data name="OrderDetail.Method" xml:space="preserve">
+    <value>Usuli</value>
+  </data>
+  <data name="OrderDetail.Delivery" xml:space="preserve">
+    <value>Yetkazib berish</value>
+  </data>
+  <data name="OrderDetail.Address" xml:space="preserve">
+    <value>Manzil</value>
+  </data>
+  <data name="OrderDetail.Coordinates" xml:space="preserve">
+    <value>Koordinatalar</value>
+  </data>
+  <data name="OrderDetail.OpenInGoogle" xml:space="preserve">
+    <value>Google Xaritada ochish</value>
+  </data>
+  <data name="OrderDetail.OpenInYandex" xml:space="preserve">
+    <value>Yandex Xaritada ochish</value>
+  </data>
+  <data name="OrderDetail.NoLocation" xml:space="preserve">
+    <value>Xarita belgisi yo‘q — buyurtma matnli manzil bilan berilgan.</value>
+  </data>
+
+  <data name="Categories.PageTitle" xml:space="preserve">
+    <value>Bo‘limlar — Boshqaruv paneli</value>
+  </data>
+  <data name="Categories.Add" xml:space="preserve">
+    <value>Bo‘lim qo‘shish</value>
+  </data>
+  <data name="Categories.Edit" xml:space="preserve">
+    <value>Bo‘limni tahrirlash</value>
+  </data>
+  <data name="Categories.Parent" xml:space="preserve">
+    <value>Yuqori bo‘lim</value>
+  </data>
+  <data name="Categories.SortOrder" xml:space="preserve">
+    <value>Tartib raqami</value>
+  </data>
+  <data name="Categories.Inactive" xml:space="preserve">
+    <value>(faol emas)</value>
+  </data>
+
+  <data name="Brands.PageTitle" xml:space="preserve">
+    <value>Brendlar — Boshqaruv paneli</value>
+  </data>
+  <data name="Brands.Add" xml:space="preserve">
+    <value>Brend qo‘shish</value>
+  </data>
+  <data name="Brands.Edit" xml:space="preserve">
+    <value>Brendni tahrirlash</value>
+  </data>
+  <data name="Brands.LogoUrl" xml:space="preserve">
+    <value>Logotip havolasi (ixtiyoriy)</value>
+  </data>
+
+  <data name="Content.PageTitle" xml:space="preserve">
+    <value>Kontent — Boshqaruv paneli</value>
+  </data>
+  <data name="Content.Title" xml:space="preserve">
+    <value>Kontent</value>
+  </data>
+  <data name="Content.Banners" xml:space="preserve">
+    <value>Bannerlar</value>
+  </data>
+  <data name="Content.AddBanner" xml:space="preserve">
+    <value>Banner qo‘shish</value>
+  </data>
+  <data name="Content.EditBanner" xml:space="preserve">
+    <value>Bannerni tahrirlash</value>
+  </data>
+  <data name="Content.Subtitle" xml:space="preserve">
+    <value>Kichik sarlavha</value>
+  </data>
+  <data name="Content.ImageUrl" xml:space="preserve">
+    <value>Rasm havolasi</value>
+  </data>
+  <data name="Content.LinkUrl" xml:space="preserve">
+    <value>Havola</value>
+  </data>
+  <data name="Content.Blocks" xml:space="preserve">
+    <value>CMS bloklari</value>
+  </data>
+  <data name="Content.AddBlock" xml:space="preserve">
+    <value>Blok qo‘shish</value>
+  </data>
+  <data name="Content.EditBlock" xml:space="preserve">
+    <value>Blokni tahrirlash</value>
+  </data>
+  <data name="Content.Key" xml:space="preserve">
+    <value>Kalit</value>
+  </data>
+  <data name="Content.Body" xml:space="preserve">
+    <value>Matn</value>
+  </data>
+
+  <data name="ProductEdit.New" xml:space="preserve">
+    <value>Yangi mahsulot</value>
+  </data>
+  <data name="ProductEdit.Edit" xml:space="preserve">
+    <value>Mahsulotni tahrirlash</value>
+  </data>
+  <data name="ProductEdit.Saved" xml:space="preserve">
+    <value>Saqlandi.</value>
+  </data>
+  <data name="ProductEdit.Details" xml:space="preserve">
+    <value>Asosiy</value>
+  </data>
+  <data name="ProductEdit.SlugOptional" xml:space="preserve">
+    <value>Slug (ixtiyoriy)</value>
+  </data>
+  <data name="ProductEdit.SlugPlaceholder" xml:space="preserve">
+    <value>nomidan avtomatik</value>
+  </data>
+  <data name="ProductEdit.Description" xml:space="preserve">
+    <value>Tavsif</value>
+  </data>
+  <data name="ProductEdit.Specs" xml:space="preserve">
+    <value>Xususiyatlari</value>
+  </data>
+  <data name="ProductEdit.SpecKey" xml:space="preserve">
+    <value>Parametr</value>
+  </data>
+  <data name="ProductEdit.SpecValue" xml:space="preserve">
+    <value>Qiymati</value>
+  </data>
+  <data name="ProductEdit.AddSpec" xml:space="preserve">
+    <value>+ Xususiyat qo‘shish</value>
+  </data>
+  <data name="ProductEdit.Variants" xml:space="preserve">
+    <value>Variantlar</value>
+  </data>
+  <data name="ProductEdit.Sku" xml:space="preserve">
+    <value>Artikul</value>
+  </data>
+  <data name="ProductEdit.Price" xml:space="preserve">
+    <value>Narxi</value>
+  </data>
+  <data name="ProductEdit.OldPrice" xml:space="preserve">
+    <value>Eski narxi</value>
+  </data>
+  <data name="ProductEdit.AddVariant" xml:space="preserve">
+    <value>+ Variant qo‘shish</value>
+  </data>
+  <data name="ProductEdit.Images" xml:space="preserve">
+    <value>Rasmlar</value>
+  </data>
+  <data name="ProductEdit.Primary" xml:space="preserve">
+    <value>asosiy</value>
+  </data>
+  <data name="ProductEdit.AddImage" xml:space="preserve">
+    <value>+ Rasm havolasini qo‘shish</value>
+  </data>
+  <data name="ProductEdit.Upload" xml:space="preserve">
+    <value>MinIO ga yuklash</value>
+  </data>
+  <data name="ProductEdit.Uploading" xml:space="preserve">
+    <value>yuklanmoqda…</value>
+  </data>
+  <data name="ProductEdit.Save" xml:space="preserve">
+    <value>Mahsulotni saqlash</value>
+  </data>
+  <data name="ProductEdit.Saving" xml:space="preserve">
+    <value>Saqlanmoqda…</value>
+  </data>
+  <data name="ProductEdit.SelectCategory" xml:space="preserve">
+    <value>Bo‘limni tanlang.</value>
+  </data>
+
+  <data name="Import.PageTitle" xml:space="preserve">
+    <value>Import — Boshqaruv paneli</value>
+  </data>
+  <data name="Import.Title" xml:space="preserve">
+    <value>Katalog importi</value>
+  </data>
+  <data name="Import.Intro" xml:space="preserve">
+    <value>Katalog JSON hujjatini joylashtiring (demo-catalog.json bilan bir xil tuzilma: brendlar, bo‘limlar, mahsulotlar). Import idempotent — mavjud slug lar o‘tkazib yuboriladi.</value>
+  </data>
+  <data name="Import.Done" xml:space="preserve">
+    <value>Import yakunlandi.</value>
+  </data>
+  <data name="Import.Run" xml:space="preserve">
+    <value>Import qilish</value>
+  </data>
+  <data name="Import.Running" xml:space="preserve">
+    <value>Import qilinmoqda…</value>
+  </data>
+
+  <data name="Audit.PageTitle" xml:space="preserve">
+    <value>Amallar jurnali — Boshqaruv paneli</value>
+  </data>
+  <data name="Audit.Empty" xml:space="preserve">
+    <value>Hozircha yozuvlar yo‘q.</value>
+  </data>
+  <data name="Audit.When" xml:space="preserve">
+    <value>Qachon</value>
+  </data>
+  <data name="Audit.Actor" xml:space="preserve">
+    <value>Kim</value>
+  </data>
+  <data name="Audit.Action" xml:space="preserve">
+    <value>Amal</value>
+  </data>
+  <data name="Audit.Entity" xml:space="preserve">
+    <value>Obyekt</value>
+  </data>
+  <data name="Audit.Summary" xml:space="preserve">
+    <value>Tavsif</value>
+  </data>
+
+  <data name="NotFound.Title" xml:space="preserve">
+    <value>Sahifa topilmadi</value>
+  </data>
+  <data name="NotFound.Body" xml:space="preserve">
+    <value>Kechirasiz, siz qidirayotgan sahifa mavjud emas.</value>
+  </data>
+  <data name="ErrorPage.PageTitle" xml:space="preserve">
+    <value>Xatolik</value>
+  </data>
+  <data name="ErrorPage.Title" xml:space="preserve">
+    <value>Xatolik.</value>
+  </data>
+  <data name="ErrorPage.Subtitle" xml:space="preserve">
+    <value>So‘rovni qayta ishlashda xatolik yuz berdi.</value>
+  </data>
+  <data name="ErrorPage.RequestId" xml:space="preserve">
+    <value>So‘rov identifikatori:</value>
+  </data>
+  <data name="ErrorPage.DevMode" xml:space="preserve">
+    <value>Ishlab chiqish rejimi</value>
+  </data>
+  <data name="ErrorPage.DevModeBody" xml:space="preserve">
+    <value>Development muhitiga o‘tish yuz bergan xatolik haqida batafsil ma’lumot ko‘rsatadi.</value>
+  </data>
+  <data name="ErrorPage.DevModeWarning" xml:space="preserve">
+    <value>Development muhitini ishga tushirilgan ilovalarda yoqmaslik kerak: foydalanuvchilar istisnolardagi maxfiy ma’lumotlarni ko‘rishi mumkin. Mahalliy nosozliklarni tuzatish uchun ASPNETCORE_ENVIRONMENT muhit o‘zgaruvchisiga Development qiymatini bering va ilovani qayta ishga tushiring.</value>
+  </data>
+  <data name="Reconnect.Rejoining" xml:space="preserve">
+    <value>Serverga qayta ulanmoqda…</value>
+  </data>
+  <data name="Reconnect.RetryPrefix" xml:space="preserve">
+    <value>Qayta ulanib bo‘lmadi… qayta urinish</value>
+  </data>
+  <data name="Reconnect.RetrySuffix" xml:space="preserve">
+    <value>soniyadan keyin.</value>
+  </data>
+  <data name="Reconnect.Failed" xml:space="preserve">
+    <value>Qayta ulanib bo‘lmadi.</value>
+  </data>
+  <data name="Reconnect.RetryOrReload" xml:space="preserve">
+    <value>Qayta urinib ko‘ring yoki sahifani yangilang.</value>
+  </data>
+  <data name="Reconnect.Retry" xml:space="preserve">
+    <value>Qayta urinish</value>
+  </data>
+  <data name="Reconnect.Paused" xml:space="preserve">
+    <value>Seans server tomonidan to‘xtatildi.</value>
+  </data>
+  <data name="Reconnect.ResumeFailed" xml:space="preserve">
+    <value>Seansni tiklab bo‘lmadi.</value>
+  </data>
+  <data name="Reconnect.Resume" xml:space="preserve">
+    <value>Davom ettirish</value>
+  </data>
+
+  <data name="Enum.OrderStatus.Created" xml:space="preserve">
+    <value>Yaratildi</value>
+  </data>
+  <data name="Enum.OrderStatus.AwaitingPayment" xml:space="preserve">
+    <value>To‘lov kutilmoqda</value>
+  </data>
+  <data name="Enum.OrderStatus.Paid" xml:space="preserve">
+    <value>To‘landi</value>
+  </data>
+  <data name="Enum.OrderStatus.Processing" xml:space="preserve">
+    <value>Tayyorlanmoqda</value>
+  </data>
+  <data name="Enum.OrderStatus.Shipped" xml:space="preserve">
+    <value>Jo‘natildi</value>
+  </data>
+  <data name="Enum.OrderStatus.Delivered" xml:space="preserve">
+    <value>Yetkazib berildi</value>
+  </data>
+  <data name="Enum.OrderStatus.Cancelled" xml:space="preserve">
+    <value>Bekor qilindi</value>
+  </data>
+  <data name="Enum.OrderStatus.Refunded" xml:space="preserve">
+    <value>Pul qaytarildi</value>
+  </data>
+  <data name="Enum.PaymentStatus.None" xml:space="preserve">
+    <value>Talab qilinmaydi</value>
+  </data>
+  <data name="Enum.PaymentStatus.Pending" xml:space="preserve">
+    <value>Kutilmoqda</value>
+  </data>
+  <data name="Enum.PaymentStatus.Paid" xml:space="preserve">
+    <value>To‘landi</value>
+  </data>
+  <data name="Enum.PaymentStatus.Failed" xml:space="preserve">
+    <value>To‘lov amalga oshmadi</value>
+  </data>
+  <data name="Enum.PaymentStatus.Refunded" xml:space="preserve">
+    <value>Qaytarildi</value>
+  </data>
+  <data name="Enum.PaymentMethod.Cash" xml:space="preserve">
+    <value>Yetkazib berishda naqd pul</value>
+  </data>
+  <data name="Enum.PaymentMethod.Click" xml:space="preserve">
+    <value>Click</value>
+  </data>
+  <data name="Enum.PaymentMethod.Payme" xml:space="preserve">
+    <value>Payme</value>
+  </data>
+  <data name="Enum.PaymentMethod.Uzcard" xml:space="preserve">
+    <value>Uzcard</value>
+  </data>
+  <data name="Enum.PaymentMethod.Humo" xml:space="preserve">
+    <value>Humo</value>
+  </data>
+</root>

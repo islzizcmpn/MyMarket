@@ -32,9 +32,21 @@ dotnet user-secrets set "Telegram:BotToken" "..." --project src/PcMarket.Api
 ## Bringing the bot up
 
 **Fast path (Windows, after the bot is already configured once):** **double-click
-`scripts/start-telegram-bot.cmd`**. It starts Docker Desktop if needed, brings up the stack, waits
-for both quick tunnels, writes their URLs into `.env`, restarts the API, and re-registers the
-webhook — the manual steps below, automated. Safe to re-run any time, e.g. after a PC restart.
+`scripts/start-telegram-bot.cmd`**. It starts Docker Desktop if needed, brings up the stack,
+recreates both quick tunnels, waits for each to **register a connection with Cloudflare's edge**, writes
+their URLs into `.env`, restarts the API, and re-registers the webhook — the manual steps below,
+automated. Safe to re-run any time, e.g. after a PC restart.
+
+The tunnels are recreated rather than reused on purpose: a quick tunnel that has been running for hours
+can lose its connection to Cloudflare and never recover, leaving a container that is still `Up` and a
+hostname that no longer resolves. Reusing it would register a dead URL — which Telegram accepts without
+complaint, leaving a silent bot and a script that reported success.
+
+The gate is cloudflared's own `Registered tunnel connection` line, not an HTTP request from your machine.
+A tunnel stuck in a retry loop never prints it, which is exactly the failure worth catching — while a
+hostname minted seconds ago often *does not resolve locally yet* (or resolves to an AAAA record on a
+machine with no IPv6 route) even though Telegram reaches it without trouble. The script still probes the
+URL, but only warns if that probe fails, because local DNS says nothing about what Telegram can see.
 Requires `TELEGRAM_ENABLED=true`, `TELEGRAM_BOT_TOKEN` and `TELEGRAM_WEBHOOK_SECRET` already set in
 `.env` (steps 1-3 below, one-time setup).
 
@@ -203,9 +215,9 @@ they select, so a customer who cannot read the current one can still find their 
 Which language a chat gets, in order:
 
 1. the language stored on the **linked account** (`AspNetUsers.Language`) — it lives on the account rather
-   than in bot session state, so it survives a Redis flush and is available to any other client that wants
-   it (the storefront still picks its culture from its own cookie today, so it does not read this column
-   yet);
+   than in bot session state, so it survives a Redis flush and is shared with the admin panel, which reads
+   and writes the same column through `PUT /api/v1/users/me/language` (the storefront still picks its
+   culture from its own cookie, so it does not read this column yet);
 2. for a chat with no account yet, the guest choice in Redis under `bot:lang:{telegramUserId}` (180-day
    TTL), which is copied onto the account the moment they link — unless the account already carries one;
 3. the language the customer's **own Telegram app** is in, when it is one of the three;
@@ -254,6 +266,7 @@ keyboard it sent earlier.
 | Symptom | Where to look |
 | --- | --- |
 | Bot silent, `webhook-info` shows no URL | `set-webhook` was never called, or was called before `PUBLIC_API_URL` was set |
+| Bot silent right after a clean-looking script run; `webhook-info` shows a URL and no error | The quick tunnel is **up but disconnected** — cloudflared lost its edge connection and its hostname stopped resolving, while the container stayed `Up`. Confirm with `nslookup <host>` (NXDOMAIN) or `docker compose logs tunnel \| grep "Registered tunnel connection"` (nothing recent, just retry loops), then re-run the script — it now recreates the tunnels and probes the URL before registering |
 | `webhook-info` shows `Wrong response from the webhook: 401` | `WebhookSecretToken` changed after registration — re-run `set-webhook` |
 | `... 404` | `Telegram:Enabled` is false in the running container, or Nginx is not routing `API_HOST` |
 | `set-webhook` returns 503 | Token missing/blank — the client was never constructed |

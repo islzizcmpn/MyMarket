@@ -1,11 +1,16 @@
 namespace PcMarket.Contracts.Orders;
 
 /// <summary>Snapshot of the delivery address carried on an order.</summary>
+/// <param name="Latitude">Map pin the customer shared, when there is one. The Telegram bot collects a pin
+/// plus a flat number rather than a written region and city, so for those orders this — not
+/// <paramref name="Region"/> — is what says where to deliver.</param>
 public sealed record ShippingAddressDto(
     string Region,
     string City,
     string Street,
-    string? Details);
+    string? Details,
+    double? Latitude = null,
+    double? Longitude = null);
 
 public sealed record OrderItemDto(
     Guid Id,
