@@ -24,14 +24,14 @@
             @if (item.Href is { Length: > 0 } href)
             {
                 <a class="logo-tile" href="@href" title="@item.Label">
-                    <span class="logo-tile__disc">@RenderMark(item)</span>
+                    <span class="logo-tile__disc @DiscModifier(item)">@RenderMark(item)</span>
                     <span class="logo-tile__label">@item.Label</span>
                 </a>
             }
             else
             {
                 <div class="logo-tile" title="@item.Label">
-                    <span class="logo-tile__disc">@RenderMark(item)</span>
+                    <span class="logo-tile__disc @DiscModifier(item)">@RenderMark(item)</span>
                     <span class="logo-tile__label">@item.Label</span>
                 </div>
             }
@@ -76,6 +76,12 @@
             builder.CloseElement();
         }
     };
+
+    /// <summary>Tiles holding real artwork sit on a light plate; monogram tiles keep the graphite
+    /// disc. Brand logos ship with baked-in backgrounds as often as not, and a plate is what stops
+    /// those from reading as a grey box floating on the dark page.</summary>
+    private static string? DiscModifier(LogoItem item) =>
+        item.LogoUrl is { Length: > 0 } ? "logo-tile__disc--art" : null;
 
     private static string Monogram(string label) =>
         string.IsNullOrWhiteSpace(label) ? "?" : label.Trim()[..1].ToUpperInvariant();

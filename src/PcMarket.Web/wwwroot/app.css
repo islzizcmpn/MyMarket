@@ -629,9 +629,14 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
 
 /* ---------- Hero carousel ---------- */
 .hero-carousel { position: relative; border-radius: 22px; overflow: hidden; margin-bottom: var(--space-section); }
-.hero-carousel__slide { display: block; position: relative; aspect-ratio: 21 / 8; }
+.hero-carousel__slide { display: block; position: relative; aspect-ratio: 21 / 8; background: var(--surface); }
 .hero-carousel__slide:hover { text-decoration: none; }
-.hero-carousel__slide img { width: 100%; height: 100%; object-fit: cover; }
+/* The supplied hero art is square or portrait and the frame is 21:8, so cover crops hard to the
+   centre. object-position keeps the crop just above centre, where the subject usually sits. */
+.hero-carousel__slide img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%;
+}
 .hero-carousel__overlay {
     position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center;
     /* 88px of horizontal padding keeps the copy clear of the prev/next arrows, which sit 24px in. */
@@ -641,11 +646,20 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
        2. bloom    — the studio light, centred behind the copy on the left, warm and very diffuse;
        3. scrim    — the Layer 1 left-to-right ramp that keeps the copy legible over any artwork.
        The bloom sits above the scrim so it reads as light falling on the darkened area, not as a
-       tint mixed underneath it. All static: nothing here animates. */
+       tint mixed underneath it. All static: nothing here animates.
+
+       The scrim is deeper than Layer 1's now that real photographs sit behind it rather than a flat
+       placeholder: near-solid under the copy, easing to a light haze on the right so the artwork
+       still reads. The floor of .14 on the right is what guarantees white text stays legible even
+       over the brightest slide. */
     background:
         var(--hero-vignette),
         var(--hero-bloom),
-        linear-gradient(90deg, rgba(10, 10, 13, .88) 0%, rgba(10, 10, 13, .55) 42%, rgba(10, 10, 13, .05) 100%);
+        linear-gradient(90deg,
+            rgba(8, 8, 11, .93) 0%,
+            rgba(8, 8, 11, .80) 30%,
+            rgba(8, 8, 11, .45) 62%,
+            rgba(8, 8, 11, .14) 100%);
 }
 .hero-carousel__overlay h1 { margin: 0; max-width: 17ch; }
 .hero-carousel__overlay p { margin: 0; max-width: 42ch; opacity: .78; font-size: 1.05rem; }
@@ -684,6 +698,17 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
     background: var(--surface-2); border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
     box-shadow: var(--glow-accent); transform: translateY(-3px);
 }
+/* Photo fills the ring edge to edge; overflow on the ring clips it to the circle. The ring already
+   reserves its 104px, so swapping a monogram for a photo shifts nothing. */
+.cat-circle__ring { overflow: hidden; }
+.cat-circle__img {
+    width: 100%; height: 100%; max-width: 100%; object-fit: cover; object-position: 50% 50%;
+    transition: transform var(--lift-out) var(--lift-ease-return);
+}
+.cat-circle:hover .cat-circle__img {
+    transform: scale(1.06);
+    transition-duration: var(--lift-in); transition-timing-function: var(--lift-ease);
+}
 .cat-circle__monogram { font-size: 1.9rem; font-weight: 700; color: var(--muted); transition: color .3s; }
 .cat-circle:hover .cat-circle__monogram { color: var(--brand); }
 .cat-circle__label {
@@ -691,6 +716,73 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
     color: var(--muted); text-align: center; line-height: 1.5; transition: color .3s;
 }
 .cat-circle:hover .cat-circle__label { color: var(--ink); }
+
+/* ---------- Featured components (decorative showcase) ----------
+   A single flex row moved on the X axis. Nothing but that transform changes between ticks, so the
+   browser composites each step and never re-lays-out the row — the list is rendered twice and the
+   index resets inside the second copy, at a position identical to the first. */
+.feat { overflow: hidden; }
+.feat__subtitle { margin: 0; font-size: .9rem; }
+/* Bleeds the row to the right edge of the shell so cards run off-screen rather than stopping short,
+   which is what makes it read as a strip that continues rather than a list that ended. */
+.feat__viewport { margin-right: calc(var(--gutter) * -1); }
+.feat__track {
+    --feat-card: 260px;
+    --feat-gap: 28px;
+    /* One tick moves the row by exactly one card plus its gap. */
+    --feat-step: calc(var(--feat-card) + var(--feat-gap));
+    display: flex; gap: var(--feat-gap); width: max-content;
+    will-change: transform;
+    transition: transform var(--reveal-dur) var(--lift-ease);
+}
+/* Worn for the single frame in which the index jumps back to the start of the first copy. */
+.feat__track.is-instant { transition: none; }
+
+.feat-card {
+    position: relative; isolation: isolate; margin: 0;
+    width: var(--feat-card); flex: none;
+}
+/* The glow is a halo *outside* the frame rather than behind the photo. These images are opaque and
+   the card has no body for light to spill into, so Layer 2's placement would be invisible here. */
+.feat-card::before {
+    content: ""; position: absolute; inset: -14%; z-index: 0; pointer-events: none;
+    background: var(--glow-media);
+    opacity: .3; transform: scale(.86);
+    transition: opacity var(--lift-out) ease, transform var(--lift-out) var(--lift-ease-return);
+}
+.feat-card:hover::before { opacity: 1; transform: scale(1.06); transition-duration: var(--lift-in); }
+.feat-card__media {
+    position: relative; z-index: 1; display: block; overflow: hidden;
+    border-radius: var(--radius); border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--media-bg) 55%, transparent);
+    transition:
+        transform var(--lift-out) var(--lift-ease-return),
+        box-shadow var(--lift-out) var(--lift-ease-return),
+        border-color var(--lift-out) ease;
+}
+.feat-card:hover .feat-card__media {
+    transform: translateY(var(--lift-distance));
+    box-shadow: var(--shadow-lift);
+    border-color: color-mix(in srgb, var(--brand) 26%, var(--line));
+    transition-duration: var(--lift-in); transition-timing-function: var(--lift-ease);
+}
+.feat-card__media::after {
+    content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    background: var(--vignette-media); transition: opacity var(--lift-out) ease;
+}
+.feat-card:hover .feat-card__media::after { opacity: .5; transition-duration: var(--lift-in); }
+/* Fixed ratio on the box, cover on the photo: the source art runs from 433x432 to 4000x6000 and the
+   row has to stay one straight line regardless. Reserving the box also means no shift as they load. */
+.feat-card__media img {
+    display: block; width: 100%; aspect-ratio: 4 / 3; max-width: 100%;
+    object-fit: cover; object-position: 50% 50%;
+    transition: transform var(--lift-out) var(--lift-ease-return);
+}
+.feat-card:hover .feat-card__media img {
+    transform: scale(1.02);
+    transition-duration: var(--lift-in); transition-timing-function: var(--lift-ease);
+}
+@media (max-width: 560px) { .feat__track { --feat-card: 200px; --feat-gap: 18px; } }
 
 /* ---------- How we work ---------- */
 .steps {
@@ -730,6 +822,16 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
 .build-promo__copy .btn { margin-top: 26px; }
 .build-promo__art { color: var(--brand); opacity: .35; }
 .build-promo__art svg { width: 132px; height: 132px; }
+/* Photo variant: full opacity (the .35 above is for the line drawing), fixed box so the panel's
+   height is settled before the image arrives. */
+.build-promo__art--photo {
+    opacity: 1; width: 260px; flex: none;
+    border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+}
+.build-promo__art--photo img {
+    width: 100%; max-width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: 50% 50%;
+}
 .build-promo__links { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; font-size: .9rem; }
 @media (max-width: 860px) {
     .build-promo { grid-template-columns: 1fr; gap: 32px; padding: 40px 28px; }
@@ -764,6 +866,12 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
     opacity: 1; background: var(--surface-2);
     border-color: color-mix(in srgb, var(--brand) 40%, var(--line));
 }
+/* Plate for tiles carrying real artwork. Several of the supplied marks are opaque files with their
+   own light background baked in, which reads as a grey box on the graphite disc; a light plate makes
+   that background disappear into the tile instead. Full opacity too — a logo dimmed to .62 on a
+   light plate looks washed rather than restrained. */
+.logo-tile__disc--art { background: #f2f2f4; border-color: #e2e2e6; opacity: .82; }
+.logo-tile:hover .logo-tile__disc--art { background: #ffffff; opacity: 1; }
 .logo-tile__disc img { max-width: 62%; max-height: 62%; object-fit: contain; }
 .logo-tile__monogram { font-size: 1.7rem; font-weight: 700; color: var(--muted); }
 .logo-tile__label { font-size: .74rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); text-align: center; }
@@ -804,6 +912,16 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
     font-weight: 800; font-size: .76rem; letter-spacing: .06em; color: var(--ink);
     background: var(--media-bg);
 }
+/* Same footprint as the chip it replaces. contain, not cover: these are logos with their own
+   whitespace, and cropping them would clip the wordmark. */
+.partner-logo {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 34px; padding: 6px 12px;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--media-bg);
+}
+.partner-logo img { max-width: 76px; max-height: 100%; width: auto; object-fit: contain; }
+/* The supplied marks are white-on-transparent, which vanishes on the light theme's white panel. */
+:root[data-theme="light"] .partner-logo { background: #16161a; border-color: #16161a; }
 .footer-col__title {
     font-size: .74rem; text-transform: uppercase; letter-spacing: .16em;
     color: var(--ink); margin: 0 0 22px;

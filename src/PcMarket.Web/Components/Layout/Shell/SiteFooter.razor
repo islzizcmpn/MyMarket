@@ -1,4 +1,5 @@
 @inject IStringLocalizer<SharedResource> L
+@inject HomeImages Images
 
 <footer class="site-footer">
     <div class="container footer-grid">
@@ -7,10 +8,21 @@
             <p class="footer-brand__tagline muted">@L["Shell.FooterTagline"]</p>
 
             <p class="footer-brand__partner">@L["Shell.OfficialPartner"]</p>
-            @* Text chips stand in for the NVIDIA / ASUS partner artwork until real logo files exist. *@
+            @* Real artwork where it exists; the text chip is still the fallback for anything missing. *@
             <div class="partner-logos">
-                <span class="partner-chip">NVIDIA</span>
-                <span class="partner-chip">ASUS</span>
+                @foreach (var (label, fileName) in PartnerLogos)
+                {
+                    @if (Images.Path(fileName) is { } path)
+                    {
+                        <span class="partner-logo">
+                            <img src="@path" alt="@label" loading="lazy" decoding="async" />
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="partner-chip">@label</span>
+                    }
+                }
             </div>
         </div>
 
@@ -63,4 +75,12 @@
 
 @code {
     [Parameter, EditorRequired] public IReadOnlyList<CategoryNodeDto> Categories { get; set; } = [];
+
+    /// <summary>Label is both the alt text and the text-chip fallback, so a missing file still
+    /// reads as the right partner rather than disappearing.</summary>
+    private static readonly (string Label, string FileName)[] PartnerLogos =
+    [
+        ("NVIDIA", "nvidia-logo.webp"),
+        ("ASUS", "asus-logo.png"),
+    ];
 }

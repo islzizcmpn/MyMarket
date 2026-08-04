@@ -1,0 +1,152 @@
+@inject IStringLocalizer<SharedResource> L
+@inject HomeImages Images
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+@* Decorative showcase of the component photography. No prices, no cart, no links — it exists to
+   show the hardware, so every tile is aria-hidden and the section carries a single label instead.
+
+   The track is one flex row translated on the X axis; nothing but that transform ever changes, so
+   the browser composites the movement and never re-lays-out the row. The item list is rendered
+   twice: advancing past the end of the first copy lands on a pixel-identical position inside the
+   second, which is where the index resets with transitions suppressed for one frame. That is what
+   makes the loop seamless rather than rewinding. *@
+@if (_tiles.Count > 0)
+{
+    <section class="home-section feat" aria-label="@L["Home.FeaturedComponents.Title"]"
+             @onmouseenter="Pause" @onmouseleave="Resume">
+        <div class="home-section__head" data-reveal="block">
+            <h2 class="home-section__title">@L["Home.FeaturedComponents.Title"]</h2>
+            <p class="feat__subtitle muted">@L["Home.FeaturedComponents.Subtitle"]</p>
+        </div>
+
+        <div class="feat__viewport">
+            <div class="feat__track @(_instant ? "is-instant" : null)"
+                 style="transform: translate3d(calc(var(--feat-step) * -@_index), 0, 0);">
+                @for (var pass = 0; pass < 2; pass++)
+                {
+                    @foreach (var tile in _tiles)
+                    {
+                        <figure class="feat-card" aria-hidden="true">
+                            <span class="feat-card__media">
+                                <img src="@tile.Path" alt="@tile.Alt" loading="lazy" decoding="async" />
+                            </span>
+                        </figure>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+}
+
+@code {
+    /// <summary>Faster than the hero's 3s: this row moves one card at a time out of seventeen, so a
+    /// slow cadence reads as a stalled strip rather than a showcase. The hero is unchanged.</summary>
+    private const int IntervalMs = 1500;
+
+    /// <summary>Matches the .feat__track transition in app.css — the wrap waits for the slide to land.</summary>
+    private const int SlideMs = 620;
+
+    private int _index;
+    private bool _instant;
+    private bool _hovered;
+    private Timer? _timer;
+
+    private sealed record Tile(string Path, string Alt);
+
+    private List<Tile> _tiles = [];
+
+    protected override void OnInitialized()
+    {
+        // Grouped by kind so each group can carry its own localized alt text. Missing files drop
+        // out here, so the row is always exactly as long as the artwork that actually shipped.
+        _tiles =
+        [
+            .. Build(L["Home.FeaturedComponents.Gpu"],
+                "feat-gpu-1.jpg", "feat-gpu-2.jpg", "feat-gpu-3.jpg",
+                "feat-gpu-4.jpg", "feat-gpu-5.jpg", "feat-gpu-6.jpg"),
+            .. Build(L["Home.FeaturedComponents.Motherboard"],
+                "feat-mobo-1.jpg", "feat-mobo-2.jpg", "feat-mobo-3.jpg",
+                "feat-mobo-4.jpg", "feat-mobo-5.jpg", "feat-mobo-6.jpg"),
+            .. Build(L["Home.FeaturedComponents.Case"],
+                "feat-case-1.jpg", "feat-case-2.jpg", "feat-case-3.jpg"),
+            .. Build(L["Home.FeaturedComponents.Mouse"], "feat-mouse.jpg"),
+            .. Build(L["Home.FeaturedComponents.Headset"], "feat-headset.jpg"),
+        ];
+    }
+
+    private IEnumerable<Tile> Build(string alt, params string[] fileNames) =>
+        Images.Existing(fileNames).Select(path => new Tile(path, alt));
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        bool reduced;
+        try
+        {
+            reduced = await JS.InvokeAsync<bool>("pcmarketMotion.reduced");
+        }
+        catch
+        {
+            // Unknown preference is treated as "do not move": a row that sits still is a safe
+            // outcome, a row that moves against the user's wishes is not.
+            reduced = true;
+        }
+
+        if (!reduced && _tiles.Count > 1)
+        {
+            _timer = new Timer(_ => _ = Tick(), null, IntervalMs, IntervalMs);
+        }
+    }
+
+    private async Task Tick()
+    {
+        if (_hovered)
+        {
+            return;
+        }
+
+        try
+        {
+            _index++;
+            await InvokeAsync(StateHasChanged);
+
+            if (_index < _tiles.Count)
+            {
+                return;
+            }
+
+            // Sitting on the second copy now, which looks exactly like the first. Let the slide
+            // finish, then jump the index home with the transition off — the frame is identical
+            // either way, so there is nothing to see.
+            await Task.Delay(SlideMs + 60);
+            _instant = true;
+            _index = 0;
+            await InvokeAsync(StateHasChanged);
+
+            await Task.Delay(60);
+            _instant = false;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (ObjectDisposedException)
+        {
+            // Circuit torn down mid-tick; the timer is disposed with the component.
+        }
+    }
+
+    private void Pause() => _hovered = true;
+
+    private void Resume() => _hovered = false;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_timer is not null)
+        {
+            await _timer.DisposeAsync();
+        }
+    }
+}

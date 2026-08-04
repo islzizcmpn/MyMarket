@@ -61,3 +61,9 @@ Thumbs.db
 
 # Agent prompt scratch, but keep the workflows that actually run in CI.
 .github/prompts/
+
+# Pre-optimization originals of the storefront artwork. The committed files under
+# wwwroot/images/home are resized/re-compressed for the web; these are the full-size
+# sources kept locally so the optimization can be reverted or redone at a different
+# quality. Deliberately not committed — they are ~12 MB and nothing builds from them.
+src/PcMarket.Web/wwwroot/images/home/_originals/

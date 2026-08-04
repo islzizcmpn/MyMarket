@@ -730,6 +730,36 @@
     <value>Partner {0}</value>
     <comment>Placeholder tile label until real partner logos are supplied. {0} is the tile number.</comment>
   </data>
+  <data name="Home.FeaturedComponents.Title" xml:space="preserve">
+    <value>Featured components</value>
+  </data>
+  <data name="Home.FeaturedComponents.Subtitle" xml:space="preserve">
+    <value>The parts we build with</value>
+  </data>
+  <data name="Home.FeaturedComponents.Gpu" xml:space="preserve">
+    <value>Graphics card</value>
+    <comment>Alt text for a decorative graphics-card photo in the Featured components row.</comment>
+  </data>
+  <data name="Home.FeaturedComponents.Motherboard" xml:space="preserve">
+    <value>Motherboard</value>
+    <comment>Alt text for a decorative motherboard photo in the Featured components row.</comment>
+  </data>
+  <data name="Home.FeaturedComponents.Case" xml:space="preserve">
+    <value>PC case</value>
+    <comment>Alt text for a decorative PC-case photo in the Featured components row.</comment>
+  </data>
+  <data name="Home.FeaturedComponents.Mouse" xml:space="preserve">
+    <value>Gaming mouse</value>
+    <comment>Alt text for a decorative mouse photo in the Featured components row.</comment>
+  </data>
+  <data name="Home.FeaturedComponents.Headset" xml:space="preserve">
+    <value>Gaming headset</value>
+    <comment>Alt text for a decorative headset photo in the Featured components row.</comment>
+  </data>
+  <data name="Home.ConfiguratorImageAlt" xml:space="preserve">
+    <value>Custom-built gaming PC</value>
+    <comment>Alt text for the photo in the build-your-own-PC promo.</comment>
+  </data>
 
   <data name="Catalog.PageTitle" xml:space="preserve">
     <value>Catalog — PCMarket</value>

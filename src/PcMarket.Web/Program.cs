@@ -18,6 +18,10 @@ builder.Services.AddScoped<CartState>();
 builder.Services.AddScoped<StoreCart>();
 builder.Services.AddScoped<IApiTokenProvider, WebApiTokenProvider>();
 
+// Storefront artwork lookup. Singleton: it only ever reads the wwwroot file listing, which is fixed
+// for the life of the process, and it caches what it finds.
+builder.Services.AddSingleton<HomeImages>();
+
 var apiRoot = builder.Configuration["Api:BaseUrl"] ?? "http://localhost:5055";
 builder.Services.AddPcMarketApiClient(apiRoot);
 

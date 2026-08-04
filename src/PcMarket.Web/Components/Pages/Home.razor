@@ -3,6 +3,7 @@
 @inject ContentApiClient Content
 @inject IStringLocalizer<SharedResource> L
 @inject IJSRuntime JS
+@inject HomeImages Images
 
 @* Renders inside the Phase 12 storefront shell (MainLayout): top contact bar, main nav, category
    sidebar, footer and floating contact rail wrap this content. *@
@@ -37,10 +38,18 @@ else
         @foreach (var category in _categories)
         {
             <a class="cat-circle" href="@($"/catalog/{category.Slug}")">
-                @* Categories carry no artwork in the contract, so the ring holds a monogram until
-                   category images exist. *@
+                @* The contract carries no artwork, so the ring resolves a local file by slug and
+                   keeps the monogram for any category that has neither a file nor a stand-in. *@
                 <span class="cat-circle__ring">
-                    <span class="cat-circle__monogram">@Monogram(category.Name)</span>
+                    @if (CategoryArt(category.Slug) is { } art)
+                    {
+                        <img class="cat-circle__img" src="@art" alt="@category.Name"
+                             loading="lazy" decoding="async" />
+                    }
+                    else
+                    {
+                        <span class="cat-circle__monogram">@Monogram(category.Name)</span>
+                    }
                 </span>
                 <span class="cat-circle__label">@category.Name</span>
             </a>
@@ -57,6 +66,8 @@ else
     <ProductCarousel Title="@L["Home.Bestsellers"]" Items="_bestsellers" />
     <ProductCarousel Title="@L["Home.Recommended"]" Items="_recommended" />
 }
+
+<FeaturedCarousel />
 
 <section class="home-section home-section--centered">
     <h2 class="home-section__title home-section__title--centered" data-reveal="block">@L["Home.HowWeWork"]</h2>
@@ -105,14 +116,24 @@ else
         <a class="btn btn--accent" href="/configurator">@L["Home.ConfiguratorCta"]</a>
     </div>
 
-    <div class="build-promo__art" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
-            <rect x="4" y="2.5" width="12" height="19" rx="2" />
-            <circle cx="10" cy="8" r="2.5" />
-            <circle cx="10" cy="15" r="2.5" />
-            <path d="M18 6h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2" />
-        </svg>
-    </div>
+    @* Photo when one is on disk, drawn tower when not. *@
+    @if (Images.First("promo-pc.jpg", "promo-gaming.jpg", "promo-setup.jpg") is { } promo)
+    {
+        <div class="build-promo__art build-promo__art--photo">
+            <img src="@promo" alt="@L["Home.ConfiguratorImageAlt"]" loading="lazy" decoding="async" />
+        </div>
+    }
+    else
+    {
+        <div class="build-promo__art" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                <rect x="4" y="2.5" width="12" height="19" rx="2" />
+                <circle cx="10" cy="8" r="2.5" />
+                <circle cx="10" cy="15" r="2.5" />
+                <path d="M18 6h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2" />
+            </svg>
+        </div>
+    }
 
     <ul class="build-promo__links">
         <li><a href="/configurator?build=intel">@L["Home.ConfiguratorIntel"]</a></li>
@@ -123,7 +144,7 @@ else
 <TestimonialsCarousel />
 
 <LogoStrip Title="@L["Home.TrustUs"]" Items="_partners" />
-<LogoStrip Title="@L["Home.Brands"]" Items="_brands" />
+<LogoStrip Title="@L["Home.Brands"]" Items="BrandTiles" />
 
 @code {
     private IReadOnlyList<BannerDto> _banners = [];
@@ -134,11 +155,77 @@ else
     private IReadOnlyList<LogoItem> _brands = [];
     private bool _loading = true;
 
-    /// <summary>"They trust us" has no backing data — these are neutral placeholders until real
-    /// partner artwork is supplied. Deliberately not real company names, to avoid implying
-    /// endorsements the store does not have.</summary>
-    private IReadOnlyList<LogoItem> _partners =>
-        Enumerable.Range(1, 8).Select(i => new LogoItem(L["Home.PartnerN", i])).ToList();
+    /// <summary>
+    /// Artwork for a category ring. Prefers cat-{slug}.jpg; where that has not been supplied, a
+    /// stand-in from the component photography stands in for it — a case photo reads as "Computers"
+    /// perfectly well. Categories with neither keep their monogram.
+    /// </summary>
+    private static readonly Dictionary<string, string> CategoryFallbackArt = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["computers"] = "feat-case-1.jpg",
+    };
+
+    private string? CategoryArt(string slug) =>
+        CategoryFallbackArt.TryGetValue(slug, out var standIn)
+            ? Images.First($"cat-{slug}.jpg", standIn)
+            : Images.Path($"cat-{slug}.jpg");
+
+    /// <summary>
+    /// "They trust us" — the marks the store actually carries artwork for. This replaced a row of
+    /// generic "Partner N" circles; the labels are the real brand names, which double as the alt
+    /// text. Anything without a file on disk drops out rather than rendering an empty circle.
+    /// </summary>
+    private IReadOnlyList<LogoItem> _partners
+    {
+        get
+        {
+            List<LogoItem> tiles = [];
+            foreach (var (label, fileName) in PartnerArt)
+            {
+                if (Images.Path(fileName) is { } path)
+                {
+                    tiles.Add(new LogoItem(label, path));
+                }
+            }
+
+            return tiles;
+        }
+    }
+
+    private static readonly (string Label, string FileName)[] PartnerArt =
+    [
+        ("NVIDIA", "nvidia-logo.webp"),
+        ("ASUS", "asus-logo.png"),
+        ("MSI", "logo-msi.webp"),
+        ("Razer", "razer-logo.png"),
+        ("HyperX", "HyperX-Icon.png"),
+    ];
+
+    /// <summary>
+    /// Brand marks shipped with the storefront. The catalog's own brands come back from the API with
+    /// no logo artwork, so the strip would otherwise be a row of monogram circles; these are the
+    /// files that were supplied for it. No Href: none of them is a catalog brand, so a filter link
+    /// would lead nowhere. Falls back to the API list if none of the files are present.
+    /// </summary>
+    private IReadOnlyList<LogoItem> BrandTiles
+    {
+        get
+        {
+            List<LogoItem> tiles = [];
+            Add("MSI", "logo-msi.webp");
+            Add("Razer", "razer-logo.png");
+            Add("HyperX", "HyperX-Icon.png");
+            return tiles.Count > 0 ? tiles : _brands;
+
+            void Add(string label, string fileName)
+            {
+                if (Images.Path(fileName) is { } path)
+                {
+                    tiles.Add(new LogoItem(label, path));
+                }
+            }
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {

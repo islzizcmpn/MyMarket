@@ -1,10 +1,23 @@
 @inject IStringLocalizer<SharedResource> L
+@inject HomeImages Images
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
 @* Full-bleed hero slider over the CMS banners seeded in Phase 6. One slide is rendered at a time;
-   arrows and dots only appear once there is more than one banner to move between. *@
-<section class="hero-carousel">
+   arrows and dots only appear once there is more than one banner to move between.
+
+   The artwork is local: the CMS banner supplies the copy and the link, while the background comes
+   from wwwroot/images/home. A banner keeps its own ImageUrl only when no local file is available for
+   its slot, so the slider still works if the folder is empty. *@
+<section class="hero-carousel" @onmouseenter="Pause" @onmouseleave="Resume">
     <a class="hero-carousel__slide" href="@(Current.LinkUrl ?? "/catalog")">
-        <img src="@Current.ImageUrl" alt="@Current.Title" />
+        @if (CurrentImage is { Length: > 0 } image)
+        {
+            @* Only the first slide is eager: the other two are behind it and would otherwise
+               compete with the catalog request for bandwidth on first paint. *@
+            <img src="@image" alt="@Current.Title"
+                 loading="@(_index == 0 ? "eager" : "lazy")" decoding="async" />
+        }
         <div class="hero-carousel__overlay">
             <h1>@Current.Title</h1>
             @if (!string.IsNullOrWhiteSpace(Current.Subtitle))
@@ -15,7 +28,7 @@
         </div>
     </a>
 
-    @if (Banners.Count > 1)
+    @if (SlideCount > 1)
     {
         <button type="button" class="hero-carousel__arrow hero-carousel__arrow--prev"
                 aria-label="@L["Home.Previous"]" @onclick="Previous">‹</button>
@@ -23,14 +36,14 @@
                 aria-label="@L["Home.Next"]" @onclick="Next">›</button>
 
         <div class="hero-carousel__dots">
-            @for (var i = 0; i < Banners.Count; i++)
+            @for (var i = 0; i < SlideCount; i++)
             {
                 var index = i;
                 <button type="button"
                         class="hero-carousel__dot @(index == _index ? "is-active" : null)"
                         aria-label="@L["Home.SlideN", index + 1]"
                         aria-current="@(index == _index)"
-                        @onclick="() => _index = index"></button>
+                        @onclick="() => Show(index)"></button>
             }
         </div>
     }
@@ -39,13 +52,111 @@
 @code {
     [Parameter, EditorRequired] public IReadOnlyList<BannerDto> Banners { get; set; } = [];
 
+    /// <summary>Each slide is a full headline to read, so this stays slower than the Featured
+    /// components strip, which advances one card at a time on its own 1.5s clock.</summary>
+    private const int IntervalMs = 2000;
+
     private int _index;
+    private Timer? _timer;
+    private bool _hovered;
+    private bool _reducedMotion;
 
-    private BannerDto Current => Banners[Math.Min(_index, Banners.Count - 1)];
+    /// <summary>
+    /// Backgrounds in slide order, each naming its preferred file and a stand-in. Slot 2 asks for
+    /// hero-cyberpunk.jpg and settles for hero-night.jpg, which is the file that actually shipped.
+    /// Entries resolve to null when neither exists, and that slide falls back to its CMS image.
+    /// </summary>
+    private static readonly string[][] Backgrounds =
+    [
+        ["hero-gaming.jpg"],
+        ["hero-cyberpunk.jpg", "hero-night.jpg"],
+        ["hero-desk.jpg"],
+    ];
 
-    protected override void OnParametersSet() => _index = Math.Clamp(_index, 0, Math.Max(0, Banners.Count - 1));
+    /// <summary>The backgrounds that actually resolved, in slide order.</summary>
+    private List<string> _artwork = [];
 
-    private void Previous() => _index = (_index - 1 + Banners.Count) % Banners.Count;
+    /// <summary>
+    /// The slider is as long as whichever list is longer. There are three background images but the
+    /// CMS currently seeds two banners, and showing only two would waste the third photograph; the
+    /// copy cycles so the extra slide repeats a headline rather than rendering blank. Adding a third
+    /// banner is what makes each slide read differently.
+    /// </summary>
+    private int SlideCount => Math.Max(Banners.Count, _artwork.Count);
 
-    private void Next() => _index = (_index + 1) % Banners.Count;
+    private BannerDto Current => Banners[_index % Banners.Count];
+
+    /// <summary>Local artwork for this slot, or the banner's own image when the folder has none.</summary>
+    private string? CurrentImage =>
+        _artwork.Count > 0 ? _artwork[_index % _artwork.Count] : Current.ImageUrl;
+
+    protected override void OnParametersSet()
+    {
+        _artwork = Backgrounds.Select(slot => Images.First(slot)).OfType<string>().ToList();
+        _index = SlideCount == 0 ? 0 : Math.Clamp(_index, 0, SlideCount - 1);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        // The preference lives in the browser, so the timer cannot be started until the circuit is
+        // up and can be asked. Anything that goes wrong here leaves the slider manual, not broken.
+        try
+        {
+            _reducedMotion = await JS.InvokeAsync<bool>("pcmarketMotion.reduced");
+        }
+        catch
+        {
+            _reducedMotion = true;
+        }
+
+        if (!_reducedMotion && SlideCount > 1)
+        {
+            _timer = new Timer(_ => Tick(), null, IntervalMs, IntervalMs);
+        }
+    }
+
+    private void Tick()
+    {
+        if (_hovered)
+        {
+            return;
+        }
+
+        _index = (_index + 1) % SlideCount;
+
+        try
+        {
+            _ = InvokeAsync(StateHasChanged);
+        }
+        catch (ObjectDisposedException)
+        {
+            // The circuit went away between the timer firing and this call; the timer is about to
+            // be disposed anyway.
+        }
+    }
+
+    // Hovering only holds the current slide; the timer keeps its own cadence so the slider does not
+    // lurch forward the instant the pointer leaves.
+    private void Pause() => _hovered = true;
+
+    private void Resume() => _hovered = false;
+
+    private void Show(int index) => _index = index;
+
+    private void Previous() => _index = (_index - 1 + SlideCount) % SlideCount;
+
+    private void Next() => _index = (_index + 1) % SlideCount;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_timer is not null)
+        {
+            await _timer.DisposeAsync();
+        }
+    }
 }

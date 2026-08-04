@@ -705,6 +705,30 @@
   <data name="Home.PartnerN" xml:space="preserve">
     <value>Партнёр {0}</value>
   </data>
+  <data name="Home.FeaturedComponents.Title" xml:space="preserve">
+    <value>Избранные комплектующие</value>
+  </data>
+  <data name="Home.FeaturedComponents.Subtitle" xml:space="preserve">
+    <value>Комплектующие, из которых мы собираем</value>
+  </data>
+  <data name="Home.FeaturedComponents.Gpu" xml:space="preserve">
+    <value>Видеокарта</value>
+  </data>
+  <data name="Home.FeaturedComponents.Motherboard" xml:space="preserve">
+    <value>Материнская плата</value>
+  </data>
+  <data name="Home.FeaturedComponents.Case" xml:space="preserve">
+    <value>Корпус ПК</value>
+  </data>
+  <data name="Home.FeaturedComponents.Mouse" xml:space="preserve">
+    <value>Игровая мышь</value>
+  </data>
+  <data name="Home.FeaturedComponents.Headset" xml:space="preserve">
+    <value>Игровая гарнитура</value>
+  </data>
+  <data name="Home.ConfiguratorImageAlt" xml:space="preserve">
+    <value>Игровой ПК на заказ</value>
+  </data>
 
   <data name="Catalog.PageTitle" xml:space="preserve">
     <value>Каталог — PCMarket</value>

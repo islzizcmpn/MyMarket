@@ -26,6 +26,13 @@
     var SELECTOR = '[data-reveal="block"], [data-reveal="stagger"]';
 
     var media = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    /* Published before the early return below, because the carousels need it whether or not scroll
+       reveals are running: it is how their C# auto-advance timers learn to stay switched off. */
+    window.pcmarketMotion = {
+        reduced: function () { return !!(media && media.matches); }
+    };
+
     if (!('IntersectionObserver' in window) || (media && media.matches)) {
         // Still expose the API: MainLayout calls scan() unconditionally after each render.
         window.pcmarketReveal = { scan: function () { } };
