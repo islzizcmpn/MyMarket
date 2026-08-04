@@ -1,0 +1,66 @@
+@inject IStringLocalizer<SharedResource> L
+
+<footer class="site-footer">
+    <div class="container footer-grid">
+        <div class="footer-brand">
+            <a class="brand" href="/">PC<span>Market</span></a>
+            <p class="footer-brand__tagline muted">@L["Shell.FooterTagline"]</p>
+
+            <p class="footer-brand__partner">@L["Shell.OfficialPartner"]</p>
+            @* Text chips stand in for the NVIDIA / ASUS partner artwork until real logo files exist. *@
+            <div class="partner-logos">
+                <span class="partner-chip">NVIDIA</span>
+                <span class="partner-chip">ASUS</span>
+            </div>
+        </div>
+
+        <div class="footer-col">
+            <h3 class="footer-col__title">@L["Shell.Pages"]</h3>
+            <ul class="footer-col__list">
+                <li><a href="/payment-and-delivery">@L["Nav.PaymentAndDelivery"]</a></li>
+                <li><a href="/contacts">@L["Shell.AboutCompany"]</a></li>
+                <li><a href="/service-center">@L["Nav.ServiceCenter"]</a></li>
+                <li>
+                    <a href="@StoreContact.TelegramReviewsUrl" target="_blank" rel="noopener">
+                        @L["Nav.Reviews"]
+                    </a>
+                </li>
+                <li><a href="/configurator">@L["Nav.Configurator"]</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h3 class="footer-col__title">@L["Common.Catalog"]</h3>
+            @* Real category tree — same source as the sidebar. *@
+            <ul class="footer-col__list footer-col__list--split">
+                @foreach (var category in Categories)
+                {
+                    <li><a href="@($"/catalog/{category.Slug}")">@category.Name</a></li>
+                }
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h3 class="footer-col__title">@L["Shell.Contacts"]</h3>
+            <a class="footer-phone" href="@StoreContact.PhoneHref">@StoreContact.Phone</a>
+            <p class="footer-address">@L["Shell.Address"]</p>
+            <div class="footer-social">
+                <a href="@StoreContact.InstagramUrl" target="_blank" rel="noopener" aria-label="Instagram">
+                    <ShellIcon Name="instagram" Class="icon--sm" />
+                </a>
+                <a href="@StoreContact.FacebookUrl" target="_blank" rel="noopener" aria-label="Facebook">
+                    <ShellIcon Name="facebook" Class="icon--sm" />
+                </a>
+                <a href="@StoreContact.TelegramOrderUrl" target="_blank" rel="noopener" aria-label="Telegram">
+                    <ShellIcon Name="telegram" Class="icon--sm" />
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container footer-legal">@L["Footer.Copyright", DateTime.UtcNow.Year]</div>
+</footer>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<CategoryNodeDto> Categories { get; set; } = [];
+}

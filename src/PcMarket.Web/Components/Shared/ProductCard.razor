@@ -1,22 +1,43 @@
 @inject IStringLocalizer<SharedResource> L
+@inject CatalogApiClient Catalog
+@inject StoreCart Cart
 
-<a class="product-card" href="@($"/product/{Product.Slug}")">
-    <div class="product-card__media">
-        @if (!string.IsNullOrEmpty(Product.PrimaryImageUrl))
+@* The card root is a <div>, not an <a>: the thumbnail dots and the add-to-cart button are
+   interactive controls, and nesting buttons inside an anchor is invalid HTML (and swallows clicks).
+   The media and the name carry the navigation instead. *@
+<div class="product-card">
+    <a class="product-card__media" href="@($"/product/{Product.Slug}")">
+        @if (CurrentImage is not null)
         {
-            <img src="@Product.PrimaryImageUrl" alt="@Product.Name" loading="lazy" />
+            <img src="@CurrentImage" alt="@Product.Name" loading="lazy" />
         }
         else
         {
             <span class="muted">@L["Product.NoImage"]</span>
         }
-    </div>
+    </a>
+
+    @if (Images.Count > 1)
+    {
+        <div class="product-card__dots" role="group" aria-label="@L["Product.Images"]">
+            @for (var i = 0; i < Images.Count; i++)
+            {
+                var index = i;
+                <button type="button"
+                        class="product-card__dot @(index == _imageIndex ? "is-active" : null)"
+                        aria-label="@L["Product.ImageN", index + 1]"
+                        aria-current="@(index == _imageIndex)"
+                        @onclick="() => _imageIndex = index"></button>
+            }
+        </div>
+    }
+
     <div class="product-card__body">
         @if (!string.IsNullOrEmpty(Product.BrandName))
         {
             <div class="product-card__brand">@Product.BrandName</div>
         }
-        <div class="product-card__name">@Product.Name</div>
+        <a class="product-card__name" href="@($"/product/{Product.Slug}")">@Product.Name</a>
         <div class="product-card__price">@Format.Money(Product.PriceFrom)</div>
         @if (Product.InStock)
         {
@@ -26,9 +47,74 @@
         {
             <span class="pill pill--out">@L["Product.OutOfStock"]</span>
         }
+
+        @if (ShowAddToCart && Product.InStock)
+        {
+            <button type="button" class="btn btn--accent product-card__add"
+                    disabled="@_adding" @onclick="AddToCart">
+                @(_adding ? L["Product.Adding"] : _added ? L["Product.Added"] : L["Product.AddToCart"])
+            </button>
+        }
+        @if (_error is not null)
+        {
+            <div class="product-card__error">@_error</div>
+        }
     </div>
-</a>
+</div>
 
 @code {
     [Parameter, EditorRequired] public ProductListItemDto Product { get; set; } = default!;
+
+    /// <summary>Shows the quick add-to-cart button (home carousels); plain grids leave it off.</summary>
+    [Parameter] public bool ShowAddToCart { get; set; }
+
+    private int _imageIndex;
+    private bool _adding;
+    private bool _added;
+    private string? _error;
+
+    private IReadOnlyList<string> Images =>
+        Product.ImageUrls is { Count: > 0 } urls
+            ? urls
+            : Product.PrimaryImageUrl is { Length: > 0 } primary ? [primary] : [];
+
+    private string? CurrentImage =>
+        Images.Count == 0 ? null : Images[Math.Min(_imageIndex, Images.Count - 1)];
+
+    protected override void OnParametersSet()
+    {
+        // Reset when the carousel swaps a different product into this card instance.
+        _imageIndex = 0;
+        _added = false;
+        _error = null;
+    }
+
+    /// <summary>List DTOs carry no variant, so the quick-add resolves the product's first in-stock
+    /// variant before calling the cart. One extra call, and only when the shopper actually clicks.</summary>
+    private async Task AddToCart()
+    {
+        _adding = true;
+        _error = null;
+        try
+        {
+            var detail = await Catalog.GetProductAsync(Product.Slug);
+            var variant = detail?.Variants.FirstOrDefault(v => v.StockQty > 0);
+            if (variant is null)
+            {
+                _error = L["Product.OutOfStock"];
+                return;
+            }
+
+            await Cart.AddAsync(variant.Id, 1);
+            _added = true;
+        }
+        catch (ApiException ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _adding = false;
+        }
+    }
 }

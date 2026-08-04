@@ -1,0 +1,51 @@
+@inject IStringLocalizer<SharedResource> L
+
+@* Full-bleed hero slider over the CMS banners seeded in Phase 6. One slide is rendered at a time;
+   arrows and dots only appear once there is more than one banner to move between. *@
+<section class="hero-carousel">
+    <a class="hero-carousel__slide" href="@(Current.LinkUrl ?? "/catalog")">
+        <img src="@Current.ImageUrl" alt="@Current.Title" />
+        <div class="hero-carousel__overlay">
+            <h1>@Current.Title</h1>
+            @if (!string.IsNullOrWhiteSpace(Current.Subtitle))
+            {
+                <p>@Current.Subtitle</p>
+            }
+            <span class="btn btn--accent">@L["Home.ShopCatalog"]</span>
+        </div>
+    </a>
+
+    @if (Banners.Count > 1)
+    {
+        <button type="button" class="hero-carousel__arrow hero-carousel__arrow--prev"
+                aria-label="@L["Home.Previous"]" @onclick="Previous">‹</button>
+        <button type="button" class="hero-carousel__arrow hero-carousel__arrow--next"
+                aria-label="@L["Home.Next"]" @onclick="Next">›</button>
+
+        <div class="hero-carousel__dots">
+            @for (var i = 0; i < Banners.Count; i++)
+            {
+                var index = i;
+                <button type="button"
+                        class="hero-carousel__dot @(index == _index ? "is-active" : null)"
+                        aria-label="@L["Home.SlideN", index + 1]"
+                        aria-current="@(index == _index)"
+                        @onclick="() => _index = index"></button>
+            }
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<BannerDto> Banners { get; set; } = [];
+
+    private int _index;
+
+    private BannerDto Current => Banners[Math.Min(_index, Banners.Count - 1)];
+
+    protected override void OnParametersSet() => _index = Math.Clamp(_index, 0, Math.Max(0, Banners.Count - 1));
+
+    private void Previous() => _index = (_index - 1 + Banners.Count) % Banners.Count;
+
+    private void Next() => _index = (_index + 1) % Banners.Count;
+}

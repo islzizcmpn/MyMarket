@@ -492,6 +492,71 @@
     <value>© {0} PCMarket — магазин ПК и электроники. Создано на Blazor.</value>
   </data>
 
+  <data name="Shell.CallUs" xml:space="preserve">
+    <value>Позвоните нам</value>
+  </data>
+  <data name="Shell.WorkingHours" xml:space="preserve">
+    <value>Время работы</value>
+  </data>
+  <data name="Shell.WorkingHoursValue" xml:space="preserve">
+    <value>Пн–Сб 9.00–18.00</value>
+  </data>
+  <data name="Shell.GoToConfigurator" xml:space="preserve">
+    <value>Перейти в конфигуратор</value>
+  </data>
+  <data name="Shell.FooterTagline" xml:space="preserve">
+    <value>Интернет-магазин компьютерной техники и комплектующих</value>
+  </data>
+  <data name="Shell.OfficialPartner" xml:space="preserve">
+    <value>Официальный партнёр:</value>
+  </data>
+  <data name="Shell.Pages" xml:space="preserve">
+    <value>Страницы</value>
+  </data>
+  <data name="Shell.AboutCompany" xml:space="preserve">
+    <value>О компании</value>
+  </data>
+  <data name="Shell.Contacts" xml:space="preserve">
+    <value>Контакты</value>
+  </data>
+  <data name="Shell.Address" xml:space="preserve">
+    <value>Узбекистан, Ташкент, Юнусабадский район, 13-й квартал, 2А, Торговый комплекс «Лион», ориентир «Мега Планет».</value>
+  </data>
+  <data name="Shell.ComingSoon" xml:space="preserve">
+    <value>Страница скоро появится — она реализуется в фазе {0}.</value>
+  </data>
+  <data name="Shell.BackHome" xml:space="preserve">
+    <value>На главную</value>
+  </data>
+
+  <data name="Nav.Primary" xml:space="preserve">
+    <value>Основная навигация</value>
+  </data>
+  <data name="Nav.Home" xml:space="preserve">
+    <value>Главная</value>
+  </data>
+  <data name="Nav.PaymentAndDelivery" xml:space="preserve">
+    <value>Оплата и доставка</value>
+  </data>
+  <data name="Nav.Stock" xml:space="preserve">
+    <value>Акции</value>
+  </data>
+  <data name="Nav.Reviews" xml:space="preserve">
+    <value>Отзывы</value>
+  </data>
+  <data name="Nav.ServiceCenter" xml:space="preserve">
+    <value>Сервисный центр</value>
+  </data>
+  <data name="Nav.Contacts" xml:space="preserve">
+    <value>Контакты</value>
+  </data>
+  <data name="Nav.Configurator" xml:space="preserve">
+    <value>Конфигуратор ПК</value>
+  </data>
+  <data name="Nav.OrderOnTelegram" xml:space="preserve">
+    <value>Заказать в Telegram</value>
+  </data>
+
   <data name="Error.Unhandled" xml:space="preserve">
     <value>Произошла непредвиденная ошибка.</value>
   </data>
@@ -519,6 +584,126 @@
   </data>
   <data name="Home.NoProducts" xml:space="preserve">
     <value>Товаров пока нет. Заполните каталог, чтобы они появились здесь.</value>
+  </data>
+  <data name="Home.Previous" xml:space="preserve">
+    <value>Назад</value>
+  </data>
+  <data name="Home.Next" xml:space="preserve">
+    <value>Вперёд</value>
+  </data>
+  <data name="Home.SlideN" xml:space="preserve">
+    <value>Слайд {0}</value>
+  </data>
+  <data name="Home.Bestsellers" xml:space="preserve">
+    <value>Хиты продаж 2026</value>
+  </data>
+  <data name="Home.Recommended" xml:space="preserve">
+    <value>Мы рекомендуем</value>
+  </data>
+  <data name="Home.HowWeWork" xml:space="preserve">
+    <value>Как мы работаем</value>
+  </data>
+  <data name="Home.Step1Title" xml:space="preserve">
+    <value>Определяемся с товаром</value>
+  </data>
+  <data name="Home.Step1Body" xml:space="preserve">
+    <value>Подбираем то, что подходит именно вам, и, самое главное, что выгоднее.</value>
+  </data>
+  <data name="Home.Step2Title" xml:space="preserve">
+    <value>Оплата</value>
+  </data>
+  <data name="Home.Step2Body" xml:space="preserve">
+    <value>Удобные способы оплаты: наличные, терминал UZCARD, банковский перевод.</value>
+  </data>
+  <data name="Home.Step3Title" xml:space="preserve">
+    <value>Бесплатная доставка</value>
+  </data>
+  <data name="Home.Step3Body" xml:space="preserve">
+    <value>Доставим в любую точку Ташкента в течение 1 часа БЕСПЛАТНО. По Узбекистану — в течение 24 часов.</value>
+  </data>
+  <data name="Home.ConfiguratorTitle" xml:space="preserve">
+    <value>Соберите компьютер на свой вкус!</value>
+  </data>
+  <data name="Home.ConfiguratorSubtitle" xml:space="preserve">
+    <value>Соберите ПК своей мечты!</value>
+  </data>
+  <data name="Home.ConfiguratorCta" xml:space="preserve">
+    <value>Перейти в конфигуратор</value>
+  </data>
+  <data name="Home.ConfiguratorIntel" xml:space="preserve">
+    <value>Сборка компьютера на Intel</value>
+  </data>
+  <data name="Home.ConfiguratorAmd" xml:space="preserve">
+    <value>Собрать ПК на AMD</value>
+  </data>
+  <data name="Home.Testimonials" xml:space="preserve">
+    <value>Что о нас говорят</value>
+  </data>
+  <data name="Home.ReadAllReviews" xml:space="preserve">
+    <value>Читать все отзывы</value>
+  </data>
+  <data name="Home.Testimonial1.Name" xml:space="preserve">
+    <value>Абдуллаев</value>
+  </data>
+  <data name="Home.Testimonial1.City" xml:space="preserve">
+    <value>Ташкент</value>
+  </data>
+  <data name="Home.Testimonial1.Body" xml:space="preserve">
+    <value>Отличный магазин с огромным выбором комплектующих и готовых ПК. Сайтом удобно пользоваться, у товаров подробные описания и характеристики.</value>
+  </data>
+  <data name="Home.Testimonial2.Name" xml:space="preserve">
+    <value>Алимова</value>
+  </data>
+  <data name="Home.Testimonial2.City" xml:space="preserve">
+    <value>Самарканд</value>
+  </data>
+  <data name="Home.Testimonial2.Body" xml:space="preserve">
+    <value>Широкий выбор товаров разных брендов. Здесь всегда можно найти что-то новое и интересное.</value>
+  </data>
+  <data name="Home.Testimonial3.Name" xml:space="preserve">
+    <value>Садыкова</value>
+  </data>
+  <data name="Home.Testimonial3.City" xml:space="preserve">
+    <value>Бухара</value>
+  </data>
+  <data name="Home.Testimonial3.Body" xml:space="preserve">
+    <value>Заказала несколько комплектующих для сборки и была приятно удивлена скоростью доставки. Всё было отлично упаковано.</value>
+  </data>
+  <data name="Home.Testimonial4.Name" xml:space="preserve">
+    <value>Ибрагимов</value>
+  </data>
+  <data name="Home.Testimonial4.City" xml:space="preserve">
+    <value>Ташкент</value>
+  </data>
+  <data name="Home.Testimonial4.Body" xml:space="preserve">
+    <value>Очень доволен покупкой — всё на высшем уровне, от выбора товара до доставки.</value>
+  </data>
+  <data name="Home.Testimonial5.Name" xml:space="preserve">
+    <value>Рахимов</value>
+  </data>
+  <data name="Home.Testimonial5.City" xml:space="preserve">
+    <value>Андижан</value>
+  </data>
+  <data name="Home.Testimonial5.Body" xml:space="preserve">
+    <value>Нужна была помощь с подбором комплектующих для игрового ПК — менеджеры отлично справились и уложились в бюджет.</value>
+  </data>
+  <data name="Home.Testimonial6.Name" xml:space="preserve">
+    <value>Рустамов</value>
+  </data>
+  <data name="Home.Testimonial6.City" xml:space="preserve">
+    <value>Наманган</value>
+  </data>
+  <data name="Home.Testimonial6.Body" xml:space="preserve">
+    <value>Покупаю здесь уже несколько лет и никогда не было проблем. Всё работает как часы.</value>
+  </data>
+  <data name="Home.TrustUs" xml:space="preserve">
+    <value>Нам доверяют</value>
+  </data>
+  <data name="Home.Brands" xml:space="preserve">
+    <value>Бренды</value>
+  </data>
+  <data name="Home.PartnerN" xml:space="preserve">
+    <value>Партнёр {0}</value>
   </data>
 
   <data name="Catalog.PageTitle" xml:space="preserve">
@@ -578,5 +763,14 @@
   </data>
   <data name="Product.OutOfStock" xml:space="preserve">
     <value>Нет в наличии</value>
+  </data>
+  <data name="Product.Added" xml:space="preserve">
+    <value>Добавлено ✓</value>
+  </data>
+  <data name="Product.Images" xml:space="preserve">
+    <value>Фотографии товара</value>
+  </data>
+  <data name="Product.ImageN" xml:space="preserve">
+    <value>Фото {0}</value>
   </data>
 </root>

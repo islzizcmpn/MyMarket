@@ -492,6 +492,71 @@
     <value>© {0} PCMarket — kompyuter va elektronika do‘koni. Blazor asosida.</value>
   </data>
 
+  <data name="Shell.CallUs" xml:space="preserve">
+    <value>Bizga qo‘ng‘iroq qiling</value>
+  </data>
+  <data name="Shell.WorkingHours" xml:space="preserve">
+    <value>Ish vaqti</value>
+  </data>
+  <data name="Shell.WorkingHoursValue" xml:space="preserve">
+    <value>Du–Sh 9.00–18.00</value>
+  </data>
+  <data name="Shell.GoToConfigurator" xml:space="preserve">
+    <value>Konfiguratorga o‘tish</value>
+  </data>
+  <data name="Shell.FooterTagline" xml:space="preserve">
+    <value>Kompyuter texnikasi va komplektuvchilar onlayn do‘koni</value>
+  </data>
+  <data name="Shell.OfficialPartner" xml:space="preserve">
+    <value>Rasmiy hamkor:</value>
+  </data>
+  <data name="Shell.Pages" xml:space="preserve">
+    <value>Sahifalar</value>
+  </data>
+  <data name="Shell.AboutCompany" xml:space="preserve">
+    <value>Kompaniya haqida</value>
+  </data>
+  <data name="Shell.Contacts" xml:space="preserve">
+    <value>Kontaktlar</value>
+  </data>
+  <data name="Shell.Address" xml:space="preserve">
+    <value>O‘zbekiston, Toshkent, Yunusobod tumani, 13-mavze, 2A, “Lion” savdo majmuasi, mo‘ljal “Mega Planet”.</value>
+  </data>
+  <data name="Shell.ComingSoon" xml:space="preserve">
+    <value>Bu sahifa tez orada — u {0}-bosqichda ishlab chiqiladi.</value>
+  </data>
+  <data name="Shell.BackHome" xml:space="preserve">
+    <value>Bosh sahifaga</value>
+  </data>
+
+  <data name="Nav.Primary" xml:space="preserve">
+    <value>Asosiy navigatsiya</value>
+  </data>
+  <data name="Nav.Home" xml:space="preserve">
+    <value>Bosh sahifa</value>
+  </data>
+  <data name="Nav.PaymentAndDelivery" xml:space="preserve">
+    <value>To‘lov va yetkazib berish</value>
+  </data>
+  <data name="Nav.Stock" xml:space="preserve">
+    <value>Aksiyalar</value>
+  </data>
+  <data name="Nav.Reviews" xml:space="preserve">
+    <value>Sharhlar</value>
+  </data>
+  <data name="Nav.ServiceCenter" xml:space="preserve">
+    <value>Servis markazi</value>
+  </data>
+  <data name="Nav.Contacts" xml:space="preserve">
+    <value>Kontaktlar</value>
+  </data>
+  <data name="Nav.Configurator" xml:space="preserve">
+    <value>PC konfigurator</value>
+  </data>
+  <data name="Nav.OrderOnTelegram" xml:space="preserve">
+    <value>Telegramda buyurtma</value>
+  </data>
+
   <data name="Error.Unhandled" xml:space="preserve">
     <value>Kutilmagan xatolik yuz berdi.</value>
   </data>
@@ -519,6 +584,126 @@
   </data>
   <data name="Home.NoProducts" xml:space="preserve">
     <value>Hozircha mahsulot yo‘q. Ular shu yerda ko‘rinishi uchun katalogni to‘ldiring.</value>
+  </data>
+  <data name="Home.Previous" xml:space="preserve">
+    <value>Orqaga</value>
+  </data>
+  <data name="Home.Next" xml:space="preserve">
+    <value>Oldinga</value>
+  </data>
+  <data name="Home.SlideN" xml:space="preserve">
+    <value>{0}-slayd</value>
+  </data>
+  <data name="Home.Bestsellers" xml:space="preserve">
+    <value>2026-yil xitlari</value>
+  </data>
+  <data name="Home.Recommended" xml:space="preserve">
+    <value>Biz tavsiya qilamiz</value>
+  </data>
+  <data name="Home.HowWeWork" xml:space="preserve">
+    <value>Qanday ishlaymiz</value>
+  </data>
+  <data name="Home.Step1Title" xml:space="preserve">
+    <value>Mahsulotni tanlaymiz</value>
+  </data>
+  <data name="Home.Step1Body" xml:space="preserve">
+    <value>Sizga aynan mos va, eng muhimi, foydaliroq bo‘lgan variantni aniqlaymiz.</value>
+  </data>
+  <data name="Home.Step2Title" xml:space="preserve">
+    <value>To‘lov</value>
+  </data>
+  <data name="Home.Step2Body" xml:space="preserve">
+    <value>Qulay to‘lov usullari: naqd pul, UZCARD terminali, bank o‘tkazmasi.</value>
+  </data>
+  <data name="Home.Step3Title" xml:space="preserve">
+    <value>Bepul yetkazib berish</value>
+  </data>
+  <data name="Home.Step3Body" xml:space="preserve">
+    <value>Toshkentning istalgan nuqtasiga 1 soat ichida BEPUL yetkazamiz. O‘zbekiston bo‘ylab — 24 soat ichida.</value>
+  </data>
+  <data name="Home.ConfiguratorTitle" xml:space="preserve">
+    <value>Kompyuterni o‘z didingizga ko‘ra yig‘ing!</value>
+  </data>
+  <data name="Home.ConfiguratorSubtitle" xml:space="preserve">
+    <value>Orzuingizdagi PC ni yig‘ing!</value>
+  </data>
+  <data name="Home.ConfiguratorCta" xml:space="preserve">
+    <value>Konfiguratorga o‘tish</value>
+  </data>
+  <data name="Home.ConfiguratorIntel" xml:space="preserve">
+    <value>Intel asosida kompyuter yig‘ish</value>
+  </data>
+  <data name="Home.ConfiguratorAmd" xml:space="preserve">
+    <value>AMD asosida PC yig‘ish</value>
+  </data>
+  <data name="Home.Testimonials" xml:space="preserve">
+    <value>Biz haqimizda nima deyishadi</value>
+  </data>
+  <data name="Home.ReadAllReviews" xml:space="preserve">
+    <value>Barcha sharhlarni o‘qish</value>
+  </data>
+  <data name="Home.Testimonial1.Name" xml:space="preserve">
+    <value>Abdullayev</value>
+  </data>
+  <data name="Home.Testimonial1.City" xml:space="preserve">
+    <value>Toshkent</value>
+  </data>
+  <data name="Home.Testimonial1.Body" xml:space="preserve">
+    <value>Komplektuvchilar va tayyor kompyuterlar tanlovi juda katta ajoyib do‘kon. Saytdan foydalanish qulay, mahsulotlarning tavsifi va xususiyatlari batafsil.</value>
+  </data>
+  <data name="Home.Testimonial2.Name" xml:space="preserve">
+    <value>Alimova</value>
+  </data>
+  <data name="Home.Testimonial2.City" xml:space="preserve">
+    <value>Samarqand</value>
+  </data>
+  <data name="Home.Testimonial2.Body" xml:space="preserve">
+    <value>Turli brendlarning mahsulotlari keng tanlovda. Bu yerdan doimo yangi va qiziqarli narsa topsa bo‘ladi.</value>
+  </data>
+  <data name="Home.Testimonial3.Name" xml:space="preserve">
+    <value>Sadiqova</value>
+  </data>
+  <data name="Home.Testimonial3.City" xml:space="preserve">
+    <value>Buxoro</value>
+  </data>
+  <data name="Home.Testimonial3.Body" xml:space="preserve">
+    <value>Yig‘ish uchun bir nechta komplektuvchi buyurtma qildim va yetkazib berish tezligidan yoqimli taassurot oldim. Hammasi juda yaxshi qadoqlangan edi.</value>
+  </data>
+  <data name="Home.Testimonial4.Name" xml:space="preserve">
+    <value>Ibragimov</value>
+  </data>
+  <data name="Home.Testimonial4.City" xml:space="preserve">
+    <value>Toshkent</value>
+  </data>
+  <data name="Home.Testimonial4.Body" xml:space="preserve">
+    <value>Xaridimdan juda mamnunman — mahsulot tanlashdan yetkazib berishgacha hammasi a’lo darajada.</value>
+  </data>
+  <data name="Home.Testimonial5.Name" xml:space="preserve">
+    <value>Rahimov</value>
+  </data>
+  <data name="Home.Testimonial5.City" xml:space="preserve">
+    <value>Andijon</value>
+  </data>
+  <data name="Home.Testimonial5.Body" xml:space="preserve">
+    <value>O‘yin kompyuteri uchun komplektuvchi tanlashda yordam kerak edi — menejerlar byudjetimga mos ravishda ajoyib ish qilishdi.</value>
+  </data>
+  <data name="Home.Testimonial6.Name" xml:space="preserve">
+    <value>Rustamov</value>
+  </data>
+  <data name="Home.Testimonial6.City" xml:space="preserve">
+    <value>Namangan</value>
+  </data>
+  <data name="Home.Testimonial6.Body" xml:space="preserve">
+    <value>Bu yerdan bir necha yildan beri xarid qilaman va hech qachon muammo bo‘lmagan. Hammasi soatdek ishlaydi.</value>
+  </data>
+  <data name="Home.TrustUs" xml:space="preserve">
+    <value>Bizga ishonishadi</value>
+  </data>
+  <data name="Home.Brands" xml:space="preserve">
+    <value>Brendlar</value>
+  </data>
+  <data name="Home.PartnerN" xml:space="preserve">
+    <value>{0}-hamkor</value>
   </data>
 
   <data name="Catalog.PageTitle" xml:space="preserve">
@@ -578,5 +763,14 @@
   </data>
   <data name="Product.OutOfStock" xml:space="preserve">
     <value>Mavjud emas</value>
+  </data>
+  <data name="Product.Added" xml:space="preserve">
+    <value>Qo‘shildi ✓</value>
+  </data>
+  <data name="Product.Images" xml:space="preserve">
+    <value>Mahsulot rasmlari</value>
+  </data>
+  <data name="Product.ImageN" xml:space="preserve">
+    <value>{0}-rasm</value>
   </data>
 </root>

@@ -1,0 +1,33 @@
+@inject IStringLocalizer<SharedResource> L
+
+@* Thin utility strip above the main header: phone, opening hours, and the social links. *@
+<div class="topbar">
+    <div class="container topbar__row">
+        <a class="topbar__item topbar__item--link" href="@StoreContact.PhoneHref">
+            <ShellIcon Name="phone" Class="icon--sm" />
+            <span class="topbar__label">@L["Shell.CallUs"]</span>
+            <span class="topbar__value">@StoreContact.Phone</span>
+        </a>
+
+        <div class="topbar__item">
+            <ShellIcon Name="clock" Class="icon--sm" />
+            <span class="topbar__label">@L["Shell.WorkingHours"]</span>
+            <span class="topbar__value">@L["Shell.WorkingHoursValue"]</span>
+        </div>
+
+        <div class="topbar__social">
+            <a href="@StoreContact.InstagramUrl" target="_blank" rel="noopener"
+               aria-label="Instagram" title="Instagram">
+                <ShellIcon Name="instagram" Class="icon--sm" />
+            </a>
+            <a href="@StoreContact.FacebookUrl" target="_blank" rel="noopener"
+               aria-label="Facebook" title="Facebook">
+                <ShellIcon Name="facebook" Class="icon--sm" />
+            </a>
+            <a href="@StoreContact.TelegramOrderUrl" target="_blank" rel="noopener"
+               aria-label="Telegram" title="Telegram">
+                <ShellIcon Name="telegram" Class="icon--sm" />
+            </a>
+        </div>
+    </div>
+</div>

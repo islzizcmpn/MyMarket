@@ -1,0 +1,22 @@
+@inject IStringLocalizer<SharedResource> L
+
+@* Placeholder body for shell nav destinations whose real content lands in a later phase, so the
+   navigation is complete and nothing 404s. Each page passes the phase that will replace it. *@
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">@L["Nav.Home"]</a>
+    <span aria-hidden="true">›</span>
+    <span class="muted">@Title</span>
+</nav>
+
+<div class="card pad coming-soon">
+    <h1>@Title</h1>
+    <p class="muted">@L["Shell.ComingSoon", Phase]</p>
+    <a class="btn btn--ghost" href="/">@L["Shell.BackHome"]</a>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    /// <summary>Plan phase that will build this page out, shown in the placeholder copy.</summary>
+    [Parameter, EditorRequired] public int Phase { get; set; }
+}

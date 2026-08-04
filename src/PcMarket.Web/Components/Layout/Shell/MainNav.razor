@@ -1,0 +1,38 @@
+@inject IStringLocalizer<SharedResource> L
+
+@* Primary section navigation. Internal entries use NavLink so the active item is highlighted by the
+   router rather than by hand-comparing URLs; Reviews and the Telegram CTA leave the site, so they are
+   plain anchors and never take the active state. *@
+<nav class="mainnav" aria-label="@L["Nav.Primary"]">
+    <div class="container mainnav__row">
+        <NavLink class="mainnav__link" href="" Match="NavLinkMatch.All" ActiveClass="is-active">
+            @L["Nav.Home"]
+        </NavLink>
+        <NavLink class="mainnav__link" href="payment-and-delivery" ActiveClass="is-active">
+            @L["Nav.PaymentAndDelivery"]
+        </NavLink>
+        <NavLink class="mainnav__link" href="stock" ActiveClass="is-active">
+            @L["Nav.Stock"]
+        </NavLink>
+
+        @* Reviews live in the Telegram channel — there is no in-app reviews page (Phase 18). *@
+        <a class="mainnav__link" href="@StoreContact.TelegramReviewsUrl" target="_blank" rel="noopener">
+            @L["Nav.Reviews"]
+        </a>
+
+        <NavLink class="mainnav__link" href="service-center" ActiveClass="is-active">
+            @L["Nav.ServiceCenter"]
+        </NavLink>
+        <NavLink class="mainnav__link" href="contacts" ActiveClass="is-active">
+            @L["Nav.Contacts"]
+        </NavLink>
+        <NavLink class="mainnav__link" href="configurator" ActiveClass="is-active">
+            @L["Nav.Configurator"]
+        </NavLink>
+
+        <a class="mainnav__telegram" href="@StoreContact.TelegramOrderUrl" target="_blank" rel="noopener">
+            <ShellIcon Name="telegram" Class="icon--sm" />
+            @L["Nav.OrderOnTelegram"]
+        </a>
+    </div>
+</nav>

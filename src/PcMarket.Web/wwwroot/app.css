@@ -72,14 +72,40 @@ img { max-width: 100%; display: block; }
 .lang-switch__item.is-active { color: var(--brand); background: var(--brand-050); cursor: default; }
 .lang-switch__sep { color: var(--line); font-size: .82rem; user-select: none; }
 
-/* ---------- Nav strip ---------- */
-.catnav { background: var(--surface); border-bottom: 1px solid var(--line); }
-.catnav__row { display: flex; gap: 4px; overflow-x: auto; padding: 8px 0; }
-.catnav a {
-    white-space: nowrap; color: var(--muted); font-weight: 600; font-size: .88rem;
-    padding: 6px 12px; border-radius: 8px;
+/* ---------- Shell icons ----------
+   Every shell icon is inline SVG using currentColor, so colour comes from whatever token the
+   surrounding rule sets and both themes are covered without a second icon set. */
+.icon { width: 20px; height: 20px; flex: none; }
+.icon--sm { width: 16px; height: 16px; }
+
+/* ---------- Top contact bar (Phase 12) ---------- */
+.topbar { background: var(--bg); border-bottom: 1px solid var(--line); font-size: .8rem; }
+.topbar__row { display: flex; align-items: center; gap: 26px; min-height: 38px; flex-wrap: wrap; }
+.topbar__item { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); }
+.topbar__item--link { color: var(--muted); }
+.topbar__item--link:hover { color: var(--brand); text-decoration: none; }
+.topbar__item .icon { color: var(--brand); }
+.topbar__value { color: var(--ink); font-weight: 700; }
+.topbar__social { display: inline-flex; align-items: center; gap: 12px; margin-left: auto; }
+.topbar__social a { color: var(--muted); display: inline-flex; }
+.topbar__social a:hover { color: var(--brand); }
+
+/* ---------- Main nav strip (Phase 12) ---------- */
+.mainnav { background: var(--surface); border-bottom: 1px solid var(--line); }
+.mainnav__row { display: flex; align-items: center; gap: 4px; overflow-x: auto; padding: 6px 0; }
+.mainnav__link {
+    white-space: nowrap; color: var(--ink); font-weight: 600; font-size: .86rem;
+    padding: 8px 12px; border-radius: 8px;
 }
-.catnav a:hover, .catnav a.active { color: var(--brand); background: var(--brand-050); text-decoration: none; }
+.mainnav__link:hover { color: var(--brand); background: var(--brand-050); text-decoration: none; }
+/* NavLink stamps is-active on the current section. */
+.mainnav__link.is-active { color: var(--brand); }
+.mainnav__telegram {
+    display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
+    color: var(--ink); font-weight: 700; font-size: .86rem; padding: 8px 12px; border-radius: 8px;
+}
+.mainnav__telegram .icon { color: var(--brand); }
+.mainnav__telegram:hover { color: var(--brand); background: var(--brand-050); text-decoration: none; }
 
 /* ---------- Layout ---------- */
 main { min-height: 60vh; padding: 28px 0 48px; }
@@ -89,6 +115,59 @@ main { min-height: 60vh; padding: 28px 0 48px; }
 .stack { display: grid; gap: 16px; }
 .split { display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start; }
 @media (max-width: 860px) { .split { grid-template-columns: 1fr; } }
+
+/* ---------- Shell body: category rail + page content (Phase 12) ---------- */
+.shell-body { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 28px; align-items: start; }
+/* minmax(0,…) above stops wide children (carousels, tables) from forcing the column open. */
+.shell-content { min-width: 0; }
+
+.sidebar {
+    position: sticky; top: 96px; display: flex; flex-direction: column; gap: 10px;
+    /* min-height as well as max: without a floor the rail collapses to its content and the
+       margin-top:auto on the CTA has no slack to push into, so the button would sit directly
+       under the last category instead of at the foot of the rail. */
+    min-height: calc(100vh - 150px); max-height: calc(100vh - 116px);
+}
+.sidebar__list { display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+.sidebar__item {
+    display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 10px;
+    color: var(--ink); font-weight: 600; font-size: .88rem;
+}
+.sidebar__item:hover { background: var(--brand-050); color: var(--brand); text-decoration: none; }
+.sidebar__item.is-active { background: var(--brand-050); color: var(--brand); }
+.sidebar__icon { color: var(--muted); }
+.sidebar__item:hover .sidebar__icon, .sidebar__item.is-active .sidebar__icon { color: var(--brand); }
+/* Pinned to the bottom of the rail: margin-top:auto pushes it past the category list. */
+.sidebar__cta {
+    margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: var(--brand); color: #fff; font-weight: 700; font-size: .84rem;
+    padding: 12px 14px; border-radius: 10px;
+}
+.sidebar__cta:hover { background: var(--brand-600); text-decoration: none; }
+@media (max-width: 1024px) {
+    .shell-body { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+}
+
+/* ---------- Floating contact rail (Phase 12) ---------- */
+.contact-rail {
+    position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 30;
+    display: flex; flex-direction: column; gap: 2px;
+}
+.contact-rail__btn {
+    display: grid; place-items: center; width: 44px; height: 44px;
+    background: var(--brand); color: #fff;
+}
+.contact-rail__btn:first-child { border-radius: 10px 0 0 0; }
+.contact-rail__btn:last-child { border-radius: 0 0 0 10px; }
+.contact-rail__btn:hover { background: var(--brand-600); text-decoration: none; }
+@media (max-width: 1024px) { .contact-rail { display: none; } }
+
+/* ---------- Breadcrumb / placeholder pages ---------- */
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: .84rem; margin-bottom: 16px; }
+.breadcrumb span[aria-hidden] { color: var(--muted); }
+.coming-soon { max-width: 620px; }
+.coming-soon .btn { margin-top: 14px; }
 
 /* ---------- Cards / grid ---------- */
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
@@ -101,7 +180,19 @@ main { min-height: 60vh; padding: 28px 0 48px; }
 .product-card__body { padding: 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
 .product-card__brand { font-size: .74rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
 .product-card__name { color: var(--ink); font-weight: 600; font-size: .95rem; min-height: 2.6em; }
+.product-card__name:hover { color: var(--brand); text-decoration: none; }
 .product-card__price { margin-top: auto; font-weight: 800; font-size: 1.05rem; }
+
+/* Thumbnail selector: only rendered when a product actually has more than one image. */
+.product-card__dots { display: flex; justify-content: center; gap: 6px; padding: 10px 0 0; }
+.product-card__dot {
+    width: 7px; height: 7px; padding: 0; border-radius: 50%; cursor: pointer;
+    border: none; background: var(--line);
+}
+.product-card__dot:hover { background: var(--brand-200); }
+.product-card__dot.is-active { background: var(--brand); }
+.product-card__add { margin-top: 10px; align-self: flex-start; }
+.product-card__error { color: var(--danger); font-size: .8rem; }
 .pill { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
 .pill--ok { background: #e6f6ee; color: var(--ok); }
 .pill--out { background: #fdecec; color: var(--danger); }
@@ -144,6 +235,135 @@ main { min-height: 60vh; padding: 28px 0 48px; }
 .banner__overlay h2 { font-size: 1.5rem; margin: 0 0 4px; }
 .banner__overlay p { margin: 0; opacity: .95; max-width: 34ch; }
 
+/* ---------- Home page (Phase 13) ----------
+   Every rule below draws from the tokens declared at the top of this file, so the whole page follows
+   the dark/light switch without a second palette. */
+
+.home-section { margin: 0 0 44px; }
+.home-section--centered { text-align: center; }
+.home-section__head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+/* Red rule under the heading — the reference site's section marker. */
+.home-section__title { font-size: 1.15rem; margin: 0; padding-bottom: 8px; position: relative; }
+.home-section__title::after {
+    content: ""; position: absolute; left: 0; bottom: 0; width: 46px; height: 2px; background: var(--brand);
+}
+.home-section__title--centered { display: inline-block; margin-bottom: 26px; }
+.home-section__title--centered::after { left: 50%; transform: translateX(-50%); }
+
+/* Carousel arrows + "NN / NN" counter, shared by the product, testimonial and logo rows. */
+.carousel-nav { display: inline-flex; align-items: center; gap: 10px; }
+.carousel-nav__btn {
+    width: 30px; height: 30px; border-radius: 50%; cursor: pointer; line-height: 1;
+    border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 1.1rem;
+}
+.carousel-nav__btn:hover { border-color: var(--brand); color: var(--brand); }
+.carousel-nav__count { color: var(--muted); font-size: .82rem; font-variant-numeric: tabular-nums; }
+
+/* ---------- Hero carousel ---------- */
+.hero-carousel { position: relative; border-radius: 20px; overflow: hidden; margin-bottom: 28px; }
+.hero-carousel__slide { display: block; position: relative; aspect-ratio: 21 / 8; }
+.hero-carousel__slide:hover { text-decoration: none; }
+.hero-carousel__slide img { width: 100%; height: 100%; object-fit: cover; }
+.hero-carousel__overlay {
+    position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center;
+    /* 72px of horizontal padding keeps the copy clear of the prev/next arrows, which sit 16px in. */
+    gap: 10px; align-items: flex-start; padding: 44px 72px; color: #fff;
+    background: linear-gradient(90deg, rgba(0, 0, 0, .62), rgba(0, 0, 0, .05));
+}
+.hero-carousel__overlay h1 { font-size: 2.1rem; margin: 0; max-width: 18ch; }
+.hero-carousel__overlay p { margin: 0; max-width: 40ch; opacity: .92; }
+.hero-carousel__arrow {
+    position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px;
+    border-radius: 50%; border: none; cursor: pointer; font-size: 1.4rem; line-height: 1;
+    background: rgba(0, 0, 0, .45); color: #fff;
+}
+.hero-carousel__arrow:hover { background: var(--brand); }
+.hero-carousel__arrow--prev { left: 16px; }
+.hero-carousel__arrow--next { right: 16px; }
+.hero-carousel__dots { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; gap: 8px; }
+.hero-carousel__dot {
+    width: 9px; height: 9px; padding: 0; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(255, 255, 255, .5);
+}
+.hero-carousel__dot.is-active { background: var(--brand); }
+
+/* ---------- Category circles ---------- */
+.cat-circles { display: flex; flex-wrap: wrap; gap: 22px; justify-content: center; margin: 0 0 40px; }
+.cat-circle { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 132px; }
+.cat-circle:hover { text-decoration: none; }
+.cat-circle__ring {
+    width: 96px; height: 96px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--media-bg); border: 2px solid var(--line); transition: border-color .15s;
+}
+.cat-circle:hover .cat-circle__ring { border-color: var(--brand); }
+.cat-circle__monogram { font-size: 1.9rem; font-weight: 800; color: var(--muted); }
+.cat-circle:hover .cat-circle__monogram { color: var(--brand); }
+.cat-circle__label {
+    font-size: .76rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--ink); text-align: center;
+}
+
+/* ---------- How we work ---------- */
+.steps {
+    list-style: none; margin: 0; padding: 0; display: grid;
+    grid-template-columns: repeat(3, 1fr); gap: 24px; position: relative;
+}
+/* The connecting rule behind the three icons. */
+.steps::before {
+    content: ""; position: absolute; left: 12%; right: 12%; top: 34px; height: 1px;
+    background: var(--line);
+}
+.step { display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; }
+.step__icon {
+    width: 68px; height: 68px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--surface); border: 1px solid var(--line); color: var(--ink);
+}
+.step__icon svg { width: 30px; height: 30px; }
+.step__title { font-size: .95rem; margin: 0; }
+.step__body { margin: 0; font-size: .85rem; max-width: 30ch; }
+@media (max-width: 760px) {
+    .steps { grid-template-columns: 1fr; }
+    .steps::before { display: none; }
+}
+
+/* ---------- Configurator promo ---------- */
+.build-promo {
+    display: grid; grid-template-columns: 1fr auto auto; gap: 32px; align-items: center;
+    padding: 36px; margin: 0 0 44px;
+}
+.build-promo__title { font-size: 1.5rem; margin-bottom: 6px; }
+.build-promo__copy .btn { margin-top: 16px; }
+.build-promo__art { color: var(--brand); opacity: .75; }
+.build-promo__art svg { width: 120px; height: 120px; }
+.build-promo__links { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; font-size: .88rem; }
+@media (max-width: 860px) {
+    .build-promo { grid-template-columns: 1fr; gap: 20px; }
+    .build-promo__art { display: none; }
+}
+
+/* ---------- Testimonials ---------- */
+.testimonial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; text-align: left; }
+.testimonial { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.testimonial__author { display: flex; flex-direction: column; }
+.testimonial__name { font-weight: 700; font-size: .92rem; }
+.testimonial__city { font-size: .8rem; }
+.testimonial__body { margin: 0; font-size: .87rem; line-height: 1.6; color: var(--muted); }
+.testimonial-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 18px; }
+.testimonial-foot__all { font-size: .85rem; font-weight: 600; }
+
+/* ---------- Logo strips ---------- */
+.logo-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; }
+.logo-tile { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.logo-tile:hover { text-decoration: none; }
+.logo-tile__disc {
+    width: 104px; height: 104px; border-radius: 50%; display: grid; place-items: center; overflow: hidden;
+    background: var(--media-bg); border: 1px solid var(--line); transition: border-color .15s;
+}
+.logo-tile:hover .logo-tile__disc { border-color: var(--brand); }
+.logo-tile__disc img { max-width: 66%; max-height: 66%; object-fit: contain; }
+.logo-tile__monogram { font-size: 1.8rem; font-weight: 800; color: var(--muted); }
+.logo-tile__label { font-size: .8rem; color: var(--muted); text-align: center; }
+
 /* ---------- Tables / lists ---------- */
 .table { width: 100%; border-collapse: collapse; }
 .table th, .table td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--line); font-size: .92rem; }
@@ -162,8 +382,44 @@ main { min-height: 60vh; padding: 28px 0 48px; }
 .summary-row { display: flex; justify-content: space-between; padding: 6px 0; }
 .summary-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 1.15rem; border-top: 1px solid var(--line); padding-top: 12px; margin-top: 6px; }
 
-/* ---------- Footer ---------- */
-.site-footer { border-top: 1px solid var(--line); background: var(--surface); padding: 28px 0; color: var(--muted); font-size: .88rem; margin-top: 20px; }
+/* ---------- Footer (Phase 12) ---------- */
+.site-footer {
+    border-top: 1px solid var(--line); background: var(--surface); padding: 40px 0 22px;
+    color: var(--muted); font-size: .86rem; margin-top: 40px;
+}
+.footer-grid {
+    display: grid; grid-template-columns: 1.4fr 1fr 1.4fr 1.2fr; gap: 32px; align-items: start;
+    padding-bottom: 26px;
+}
+.footer-brand__tagline { margin: 12px 0 16px; max-width: 30ch; }
+.footer-brand__partner { margin: 0 0 10px; font-weight: 700; color: var(--ink); }
+.partner-logos { display: flex; gap: 10px; flex-wrap: wrap; }
+/* Text chips stand in for the real NVIDIA / ASUS partner artwork. */
+.partner-chip {
+    border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px;
+    font-weight: 800; font-size: .76rem; letter-spacing: .06em; color: var(--ink);
+    background: var(--media-bg);
+}
+.footer-col__title { font-size: .95rem; color: var(--ink); margin: 0 0 14px; }
+.footer-col__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.footer-col__list a { color: var(--muted); }
+.footer-col__list a:hover { color: var(--brand); }
+/* The catalog column runs two-up like the reference footer once it has enough entries. */
+.footer-col__list--split { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px; }
+.footer-phone { display: inline-block; font-weight: 800; font-size: 1rem; color: var(--ink); margin-bottom: 12px; }
+.footer-phone:hover { color: var(--brand); text-decoration: none; }
+.footer-address { margin: 0 0 14px; color: var(--brand); max-width: 34ch; line-height: 1.6; }
+.footer-social { display: flex; gap: 12px; }
+.footer-social a { color: var(--muted); display: inline-flex; }
+.footer-social a:hover { color: var(--brand); }
+.footer-legal { border-top: 1px solid var(--line); padding-top: 18px; font-size: .82rem; }
+@media (max-width: 900px) {
+    .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px; }
+}
+@media (max-width: 560px) {
+    .footer-grid { grid-template-columns: 1fr; }
+    .footer-col__list--split { grid-template-columns: 1fr; }
+}
 
 .center-narrow { max-width: 440px; margin: 30px auto; }
 .spinner { width: 30px; height: 30px; border: 3px solid var(--line); border-top-color: var(--brand); border-radius: 50%; animation: spin 1s linear infinite; margin: 40px auto; }

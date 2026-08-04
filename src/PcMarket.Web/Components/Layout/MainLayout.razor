@@ -8,7 +8,12 @@
 @inject NavigationManager Nav
 @inject IStringLocalizer<SharedResource> L
 
+@* Storefront shell (Phase 12). The category tree is fetched once here and handed to both the sidebar
+   and the footer, so the shell makes a single catalog call per circuit rather than one per component. *@
+
 <header class="site-header">
+    <TopContactBar />
+
     <div class="container site-header__row">
         <a class="brand" href="/">PC<span>Market</span></a>
 
@@ -34,31 +39,25 @@
         </nav>
     </div>
 
-    @if (_categories.Count > 0)
-    {
-        <div class="catnav">
-            <div class="container catnav__row">
-                <a href="/catalog">@L["Common.AllProducts"]</a>
-                @foreach (var category in _categories)
-                {
-                    <a href="@($"/catalog/{category.Slug}")">@category.Name</a>
-                }
-            </div>
-        </div>
-    }
+    <MainNav />
 </header>
 
 <main>
-    <div class="container">
-        @Body
+    <div class="container shell-body">
+        @if (_categories.Count > 0)
+        {
+            <CategorySidebar Categories="_categories" />
+        }
+
+        <div class="shell-content">
+            @Body
+        </div>
     </div>
 </main>
 
-<footer class="site-footer">
-    <div class="container">
-        @L["Footer.Copyright", DateTime.UtcNow.Year]
-    </div>
-</footer>
+<SiteFooter Categories="_categories" />
+
+<FloatingContactRail />
 
 <div id="blazor-error-ui" data-nosnippet>
     @L["Error.Unhandled"]

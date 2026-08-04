@@ -1,0 +1,39 @@
+@inject IStringLocalizer<SharedResource> L
+
+@* Left category rail. Renders ONLY the app's real categories — the tree comes from
+   CatalogApiClient.GetCategoriesAsync (fetched once by MainLayout and passed down), so the rail can
+   never drift from the catalog. Top-level nodes only; children stay on the category page itself. *@
+<aside class="sidebar" aria-label="@L["Common.Catalog"]">
+    <nav class="sidebar__list">
+        @foreach (var category in Categories)
+        {
+            <NavLink class="sidebar__item" href="@($"catalog/{category.Slug}")" ActiveClass="is-active">
+                <ShellIcon Name="@IconFor(category.Slug)" Class="sidebar__icon" />
+                <span>@category.Name</span>
+            </NavLink>
+        }
+    </nav>
+
+    @* Pinned to the bottom of the rail, matching the reference storefront. *@
+    <a class="sidebar__cta" href="/configurator">
+        <ShellIcon Name="configurator" Class="icon--sm" />
+        @L["Shell.GoToConfigurator"]
+    </a>
+</aside>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<CategoryNodeDto> Categories { get; set; } = [];
+
+    /// <summary>Categories carry no icon in the contract, so the slug picks one from the shell icon
+    /// set and anything unrecognised falls back to a generic box.</summary>
+    private static string IconFor(string slug) => slug switch
+    {
+        "computers" => "computers",
+        "laptops" => "laptops",
+        "monitors" => "monitors",
+        "memory" => "memory",
+        "mice" => "mice",
+        "accessories" => "accessories",
+        _ => "category",
+    };
+}

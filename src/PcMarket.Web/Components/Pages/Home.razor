@@ -3,22 +3,14 @@
 @inject ContentApiClient Content
 @inject IStringLocalizer<SharedResource> L
 
+@* Renders inside the Phase 12 storefront shell (MainLayout): top contact bar, main nav, category
+   sidebar, footer and floating contact rail wrap this content. *@
+
 <PageTitle>@L["Home.PageTitle"]</PageTitle>
 
 @if (_banners.Count > 0)
 {
-    <div class="banner-strip">
-        @foreach (var banner in _banners)
-        {
-            <a class="banner" href="@(banner.LinkUrl ?? "/catalog")">
-                <img src="@banner.ImageUrl" alt="@banner.Title" />
-                <div class="banner__overlay">
-                    <h2>@banner.Title</h2>
-                    @if (!string.IsNullOrWhiteSpace(banner.Subtitle)) { <p>@banner.Subtitle</p> }
-                </div>
-            </a>
-        }
-    </div>
+    <HeroCarousel Banners="_banners" />
 }
 else
 {
@@ -39,43 +31,112 @@ else
 
 @if (_categories.Count > 0)
 {
-    <div class="catnav__row" style="margin-bottom:24px; flex-wrap:wrap;">
+    <nav class="cat-circles" aria-label="@L["Common.Catalog"]">
         @foreach (var category in _categories)
         {
-            <a class="btn btn--ghost" href="@($"/catalog/{category.Slug}")">@category.Name</a>
+            <a class="cat-circle" href="@($"/catalog/{category.Slug}")">
+                @* Categories carry no artwork in the contract, so the ring holds a monogram until
+                   category images exist. *@
+                <span class="cat-circle__ring">
+                    <span class="cat-circle__monogram">@Monogram(category.Name)</span>
+                </span>
+                <span class="cat-circle__label">@category.Name</span>
+            </a>
         }
-    </div>
+    </nav>
 }
-
-<div class="page-head">
-    <h1>@L["Home.NewArrivals"]</h1>
-    <a href="/catalog">@L["Home.ViewAll"] →</a>
-</div>
 
 @if (_loading)
 {
     <div class="spinner"></div>
 }
-else if (_products.Count == 0)
-{
-    <p class="muted">@L["Home.NoProducts"]</p>
-}
 else
 {
-    <div class="product-grid">
-        @foreach (var product in _products)
-        {
-            <ProductCard Product="product" />
-        }
-    </div>
+    <ProductCarousel Title="@L["Home.Bestsellers"]" Items="_bestsellers" />
+    <ProductCarousel Title="@L["Home.Recommended"]" Items="_recommended" />
 }
+
+<section class="home-section home-section--centered">
+    <h2 class="home-section__title home-section__title--centered">@L["Home.HowWeWork"]</h2>
+
+    <ol class="steps">
+        <li class="step">
+            <span class="step__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M9 11V6a2 2 0 1 1 4 0v5" />
+                    <path d="M13 8a2 2 0 1 1 4 0v3" />
+                    <path d="M17 10a2 2 0 1 1 4 0v4a7 7 0 0 1-7 7h-2a7 7 0 0 1-7-7v-1a2 2 0 1 1 4 0" />
+                </svg>
+            </span>
+            <h3 class="step__title">@L["Home.Step1Title"]</h3>
+            <p class="step__body muted">@L["Home.Step1Body"]</p>
+        </li>
+        <li class="step">
+            <span class="step__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="2.5" y="6" width="19" height="13" rx="2.5" />
+                    <path d="M2.5 10.5h19" />
+                    <path d="M6.5 15h4" />
+                </svg>
+            </span>
+            <h3 class="step__title">@L["Home.Step2Title"]</h3>
+            <p class="step__body muted">@L["Home.Step2Body"]</p>
+        </li>
+        <li class="step">
+            <span class="step__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z" />
+                    <path d="M3 7.5 12 12l9-4.5M12 12v9" />
+                </svg>
+            </span>
+            <h3 class="step__title">@L["Home.Step3Title"]</h3>
+            <p class="step__body muted">@L["Home.Step3Body"]</p>
+        </li>
+    </ol>
+</section>
+
+@* Configurator promo. The targets are placeholders until Phase 19 builds /configurator. *@
+<section class="build-promo card">
+    <div class="build-promo__copy">
+        <h2 class="build-promo__title">@L["Home.ConfiguratorTitle"]</h2>
+        <p class="muted">@L["Home.ConfiguratorSubtitle"]</p>
+        <a class="btn btn--accent" href="/configurator">@L["Home.ConfiguratorCta"]</a>
+    </div>
+
+    <div class="build-promo__art" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <rect x="4" y="2.5" width="12" height="19" rx="2" />
+            <circle cx="10" cy="8" r="2.5" />
+            <circle cx="10" cy="15" r="2.5" />
+            <path d="M18 6h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2" />
+        </svg>
+    </div>
+
+    <ul class="build-promo__links">
+        <li><a href="/configurator?build=intel">@L["Home.ConfiguratorIntel"]</a></li>
+        <li><a href="/configurator?build=amd">@L["Home.ConfiguratorAmd"]</a></li>
+    </ul>
+</section>
+
+<TestimonialsCarousel />
+
+<LogoStrip Title="@L["Home.TrustUs"]" Items="_partners" />
+<LogoStrip Title="@L["Home.Brands"]" Items="_brands" />
 
 @code {
     private IReadOnlyList<BannerDto> _banners = [];
     private CmsBlockDto? _intro;
     private IReadOnlyList<CategoryNodeDto> _categories = [];
-    private IReadOnlyList<ProductListItemDto> _products = [];
+    private IReadOnlyList<ProductListItemDto> _bestsellers = [];
+    private IReadOnlyList<ProductListItemDto> _recommended = [];
+    private IReadOnlyList<LogoItem> _brands = [];
     private bool _loading = true;
+
+    /// <summary>"They trust us" has no backing data — these are neutral placeholders until real
+    /// partner artwork is supplied. Deliberately not real company names, to avoid implying
+    /// endorsements the store does not have.</summary>
+    private IReadOnlyList<LogoItem> _partners =>
+        Enumerable.Range(1, 8).Select(i => new LogoItem(L["Home.PartnerN", i])).ToList();
 
     protected override async Task OnInitializedAsync()
     {
@@ -84,8 +145,19 @@ else
             _banners = await Content.GetBannersAsync();
             _intro = await Content.GetBlockAsync("home-intro");
             _categories = await Catalog.GetCategoriesAsync();
-            var page = await Catalog.GetProductsAsync(sort: ProductSort.Newest, page: 1, pageSize: 8);
-            _products = page.Items;
+
+            // There is no sales-rank data yet, so both rows are real catalog products under
+            // different sorts rather than invented "bestseller" flags. Swap for real ranking
+            // once orders can feed it.
+            var newest = await Catalog.GetProductsAsync(sort: ProductSort.Newest, page: 1, pageSize: 12);
+            var premium = await Catalog.GetProductsAsync(sort: ProductSort.PriceDesc, page: 1, pageSize: 12);
+            _bestsellers = premium.Items;
+            _recommended = newest.Items;
+
+            var brands = await Catalog.GetBrandsAsync();
+            _brands = brands
+                .Select(b => new LogoItem(b.Name, b.LogoUrl, $"/catalog?brand={Uri.EscapeDataString(b.Slug)}"))
+                .ToList();
         }
         catch
         {
@@ -96,4 +168,7 @@ else
             _loading = false;
         }
     }
+
+    private static string Monogram(string name) =>
+        string.IsNullOrWhiteSpace(name) ? "?" : name.Trim()[..1].ToUpperInvariant();
 }

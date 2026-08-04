@@ -1,0 +1,14 @@
+@inject IStringLocalizer<SharedResource> L
+
+@* Fixed rail pinned to the right edge, present on every page. Hidden on narrow viewports, where it
+   would sit on top of the content. *@
+<div class="contact-rail">
+    <a class="contact-rail__btn" href="@StoreContact.TelegramOrderUrl" target="_blank" rel="noopener"
+       aria-label="@L["Nav.OrderOnTelegram"]" title="@L["Nav.OrderOnTelegram"]">
+        <ShellIcon Name="telegram" />
+    </a>
+    <a class="contact-rail__btn" href="@StoreContact.PhoneHref"
+       aria-label="@L["Shell.CallUs"]" title="@StoreContact.Phone">
+        <ShellIcon Name="phone" />
+    </a>
+</div>

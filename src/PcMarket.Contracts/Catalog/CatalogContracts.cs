@@ -28,7 +28,10 @@ public sealed record ProductListItemDto(
     string? BrandName,
     string? PrimaryImageUrl,
     decimal PriceFrom,
-    bool InStock);
+    bool InStock,
+    // Every image, primary first, so grid cards can offer the thumbnail selector without a detail
+    // round-trip. Defaulted so existing constructor call sites and older clients keep working.
+    IReadOnlyList<string>? ImageUrls = null);
 
 /// <summary>Full product detail for the product page.</summary>
 public sealed record ProductDetailDto(

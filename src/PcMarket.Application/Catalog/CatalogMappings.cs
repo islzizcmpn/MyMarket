@@ -33,6 +33,13 @@ public static class CatalogMappings
         var primaryImage = product.Images.FirstOrDefault(i => i.IsPrimary)
                            ?? product.Images.OrderBy(i => i.SortOrder).FirstOrDefault();
 
+        // Primary first, then the rest by sort order — the card's thumbnail dots render in this order.
+        var imageUrls = product.Images
+            .OrderByDescending(i => i.IsPrimary)
+            .ThenBy(i => i.SortOrder)
+            .Select(i => i.Url)
+            .ToList();
+
         return new ProductListItemDto(
             product.Id,
             product.Name,
@@ -40,6 +47,7 @@ public static class CatalogMappings
             product.Brand?.Name,
             primaryImage?.Url,
             activeVariants.Count > 0 ? activeVariants.Min(v => v.Price) : 0m,
-            activeVariants.Any(v => v.StockQty > 0));
+            activeVariants.Any(v => v.StockQty > 0),
+            imageUrls);
     }
 }

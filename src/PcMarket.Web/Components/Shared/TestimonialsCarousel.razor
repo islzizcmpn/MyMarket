@@ -1,0 +1,64 @@
+@inject IStringLocalizer<SharedResource> L
+
+@* "What they say about us". The quotes are static marketing copy held in the resource files (there is
+   no reviews entity — Phase 18 sends real reviews out to the Telegram channel), so this carousel reads
+   them straight from IStringLocalizer by index. *@
+<section class="home-section home-section--centered">
+    <h2 class="home-section__title home-section__title--centered">@L["Home.Testimonials"]</h2>
+
+    <div class="testimonial-grid">
+        @foreach (var item in CurrentPage)
+        {
+            <figure class="testimonial card pad">
+                <figcaption class="testimonial__author">
+                    <span class="testimonial__name">@item.Name</span>
+                    <span class="testimonial__city muted">@item.City</span>
+                </figcaption>
+                <blockquote class="testimonial__body">@item.Body</blockquote>
+            </figure>
+        }
+    </div>
+
+    <div class="testimonial-foot">
+        <div class="carousel-nav">
+            <button type="button" class="carousel-nav__btn" aria-label="@L["Home.Previous"]"
+                    @onclick="Previous">‹</button>
+            <span class="carousel-nav__count">@Counter</span>
+            <button type="button" class="carousel-nav__btn" aria-label="@L["Home.Next"]"
+                    @onclick="Next">›</button>
+        </div>
+
+        @* Reviews live in the Telegram channel — see Phase 18. *@
+        <a class="testimonial-foot__all" href="@ReviewsChannelUrl" target="_blank" rel="noopener">
+            @L["Home.ReadAllReviews"]
+        </a>
+    </div>
+</section>
+
+@code {
+    private const string ReviewsChannelUrl = "https://t.me/otzivPCmarket";
+    private const int Count = 6;
+    private const int PageSize = 3;
+
+    private int _page;
+
+    private record Testimonial(string Name, string City, string Body);
+
+    private IReadOnlyList<Testimonial> Items =>
+        Enumerable.Range(1, Count)
+            .Select(i => new Testimonial(
+                L[$"Home.Testimonial{i}.Name"],
+                L[$"Home.Testimonial{i}.City"],
+                L[$"Home.Testimonial{i}.Body"]))
+            .ToList();
+
+    private int PageCount => (int)Math.Ceiling(Count / (double)PageSize);
+
+    private IEnumerable<Testimonial> CurrentPage => Items.Skip(_page * PageSize).Take(PageSize);
+
+    private string Counter => $"{_page + 1:D2} / {PageCount:D2}";
+
+    private void Previous() => _page = (_page - 1 + PageCount) % PageCount;
+
+    private void Next() => _page = (_page + 1) % PageCount;
+}

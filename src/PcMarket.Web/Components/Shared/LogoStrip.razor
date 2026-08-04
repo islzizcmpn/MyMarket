@@ -1,0 +1,82 @@
+@inject IStringLocalizer<SharedResource> L
+
+@* Circular logo carousel, shared by the "They trust us" and "Brands" rows. Tiles with no artwork
+   render a monogram instead of a broken image. *@
+<section class="home-section">
+    <div class="home-section__head">
+        <h2 class="home-section__title">@Title</h2>
+
+        @if (PageCount > 1)
+        {
+            <div class="carousel-nav">
+                <button type="button" class="carousel-nav__btn" aria-label="@L["Home.Previous"]"
+                        @onclick="Previous">‹</button>
+                <span class="carousel-nav__count">@Counter</span>
+                <button type="button" class="carousel-nav__btn" aria-label="@L["Home.Next"]"
+                        @onclick="Next">›</button>
+            </div>
+        }
+    </div>
+
+    <div class="logo-strip">
+        @foreach (var item in CurrentPage)
+        {
+            @if (item.Href is { Length: > 0 } href)
+            {
+                <a class="logo-tile" href="@href" title="@item.Label">
+                    <span class="logo-tile__disc">@RenderMark(item)</span>
+                    <span class="logo-tile__label">@item.Label</span>
+                </a>
+            }
+            else
+            {
+                <div class="logo-tile" title="@item.Label">
+                    <span class="logo-tile__disc">@RenderMark(item)</span>
+                    <span class="logo-tile__label">@item.Label</span>
+                </div>
+            }
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public IReadOnlyList<LogoItem> Items { get; set; } = [];
+    [Parameter] public int PageSize { get; set; } = 4;
+
+    private int _page;
+
+    private int PageCount => Items.Count == 0 ? 1 : (int)Math.Ceiling(Items.Count / (double)PageSize);
+
+    private IEnumerable<LogoItem> CurrentPage => Items.Skip(_page * PageSize).Take(PageSize);
+
+    private string Counter => $"{_page + 1:D2} / {PageCount:D2}";
+
+    protected override void OnParametersSet() => _page = Math.Clamp(_page, 0, PageCount - 1);
+
+    private void Previous() => _page = (_page - 1 + PageCount) % PageCount;
+
+    private void Next() => _page = (_page + 1) % PageCount;
+
+    private RenderFragment RenderMark(LogoItem item) => builder =>
+    {
+        if (item.LogoUrl is { Length: > 0 } url)
+        {
+            builder.OpenElement(0, "img");
+            builder.AddAttribute(1, "src", url);
+            builder.AddAttribute(2, "alt", item.Label);
+            builder.AddAttribute(3, "loading", "lazy");
+            builder.CloseElement();
+        }
+        else
+        {
+            builder.OpenElement(4, "span");
+            builder.AddAttribute(5, "class", "logo-tile__monogram");
+            builder.AddContent(6, Monogram(item.Label));
+            builder.CloseElement();
+        }
+    };
+
+    private static string Monogram(string label) =>
+        string.IsNullOrWhiteSpace(label) ? "?" : label.Trim()[..1].ToUpperInvariant();
+}

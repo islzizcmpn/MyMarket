@@ -1,0 +1,63 @@
+@inject IStringLocalizer<SharedResource> L
+
+@* Paged product carousel: a red-underlined title on the left, prev/next arrows and an "N / M"
+   page counter on the right, matching the reference storefront's Bestsellers / We-recommend rows.
+   Paging is done in C# rather than by scrolling a track — the circuit already re-renders on click,
+   and it keeps the counter and the visible page from ever disagreeing. *@
+<section class="home-section">
+    <div class="home-section__head">
+        <h2 class="home-section__title">@Title</h2>
+
+        @if (PageCount > 1)
+        {
+            <div class="carousel-nav">
+                <button type="button" class="carousel-nav__btn" aria-label="@L["Home.Previous"]"
+                        @onclick="Previous">‹</button>
+                <span class="carousel-nav__count">@Counter</span>
+                <button type="button" class="carousel-nav__btn" aria-label="@L["Home.Next"]"
+                        @onclick="Next">›</button>
+            </div>
+        }
+    </div>
+
+    @if (Items.Count == 0)
+    {
+        <p class="muted">@L["Home.NoProducts"]</p>
+    }
+    else
+    {
+        <div class="product-grid">
+            @foreach (var product in CurrentPage)
+            {
+                <ProductCard Product="product" ShowAddToCart="true" />
+            }
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public IReadOnlyList<ProductListItemDto> Items { get; set; } = [];
+
+    /// <summary>Cards per page. Four matches the reference layout; the grid still reflows on narrow screens.</summary>
+    [Parameter] public int PageSize { get; set; } = 4;
+
+    private int _page;
+
+    private int PageCount => Items.Count == 0 ? 1 : (int)Math.Ceiling(Items.Count / (double)PageSize);
+
+    private IEnumerable<ProductListItemDto> CurrentPage => Items.Skip(_page * PageSize).Take(PageSize);
+
+    private string Counter => $"{_page + 1:D2} / {PageCount:D2}";
+
+    protected override void OnParametersSet()
+    {
+        // Clamp when the caller swaps in a shorter list after the shopper has paged forward.
+        _page = Math.Clamp(_page, 0, PageCount - 1);
+    }
+
+    // Both arrows wrap around, so neither is ever a dead control.
+    private void Previous() => _page = (_page - 1 + PageCount) % PageCount;
+
+    private void Next() => _page = (_page + 1) % PageCount;
+}
