@@ -831,4 +831,37 @@
     <value>Image {0}</value>
     <comment>{0} is the 1-based image number.</comment>
   </data>
+
+  <data name="Contacts.PageTitle" xml:space="preserve">
+    <value>Contacts — PCMarket</value>
+  </data>
+  <data name="Contacts.Heading" xml:space="preserve">
+    <value>Need computer equipment?</value>
+    <comment>Rendered in caps by CSS; keep sentence case here so other scripts are not forced upper.</comment>
+  </data>
+  <data name="Contacts.TelegramLabel" xml:space="preserve">
+    <value>Our Telegram</value>
+  </data>
+  <data name="Contacts.PhoneLabel" xml:space="preserve">
+    <value>Call us</value>
+  </data>
+  <data name="Contacts.MailLabel" xml:space="preserve">
+    <value>Our mail</value>
+  </data>
+  <data name="Contacts.About1" xml:space="preserve">
+    <value>Pc Market is a team of professionals with extensive experience in computer hardware sales and service. Our mission is to provide a wide range of services, from computer hardware sales to full IT support.</value>
+  </data>
+  <data name="Contacts.About2" xml:space="preserve">
+    <value>We provide turnkey solutions to our customers: We take care of everything related to computer equipment and its maintenance!</value>
+  </data>
+  <data name="Contacts.PartnerLine" xml:space="preserve">
+    <value>PC MARKET is the official authorized partner of ASUS and NVIDIA CIS</value>
+  </data>
+  <data name="Contacts.MapHeading" xml:space="preserve">
+    <value>We are on the map</value>
+  </data>
+  <data name="Contacts.MapTitle" xml:space="preserve">
+    <value>PC Market showroom on Google Maps</value>
+    <comment>Accessible title for the embedded map iframe.</comment>
+  </data>
 </root>

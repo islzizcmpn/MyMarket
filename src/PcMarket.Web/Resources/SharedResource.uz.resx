@@ -797,4 +797,35 @@
   <data name="Product.ImageN" xml:space="preserve">
     <value>{0}-rasm</value>
   </data>
+
+  <data name="Contacts.PageTitle" xml:space="preserve">
+    <value>Kontaktlar — PCMarket</value>
+  </data>
+  <data name="Contacts.Heading" xml:space="preserve">
+    <value>Kompyuter texnikasi kerakmi?</value>
+  </data>
+  <data name="Contacts.TelegramLabel" xml:space="preserve">
+    <value>Bizning Telegram</value>
+  </data>
+  <data name="Contacts.PhoneLabel" xml:space="preserve">
+    <value>Bizga qoʻngʻiroq qiling</value>
+  </data>
+  <data name="Contacts.MailLabel" xml:space="preserve">
+    <value>Bizning pochtamiz</value>
+  </data>
+  <data name="Contacts.About1" xml:space="preserve">
+    <value>Pc Market — kompyuter texnikasini sotish va unga texnik xizmat koʻrsatishda katta tajribaga ega professionallar jamoasi. Bizning maqsadimiz — kompyuter uskunalarini sotishdan tortib toʻliq IT-qoʻllab-quvvatlashgacha keng koʻlamli xizmatlarni taqdim etish.</value>
+  </data>
+  <data name="Contacts.About2" xml:space="preserve">
+    <value>Mijozlarimizga «kalit topshirish» asosida yechimlarni taqdim etamiz: kompyuter texnikasi va unga texnik xizmat koʻrsatish bilan bogʻliq barcha ishlarni oʻz zimmamizga olamiz!</value>
+  </data>
+  <data name="Contacts.PartnerLine" xml:space="preserve">
+    <value>PC MARKET — ASUS va NVIDIA MDH ning rasmiy avtorizatsiyalangan hamkori</value>
+  </data>
+  <data name="Contacts.MapHeading" xml:space="preserve">
+    <value>Biz xaritada</value>
+  </data>
+  <data name="Contacts.MapTitle" xml:space="preserve">
+    <value>PC Market shourumi Google Xaritalarda</value>
+  </data>
 </root>

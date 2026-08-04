@@ -226,6 +226,14 @@ h3 { font-size: 1.15rem; letter-spacing: -.01em; }
 p { margin: 0 0 1rem; }
 img { max-width: 100%; display: block; }
 
+/* FocusOnNavigate (Routes.razor) moves focus to the page's <h1> after a route change so assistive
+   tech lands in the new content rather than back at the top of the shell. To do that it stamps
+   tabindex="-1" on the heading, and the browser then paints its default focus ring — which reads as
+   a stray box drawn around the heading on arrival. The focus is a navigation aid, not a keyboard
+   interaction, and tabindex="-1" means nobody can tab here, so removing the ring costs no
+   affordance. Scoped to that attribute so real focusable controls keep their outlines. */
+h1[tabindex="-1"]:focus, h1[tabindex="-1"]:focus-visible { outline: none; }
+
 /* Small uppercase labels (eyebrows, category captions, chips) get opened up instead of bolded —
    letter-spacing is the only lever Play leaves at these sizes. */
 .eyebrow {
@@ -875,6 +883,83 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
 .logo-tile__disc img { max-width: 62%; max-height: 62%; object-fit: contain; }
 .logo-tile__monogram { font-size: 1.7rem; font-weight: 700; color: var(--muted); }
 .logo-tile__label { font-size: .74rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); text-align: center; }
+
+/* ---------- Contacts page (Phase 15) ----------
+   Every value below comes from the tokens at the top of this file, so the page follows the
+   dark/light switch and the Layer 2 lift timings without introducing anything of its own. */
+.contacts-intro { margin-bottom: var(--space-block); }
+.contacts-heading {
+    /* Set in caps at a wide track — the reference's heading is a statement, not a page title. */
+    text-transform: uppercase; letter-spacing: .01em; max-width: 20ch; margin: 0;
+}
+
+/* Three nodes joined by a rule, the same construction as .steps on the home page. */
+.contact-nodes {
+    list-style: none; margin: 0 0 var(--space-section); padding: 0;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; position: relative;
+}
+.contact-nodes::before {
+    content: ""; position: absolute; left: 14%; right: 14%; top: 39px; height: 1px;
+    background: var(--line);
+}
+.contact-node { position: relative; }
+.contact-node__link {
+    display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center;
+    color: var(--ink);
+}
+.contact-node__link:hover { text-decoration: none; }
+.contact-node__icon {
+    width: 78px; height: 78px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--surface); border: 1px solid var(--line); color: var(--brand);
+    transition:
+        transform var(--lift-out) var(--lift-ease-return),
+        box-shadow var(--lift-out) var(--lift-ease-return),
+        border-color var(--lift-out) ease, background var(--lift-out) ease;
+}
+/* Same lift and glow the product cards use, at the same cadence. */
+.contact-node__link:hover .contact-node__icon,
+.contact-node__link:focus-visible .contact-node__icon {
+    transform: translateY(var(--lift-distance));
+    box-shadow: var(--shadow-lift);
+    border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
+    background: var(--surface-2);
+    transition-duration: var(--lift-in); transition-timing-function: var(--lift-ease);
+}
+.contact-node__icon svg { width: 30px; height: 30px; }
+.contact-node__label {
+    font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .14em;
+    color: var(--muted); transition: color .25s;
+}
+.contact-node__link:hover .contact-node__label { color: var(--ink); }
+.contact-node__value { font-size: 1.02rem; font-weight: 700; letter-spacing: -.01em; word-break: break-word; }
+.contact-node__link:hover .contact-node__value { color: var(--brand); }
+
+/* About-the-company copy. Capped measure and loosened leading — this is the one block of prose on
+   the page and it should read like a statement rather than a spec sheet. */
+.contacts-about { max-width: 68ch; margin-bottom: var(--space-section); }
+.contacts-about p { font-size: 1.02rem; line-height: 1.8; color: var(--muted); margin: 0 0 1.4rem; }
+.contacts-about__partner {
+    color: var(--ink) !important; font-weight: 700; padding-top: 1.4rem;
+    border-top: 1px solid var(--line);
+}
+.contacts-about__logos { margin-top: 1.4rem; }
+
+/* No negative top margin here: .home-section__title carries its gradient rule on an ::after pinned
+   to the bottom of its padding box, and pulling this line up strikes it straight through. */
+.contacts-map__address { max-width: 52ch; margin: 4px 0 28px; }
+.contacts-map__frame {
+    /* Fixed ratio so the map reserves its space before the iframe resolves — no shift on load. */
+    position: relative; aspect-ratio: 21 / 9; overflow: hidden;
+    border-radius: var(--radius); border: 1px solid var(--line);
+    background: var(--media-bg); box-shadow: var(--shadow);
+}
+.contacts-map__frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+@media (max-width: 760px) {
+    .contact-nodes { grid-template-columns: 1fr; gap: 36px; }
+    .contact-nodes::before { display: none; }
+    .contacts-map__frame { aspect-ratio: 4 / 3; }
+}
 
 /* ---------- Tables / lists ---------- */
 .table { width: 100%; border-collapse: collapse; }

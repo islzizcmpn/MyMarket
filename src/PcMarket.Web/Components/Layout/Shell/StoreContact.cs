@@ -16,6 +16,15 @@ public static class StoreContact
     public const string Address =
         "Uzbekistan, Tashkent, Yunusabad district, 13th quarter, 2A, Trade Complex \"Lion\", Landmark \"Mega Planet\"";
 
+    /// <summary>
+    /// Deliberately a dummy address on the IANA-reserved <c>example.com</c> documentation domain, so
+    /// it can never resolve to a real inbox. The reference site's address is intentionally not
+    /// reused. Swap for the store's real mailbox when there is one.
+    /// </summary>
+    public const string Email = "info@example.com";
+
+    public const string EmailHref = "mailto:info@example.com";
+
     /// <summary>Placeholder channel for the "Order on Telegram" call to action.</summary>
     public const string TelegramOrderUrl = "https://t.me/pcmarket_uz";
 

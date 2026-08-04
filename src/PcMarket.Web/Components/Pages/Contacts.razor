@@ -1,7 +1,115 @@
 @page "/contacts"
+@using System.Globalization
 @inject IStringLocalizer<SharedResource> L
+@inject HomeImages Images
 
-@* Placeholder — the real page is Phase 15. *@
-<PageTitle>@L["Nav.Contacts"] — PCMarket</PageTitle>
+@* Phase 15. Renders inside the Phase 12 storefront shell (MainLayout), so the top bar, nav, category
+   sidebar and footer wrap this content. Scroll reveals come from MainLayout's scan call. *@
 
-<ComingSoon Title="@L["Nav.Contacts"]" Phase="15" />
+<PageTitle>@L["Contacts.PageTitle"]</PageTitle>
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">@L["Nav.Home"]</a>
+    <span aria-hidden="true">›</span>
+    <span class="muted">@L["Shell.AboutCompany"]</span>
+</nav>
+
+<section class="home-section contacts-intro" data-reveal="block">
+    <h1 class="contacts-heading">@L["Contacts.Heading"]</h1>
+</section>
+
+@* Three nodes joined by a rule, matching the home page's "How we work" row. Each is a real link, so
+   the icon carries the Layer 2 glow and lift on hover rather than sitting inert. *@
+<ul class="contact-nodes" data-reveal="stagger">
+    <li class="contact-node">
+        <a class="contact-node__link" href="@StoreContact.TelegramOrderUrl" target="_blank" rel="noopener">
+            <span class="contact-node__icon"><ShellIcon Name="telegram" /></span>
+            <span class="contact-node__label">@L["Contacts.TelegramLabel"]</span>
+            <span class="contact-node__value">@TelegramHandle</span>
+        </a>
+    </li>
+    <li class="contact-node">
+        <a class="contact-node__link" href="@StoreContact.PhoneHref">
+            <span class="contact-node__icon"><ShellIcon Name="phone" /></span>
+            <span class="contact-node__label">@L["Contacts.PhoneLabel"]</span>
+            <span class="contact-node__value">@StoreContact.Phone</span>
+        </a>
+    </li>
+    <li class="contact-node">
+        <a class="contact-node__link" href="@StoreContact.EmailHref">
+            <span class="contact-node__icon"><ShellIcon Name="mail" /></span>
+            <span class="contact-node__label">@L["Contacts.MailLabel"]</span>
+            <span class="contact-node__value">@StoreContact.Email</span>
+        </a>
+    </li>
+</ul>
+
+<section class="home-section contacts-about" data-reveal="block">
+    <p>@L["Contacts.About1"]</p>
+    <p>@L["Contacts.About2"]</p>
+
+    <p class="contacts-about__partner">@L["Contacts.PartnerLine"]</p>
+
+    @* Real partner artwork where it exists; the text line above carries the claim either way. *@
+    @if (PartnerLogos.Count > 0)
+    {
+        <div class="partner-logos contacts-about__logos">
+            @foreach (var (label, path) in PartnerLogos)
+            {
+                <span class="partner-logo">
+                    <img src="@path" alt="@label" loading="lazy" decoding="async" />
+                </span>
+            }
+        </div>
+    }
+</section>
+
+<section class="home-section contacts-map">
+    <h2 class="home-section__title" data-reveal="block">@L["Contacts.MapHeading"]</h2>
+
+    <p class="contacts-map__address muted" data-reveal="block">@L["Shell.Address"]</p>
+
+    @* Plain maps query with output=embed — the keyless embed. The /maps/embed/v1/ endpoint would
+       need an API key, which this app has no reason to carry for a static pin. The wrapper holds a
+       fixed aspect ratio so the iframe never resizes the page as it loads. *@
+    <div class="contacts-map__frame" data-reveal="block">
+        <iframe src="@MapEmbedUrl"
+                title="@L["Contacts.MapTitle"]"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                allowfullscreen></iframe>
+    </div>
+</section>
+
+@code {
+    /// <summary>Shown under the Telegram icon — the channel handle rather than the bare URL.</summary>
+    private static string TelegramHandle =>
+        "@" + StoreContact.TelegramOrderUrl.TrimEnd('/').Split('/')[^1];
+
+    private List<(string Label, string Path)> PartnerLogos
+    {
+        get
+        {
+            List<(string, string)> found = [];
+            foreach (var (label, fileName) in new[] { ("ASUS", "asus-logo.png"), ("NVIDIA", "nvidia-logo.webp") })
+            {
+                if (Images.Path(fileName) is { } path)
+                {
+                    found.Add((label, path));
+                }
+            }
+
+            return found;
+        }
+    }
+
+    /// <summary>
+    /// Keyless Google Maps embed pinned to the showroom. <c>hl</c> follows the active UI culture so
+    /// the map's own labels match the rest of the page rather than defaulting to the viewer's
+    /// Google setting.
+    /// </summary>
+    private static string MapEmbedUrl =>
+        "https://www.google.com/maps?q=" + Uri.EscapeDataString(StoreContact.Address)
+        + "&hl=" + CultureInfo.CurrentUICulture.TwoLetterISOLanguageName
+        + "&z=16&output=embed";
+}
