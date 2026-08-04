@@ -3,7 +3,7 @@
 @* Circular logo carousel, shared by the "They trust us" and "Brands" rows. Tiles with no artwork
    render a monogram instead of a broken image. *@
 <section class="home-section">
-    <div class="home-section__head">
+    <div class="home-section__head" data-reveal="block">
         <h2 class="home-section__title">@Title</h2>
 
         @if (PageCount > 1)
@@ -18,7 +18,7 @@
         }
     </div>
 
-    <div class="logo-strip">
+    <div class="logo-strip" data-reveal="stagger">
         @foreach (var item in CurrentPage)
         {
             @if (item.Href is { Length: > 0 } href)

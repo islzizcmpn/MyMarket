@@ -4,8 +4,11 @@
    page counter on the right, matching the reference storefront's Bestsellers / We-recommend rows.
    Paging is done in C# rather than by scrolling a track — the circuit already re-renders on click,
    and it keeps the counter and the visible page from ever disagreeing. *@
+@* The head rises as one block and the cards cascade behind it. Deliberately not a reveal on the
+   <section> itself: nesting a block reveal around a stagger compounds the two fades, and the last
+   card ends up arriving about a second late. *@
 <section class="home-section">
-    <div class="home-section__head">
+    <div class="home-section__head" data-reveal="block">
         <h2 class="home-section__title">@Title</h2>
 
         @if (PageCount > 1)
@@ -26,7 +29,7 @@
     }
     else
     {
-        <div class="product-grid">
+        <div class="product-grid" data-reveal="stagger">
             @foreach (var product in CurrentPage)
             {
                 <ProductCard Product="product" ShowAddToCart="true" />

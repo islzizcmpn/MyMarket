@@ -95,6 +95,20 @@
         }
     }
 
+    /// <summary>Covers every page, so a component carrying data-reveal markers is picked up
+    /// wherever it is used rather than only on the pages that remember to scan themselves.</summary>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("pcmarketReveal.scan");
+        }
+        catch
+        {
+            // JS interop unavailable (circuit tearing down) — nothing to do.
+        }
+    }
+
     private void OnSearchKey(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")

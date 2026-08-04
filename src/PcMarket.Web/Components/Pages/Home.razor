@@ -2,6 +2,7 @@
 @inject CatalogApiClient Catalog
 @inject ContentApiClient Content
 @inject IStringLocalizer<SharedResource> L
+@inject IJSRuntime JS
 
 @* Renders inside the Phase 12 storefront shell (MainLayout): top contact bar, main nav, category
    sidebar, footer and floating contact rail wrap this content. *@
@@ -23,7 +24,7 @@ else
 
 @if (_intro is not null)
 {
-    <section class="home-intro">
+    <section class="home-intro" data-reveal="block">
         <h2>@_intro.Title</h2>
         <p class="lede">@_intro.Body</p>
     </section>
@@ -31,7 +32,8 @@ else
 
 @if (_categories.Count > 0)
 {
-    <nav class="cat-circles" aria-label="@L["Common.Catalog"]">
+    @* The rail itself stays put; the circles cascade in one after another. *@
+    <nav class="cat-circles" aria-label="@L["Common.Catalog"]" data-reveal="stagger">
         @foreach (var category in _categories)
         {
             <a class="cat-circle" href="@($"/catalog/{category.Slug}")">
@@ -57,9 +59,9 @@ else
 }
 
 <section class="home-section home-section--centered">
-    <h2 class="home-section__title home-section__title--centered">@L["Home.HowWeWork"]</h2>
+    <h2 class="home-section__title home-section__title--centered" data-reveal="block">@L["Home.HowWeWork"]</h2>
 
-    <ol class="steps">
+    <ol class="steps" data-reveal="stagger">
         <li class="step">
             <span class="step__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -96,7 +98,7 @@ else
 </section>
 
 @* Configurator promo. The targets are placeholders until Phase 19 builds /configurator. *@
-<section class="build-promo card">
+<section class="build-promo card" data-reveal="block">
     <div class="build-promo__copy">
         <h2 class="build-promo__title">@L["Home.ConfiguratorTitle"]</h2>
         <p class="muted">@L["Home.ConfiguratorSubtitle"]</p>
@@ -166,6 +168,23 @@ else
         finally
         {
             _loading = false;
+        }
+    }
+
+    /// <summary>Hands newly rendered sections to the scroll-reveal observer. Runs after every
+    /// render, not just the first: the carousels and category rail only exist once the catalog
+    /// call above returns, which is a later render than the layout's. The JS side keeps its own
+    /// record of what it has already seen, so repeat calls are free.</summary>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("pcmarketReveal.scan");
+        }
+        catch
+        {
+            // Interop unavailable (circuit tearing down) — the sections stay as they are, which is
+            // visible: reveal.js only ever hides what it is also about to show.
         }
     }
 

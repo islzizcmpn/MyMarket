@@ -4,9 +4,9 @@
    no reviews entity — Phase 18 sends real reviews out to the Telegram channel), so this carousel reads
    them straight from IStringLocalizer by index. *@
 <section class="home-section home-section--centered">
-    <h2 class="home-section__title home-section__title--centered">@L["Home.Testimonials"]</h2>
+    <h2 class="home-section__title home-section__title--centered" data-reveal="block">@L["Home.Testimonials"]</h2>
 
-    <div class="testimonial-grid">
+    <div class="testimonial-grid" data-reveal="stagger">
         @foreach (var item in CurrentPage)
         {
             <figure class="testimonial card pad">
@@ -19,7 +19,7 @@
         }
     </div>
 
-    <div class="testimonial-foot">
+    <div class="testimonial-foot" data-reveal="block">
         <div class="carousel-nav">
             <button type="button" class="carousel-nav__btn" aria-label="@L["Home.Previous"]"
                     @onclick="Previous">‹</button>

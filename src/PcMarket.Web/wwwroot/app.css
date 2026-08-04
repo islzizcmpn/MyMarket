@@ -79,6 +79,14 @@
        which is the weighted release the lift is worth. Set this to var(--lift-ease) to go back to
        one curve for both directions. */
     --lift-ease-return: cubic-bezier(.65, 0, .35, 1);
+
+    /* ---- Scroll reveals (layer 3) ----
+       Deliberately on --lift-ease, the same curve the card hover rises on, so entrances and
+       interactions feel like one system. --reveal-dur is mirrored by DURATION in reveal.js, which
+       needs it to know when the entrance has finished; the per-child stagger step lives there too
+       because the delays are applied inline. */
+    --reveal-rise: 24px;
+    --reveal-dur: 620ms;
     /* The hero's invisible studio light: an orange core falling off through red to nothing, wide
        enough that no edge of it is visible inside the frame. */
     --hero-bloom: radial-gradient(ellipse 62% 130% at 24% 52%,
@@ -824,6 +832,28 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
 .spinner { width: 30px; height: 30px; border: 2px solid var(--line); border-top-color: var(--brand); border-radius: 50%; animation: spin 1s linear infinite; margin: 96px auto; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ---------- Scroll reveals (Layer 3) ----------
+   Every rule here is gated on :root[data-reveal="on"], which only reveal.js sets and only when
+   IntersectionObserver is available and motion is welcome. Without that attribute the whole block
+   is inert and the page renders fully visible — the hidden state is opt-in, never the default.
+
+   Only opacity and transform move. The elements keep their normal layout the entire time, so a
+   reveal can never reflow the page or shift anything below it. */
+:root[data-reveal="on"] [data-reveal="block"]:not(.reveal-in):not(.reveal-done),
+:root[data-reveal="on"] [data-reveal="stagger"] > *:not(.reveal-in):not(.reveal-done) {
+    opacity: 0;
+    transform: translateY(var(--reveal-rise));
+}
+/* reveal.js adds .reveal-in to start the entrance and swaps it for .reveal-done when the entrance
+   is over, at which point the element carries no reveal styling at all. */
+:root[data-reveal="on"] .reveal-in {
+    opacity: 1;
+    transform: none;
+    transition:
+        opacity var(--reveal-dur) var(--lift-ease),
+        transform var(--reveal-dur) var(--lift-ease);
+}
+
 /* This layer leans on slow transitions, so honour the OS setting rather than leaving motion on. */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -845,6 +875,12 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
     .product-card:focus-within::before { transform: none; }
     .product-card__dots,
     .product-card__add { opacity: 1 !important; transform: none !important; }
+
+    /* reveal.js refuses to arm under this preference, so these never normally apply. They are the
+       safety net for the one case it cannot catch: the preference being switched on after the page
+       has already armed, which would otherwise strand a not-yet-revealed section at opacity 0. */
+    :root[data-reveal="on"] [data-reveal="block"],
+    :root[data-reveal="on"] [data-reveal="stagger"] > * { opacity: 1 !important; transform: none !important; }
 }
 
 #blazor-error-ui { background: var(--error-ui-bg); color: var(--error-ui-ink); bottom: 0; box-shadow: 0 -1px 2px rgba(0,0,0,.2); display: none; left: 0; padding: 10px 16px; position: fixed; width: 100%; z-index: 1000; }

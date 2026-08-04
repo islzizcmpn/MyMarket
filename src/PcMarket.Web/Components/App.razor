@@ -10,6 +10,15 @@
     <base href="/" />
     <ResourcePreloader />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    @* @@ is a Razor-escaped literal "@" — bare "@400" would be parsed as a code transition. *@
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Play:wght@@400;700&display=swap" />
+    @* Arms the scroll reveals before first paint, for the same reason the theme script above is
+       inline and early: the hidden state has to be in place before any content renders, or the
+       first section would paint visible and then drop out. Loads without defer so the attribute is
+       set while the document is still parsing. If this file never arrives, nothing is armed and the
+       page simply renders without entrances. *@
+    <script src="@Assets["reveal.js"]"></script>
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["PcMarket.Web.styles.css"]" />
     <ImportMap />
