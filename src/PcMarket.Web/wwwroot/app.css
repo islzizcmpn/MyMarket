@@ -30,6 +30,62 @@
     --grad-accent: linear-gradient(135deg, #b5111d 0%, #d4431f 100%);
     --grad-accent-hot: linear-gradient(90deg, #c1121f 0%, #ff7a3d 100%);
     --glow-accent: 0 12px 34px -12px rgba(224, 69, 46, .55);
+    /* The orange end of --grad-accent-hot, named so the radial glows below can reach it. Not a new
+       colour — the same #ff7a3d that gradient already ends on. */
+    --accent-hot: #ff7a3d;
+
+    /* ---- Depth (layer 2) ----
+       Every glow is a static radial-gradient painted once; only opacity and transform animate, so
+       hover costs a composite rather than a repaint. Both are mixed from --brand/--accent-hot, so
+       the light theme retunes them by overriding these four tokens rather than the rules. */
+    /* Centred at 46% of card height — the lower edge of the square product image. Product photos
+       are opaque, so a light centred behind the image would simply be hidden by it; sitting the
+       core on the image's bottom edge lets the spill read across the card body instead, which is
+       what actually makes the product look lit from behind. Cut-out PNGs get the upper half too. */
+    --glow-media: radial-gradient(circle at 50% 46%,
+        color-mix(in srgb, var(--accent-hot) 30%, transparent) 0%,
+        color-mix(in srgb, var(--brand) 17%, transparent) 30%,
+        transparent 66%);
+    /* Two layers, both gentle: a wide corner falloff so the product is never on a flat plane, and a
+       bottom fade that dissolves the image into the card body instead of ending on a hard edge.
+       Kept light — anything stronger reads as a smudged lens rather than as depth. */
+    --vignette-media:
+        linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, .30) 100%),
+        radial-gradient(ellipse 80% 80% at 50% 42%, transparent 52%, rgba(0, 0, 0, .26) 100%);
+    /* The lift shadow: wider and softer than --shadow, with a warm third layer so the card looks
+       lit rather than merely raised. Sized against --lift-distance — at a 16px rise the shadow has
+       to spread this far or the card reads as stuck to the page with a dark smudge under it. */
+    --shadow-lift:
+        0 1px 0 rgba(255, 255, 255, .06),
+        0 56px 100px -36px rgba(0, 0, 0, .92),
+        0 32px 68px -34px color-mix(in srgb, var(--brand) 48%, transparent);
+
+    /* ---- Card lift ----
+       The four numbers behind the whole product-card hover. Retune here, not in the rules below.
+       --lift-out is deliberately longer than --lift-in: the card leaves quickly and returns slowly,
+       which is what makes the settle feel weighted rather than springy. It works because a
+       transition is chosen by the state being entered — :hover supplies the rise, the base rule
+       supplies the fall. */
+    --lift-distance: -16px;
+    --lift-in: 500ms;
+    --lift-out: 620ms;
+    /* easeOutExpo: almost all the distance is covered in the first third, then a long glide into
+       rest. No overshoot anywhere in the curve, so it never bounces. */
+    --lift-ease: cubic-bezier(.16, 1, .3, 1);
+    /* The return needs a different curve, not just a longer one. easeOutExpo front-loads whichever
+       direction it runs, so reusing it on the way down drops the card ~60% of the way in the first
+       60ms — the extra 120ms of --lift-out is then spent on motion too small to see, and the card
+       reads as snapping back. easeInOutCubic holds position for a beat, descends, and lands soft,
+       which is the weighted release the lift is worth. Set this to var(--lift-ease) to go back to
+       one curve for both directions. */
+    --lift-ease-return: cubic-bezier(.65, 0, .35, 1);
+    /* The hero's invisible studio light: an orange core falling off through red to nothing, wide
+       enough that no edge of it is visible inside the frame. */
+    --hero-bloom: radial-gradient(ellipse 62% 130% at 24% 52%,
+        color-mix(in srgb, var(--accent-hot) 20%, transparent) 0%,
+        color-mix(in srgb, var(--brand) 13%, transparent) 36%,
+        transparent 68%);
+    --hero-vignette: radial-gradient(ellipse 90% 90% at 50% 50%, transparent 42%, rgba(0, 0, 0, .5) 100%);
     --ok: #35c48a;
     --ok-700: #7fe3bb;
     --ok-200: rgba(53, 196, 138, .32);
@@ -79,6 +135,27 @@
     --grad-accent: linear-gradient(135deg, #9d1a14 0%, #c8451c 100%);
     --grad-accent-hot: linear-gradient(90deg, #b5241a 0%, #e8752f 100%);
     --glow-accent: 0 12px 34px -14px rgba(181, 36, 26, .40);
+    --accent-hot: #e8752f;
+    /* Roughly half the dark theme's strength. A warm bloom that reads as light on charcoal reads as
+       a stain on a bone page, so the card glow and the lift shadow both pull back here. */
+    --glow-media: radial-gradient(circle at 50% 46%,
+        color-mix(in srgb, var(--accent-hot) 16%, transparent) 0%,
+        color-mix(in srgb, var(--brand) 8%, transparent) 30%,
+        transparent 66%);
+    --vignette-media:
+        linear-gradient(to bottom, transparent 62%, rgba(16, 24, 40, .10) 100%),
+        radial-gradient(ellipse 80% 80% at 50% 42%, transparent 55%, rgba(16, 24, 40, .10) 100%);
+    --shadow-lift:
+        0 1px 0 rgba(16, 24, 40, .04),
+        0 50px 92px -36px rgba(16, 24, 40, .34),
+        0 28px 62px -34px color-mix(in srgb, var(--brand) 26%, transparent);
+    /* The hero art is a dark photograph in both themes, so the bloom and vignette stay near their
+       dark-theme strength here rather than following the page down. */
+    --hero-bloom: radial-gradient(ellipse 62% 130% at 24% 52%,
+        color-mix(in srgb, var(--accent-hot) 22%, transparent) 0%,
+        color-mix(in srgb, var(--brand) 14%, transparent) 36%,
+        transparent 68%);
+    --hero-vignette: radial-gradient(ellipse 90% 90% at 50% 50%, transparent 42%, rgba(16, 24, 40, .38) 100%);
     --ok: #1a9d6a;
     --ok-700: #12724c;
     --ok-200: #bfe6d2;
@@ -322,27 +399,88 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
 .pad { padding: 28px; }
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 28px; }
 /* The card rests on --surface and lifts to --surface-2 on hover: the product itself brightens
-   under the pointer rather than the card growing a coloured border or a hard shadow. */
+   under the pointer rather than the card growing a coloured border or a hard shadow.
+
+   Layer 2 adds depth on top of that. Everything that moves is a transform or an opacity — the one
+   exception is box-shadow, which only changes on the discrete hover transition and so never runs
+   during a scroll. isolation:isolate gives the glow below a stacking context to sit inside. */
 .product-card {
+    position: relative; isolation: isolate;
     background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
     overflow: hidden; display: flex; flex-direction: column;
-    transition: box-shadow .35s ease, transform .35s ease, background .35s ease, border-color .35s ease;
+    /* This rule is the *return* to rest — slower, and on the settling curve. The :hover rule below
+       overrides both with --lift-in and --lift-ease for the rise. */
+    transition:
+        box-shadow var(--lift-out) var(--lift-ease-return),
+        transform var(--lift-out) var(--lift-ease-return),
+        background var(--lift-out) ease,
+        border-color var(--lift-out) ease;
 }
-.product-card:hover {
-    background: var(--surface-2); border-color: color-mix(in srgb, var(--brand) 26%, var(--line));
-    box-shadow: var(--shadow); transform: translateY(-4px); text-decoration: none;
+/* The ambient glow, at z-index 0 — under the media and the body, so it reads as light from behind
+   the product rather than a wash over it. The box is the card itself: the card already clips, so
+   the gradient's own centre (50% 30%, which lands on the product image) does the positioning and
+   its falloff runs off the edges. Scaling it up on hover is what makes the light "swell". */
+.product-card::before {
+    content: ""; position: absolute; inset: 0; z-index: 0;
+    pointer-events: none; background: var(--glow-media);
+    /* Dimmer and tighter at rest than before, and now blooming past its own box on hover — the
+       light swells outward as the card rises instead of merely brightening in place. Runs on the
+       same tokens as the lift, so the two are locked together frame for frame. */
+    opacity: .34; transform: scale(.84);
+    transition: opacity var(--lift-out) ease, transform var(--lift-out) var(--lift-ease-return);
 }
-.product-card__media { aspect-ratio: 1 / 1; background: var(--media-bg); display: grid; place-items: center; overflow: hidden; }
-.product-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
-.product-card:hover .product-card__media img { transform: scale(1.035); }
-.product-card__body { padding: 20px; display: flex; flex-direction: column; gap: 9px; flex: 1; }
+.product-card:hover { transform: translateY(var(--lift-distance)); text-decoration: none; }
+.product-card:hover,
+.product-card:focus-within {
+    background: var(--surface-2);
+    border-color: color-mix(in srgb, var(--brand) 26%, var(--line));
+    box-shadow: var(--shadow-lift);
+    /* One value each covers all four properties declared on the base rule. */
+    transition-duration: var(--lift-in);
+    transition-timing-function: var(--lift-ease);
+}
+.product-card:hover::before,
+.product-card:focus-within::before {
+    opacity: 1; transform: scale(1.08);
+    transition-duration: var(--lift-in);
+    transition-timing-function: var(--lift-ease);
+}
+
+.product-card__media {
+    position: relative; z-index: 1; aspect-ratio: 1 / 1;
+    /* Half-strength so the glow behind reads through cut-out product shots; opaque enough to still
+       give a plane when a product has no image at all. */
+    background: color-mix(in srgb, var(--media-bg) 55%, transparent);
+    display: grid; place-items: center; overflow: hidden;
+}
+/* Vignette, painted over the product so it never meets the card body on a hard flat edge. It eases
+   off on hover — the product steps forward out of the shadow rather than the shadow just vanishing. */
+.product-card__media::after {
+    content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    background: var(--vignette-media); transition: opacity var(--lift-out) ease;
+}
+.product-card:hover .product-card__media::after,
+.product-card:focus-within .product-card__media::after { opacity: .5; transition-duration: var(--lift-in); }
+.product-card__media > * { position: relative; z-index: 1; }
+/* The zoom stays at 2% deliberately. Against a 16px lift a larger scale stops reading as depth and
+   starts reading as a zoom effect — the drama comes from the rise and the light, not from this. */
+.product-card__media img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform var(--lift-out) var(--lift-ease-return);
+}
+.product-card:hover .product-card__media img,
+.product-card:focus-within .product-card__media img {
+    transform: scale(1.02);
+    transition-duration: var(--lift-in); transition-timing-function: var(--lift-ease);
+}
+.product-card__body { position: relative; z-index: 1; padding: 20px; display: flex; flex-direction: column; gap: 9px; flex: 1; }
 .product-card__brand { font-size: .7rem; text-transform: uppercase; letter-spacing: .16em; color: var(--muted); }
 .product-card__name { color: var(--ink); font-weight: 400; font-size: .95rem; line-height: 1.5; min-height: 3em; transition: color .2s; }
 .product-card__name:hover { color: var(--brand); text-decoration: none; }
 .product-card__price { margin-top: auto; padding-top: 4px; font-weight: 700; font-size: 1.2rem; letter-spacing: -.02em; }
 
 /* Thumbnail selector: only rendered when a product actually has more than one image. */
-.product-card__dots { display: flex; justify-content: center; gap: 7px; padding: 14px 0 0; }
+.product-card__dots { position: relative; z-index: 1; display: flex; justify-content: center; gap: 7px; padding: 14px 0 0; }
 .product-card__dot {
     width: 7px; height: 7px; padding: 0; border-radius: 50%; cursor: pointer;
     border: none; background: var(--line);
@@ -352,8 +490,33 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
 /* Sits quiet until the card is hovered, then fills with the accent — so at rest the grid is
    graphite and only the card under the pointer is lit. */
 .product-card__add { margin-top: 18px; align-self: stretch; padding: 12px 20px; font-size: .82rem; }
-.product-card:hover .product-card__add {
+.product-card:hover .product-card__add,
+.product-card:focus-within .product-card__add {
     background: var(--grad-accent); border-color: transparent; color: #fff; box-shadow: var(--glow-accent);
+}
+
+/* Quick actions rise into place as the pointer approaches. Gated on a real hover-capable pointer:
+   on touch there is no hover state to reveal them with, so they stay permanently visible there.
+   Opacity only — the button keeps its box, so nothing reflows and the card height never changes.
+   :focus-within covers keyboard users, who get the same reveal on tab-in. */
+@media (hover: hover) and (pointer: fine) {
+    /* On the same lift tokens as the card, so the actions rise with it rather than arriving on
+       their own clock — at a 500ms lift a 300ms reveal reads as two separate events. */
+    .product-card__dots { opacity: 0; transition: opacity var(--lift-out) ease; }
+    .product-card__add {
+        opacity: 0; transform: translateY(8px);
+        transition:
+            opacity var(--lift-out) ease, transform var(--lift-out) var(--lift-ease-return),
+            background var(--lift-out), border-color var(--lift-out),
+            box-shadow var(--lift-out), color var(--lift-out);
+    }
+    .product-card:hover .product-card__dots,
+    .product-card:focus-within .product-card__dots { opacity: 1; transition-duration: var(--lift-in); }
+    .product-card:hover .product-card__add,
+    .product-card:focus-within .product-card__add {
+        opacity: 1; transform: none;
+        transition-duration: var(--lift-in); transition-timing-function: var(--lift-ease);
+    }
 }
 .product-card__error { color: var(--danger); font-size: .8rem; }
 .pill {
@@ -397,8 +560,14 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
 .alert--info { background: var(--brand-050); color: var(--brand-700); border: 1px solid var(--brand-200); }
 
 /* ---------- Hero ---------- */
+/* Same three-layer stack as the carousel overlay below — vignette over bloom over base — so the
+   fallback hero and the real one are lit identically. Layered backgrounds rather than extra
+   elements: one paint, no added nodes. */
 .hero {
-    background: linear-gradient(120deg, var(--hero-from) 0%, var(--hero-to) 100%);
+    background:
+        var(--hero-vignette),
+        var(--hero-bloom),
+        linear-gradient(120deg, var(--hero-from) 0%, var(--hero-to) 100%);
     color: #fff; border-radius: 22px; padding: 88px 72px; margin-bottom: var(--space-block);
 }
 .hero h1 { margin-bottom: 1rem; max-width: 18ch; }
@@ -459,9 +628,16 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
     position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center;
     /* 88px of horizontal padding keeps the copy clear of the prev/next arrows, which sit 24px in. */
     gap: 18px; align-items: flex-start; padding: 56px 88px; color: #fff;
-    /* Ramped in three stops rather than two: the copy sits on near-solid charcoal while the right
-       half of the image stays almost untouched. */
-    background: linear-gradient(90deg, rgba(10, 10, 13, .88) 0%, rgba(10, 10, 13, .55) 42%, rgba(10, 10, 13, .05) 100%);
+    /* Three stacked layers, painted top-down:
+       1. vignette — pulls the four edges down so the frame has depth rather than ending flat;
+       2. bloom    — the studio light, centred behind the copy on the left, warm and very diffuse;
+       3. scrim    — the Layer 1 left-to-right ramp that keeps the copy legible over any artwork.
+       The bloom sits above the scrim so it reads as light falling on the darkened area, not as a
+       tint mixed underneath it. All static: nothing here animates. */
+    background:
+        var(--hero-vignette),
+        var(--hero-bloom),
+        linear-gradient(90deg, rgba(10, 10, 13, .88) 0%, rgba(10, 10, 13, .55) 42%, rgba(10, 10, 13, .05) 100%);
 }
 .hero-carousel__overlay h1 { margin: 0; max-width: 17ch; }
 .hero-carousel__overlay p { margin: 0; max-width: 42ch; opacity: .78; font-size: 1.05rem; }
@@ -654,6 +830,21 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
         animation-duration: .01ms !important; animation-iteration-count: 1 !important;
         transition-duration: .01ms !important; scroll-behavior: auto !important;
     }
+
+    /* Zeroing the durations above only makes the layer-2 motion instant, not absent — the card
+       would still jump 6px and the image still snap to 1.02. These remove the movement itself and
+       leave the colour, glow and shadow changes, which are what actually carry the hover state.
+       The quick actions stay put as well: a control that pops in with no transition is worse than
+       one that was there all along. */
+    .product-card:hover,
+    .product-card:focus-within { transform: none; }
+    .product-card:hover .product-card__media img,
+    .product-card:focus-within .product-card__media img { transform: none; }
+    .product-card::before,
+    .product-card:hover::before,
+    .product-card:focus-within::before { transform: none; }
+    .product-card__dots,
+    .product-card__add { opacity: 1 !important; transform: none !important; }
 }
 
 #blazor-error-ui { background: var(--error-ui-bg); color: var(--error-ui-ink); bottom: 0; box-shadow: 0 -1px 2px rgba(0,0,0,.2); display: none; left: 0; padding: 10px 16px; position: fixed; width: 100%; z-index: 1000; }
