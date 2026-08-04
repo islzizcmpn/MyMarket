@@ -23,10 +23,10 @@ else
 
 @if (_intro is not null)
 {
-    <div class="card pad" style="margin-bottom:24px;">
+    <section class="home-intro">
         <h2>@_intro.Title</h2>
-        <p class="muted">@_intro.Body</p>
-    </div>
+        <p class="lede">@_intro.Body</p>
+    </section>
 }
 
 @if (_categories.Count > 0)

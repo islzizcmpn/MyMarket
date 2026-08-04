@@ -50,7 +50,9 @@
 
         @if (ShowAddToCart && Product.InStock)
         {
-            <button type="button" class="btn btn--accent product-card__add"
+            @* Ghost, not accent: a grid of cards each carrying a filled red button turns the whole
+               page red. The card's own hover rule fills this one in. *@
+            <button type="button" class="btn btn--ghost product-card__add"
                     disabled="@_adding" @onclick="AddToCart">
                 @(_adding ? L["Product.Adding"] : _added ? L["Product.Added"] : L["Product.AddToCart"])
             </button>

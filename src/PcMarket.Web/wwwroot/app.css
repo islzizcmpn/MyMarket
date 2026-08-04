@@ -1,74 +1,212 @@
+/* Theme tokens. Dark is the default so a visitor with JS disabled still gets the intended look;
+   the inline script in App.razor stamps data-theme on <html> before first paint. */
 :root {
-    --bg: #f6f7fb;
+    /* Charcoal ramp (Premium redesign, layer 1). The page sits at #101013 — deep enough to read as a
+       darkened showroom, far enough off #000 that the surfaces above it have somewhere to go. Each
+       step is ~3% lighter at the same faintly-cool graphite hue, so the difference registers as
+       elevation rather than as a second colour. --surface-2 is the extra step the old two-tone ramp
+       lacked: cards can now sit on a panel without either dissolving into it. */
+    --bg: #101013;
+    --surface: #17171b;
+    --surface-2: #1d1d22;
+    --ink: #f2f1ef;
+    --muted: #8e8d97;
+    --line: #26262c;
+    /* Warm deep red is the brand: buttons, links, active nav, focus rings. #e0452e is the same
+       balancing act as the red it replaces, shifted toward orange — the warmest tone that still
+       holds white button text (4.2:1) and stays legible as a link on charcoal (4.5:1). Pushing it
+       further into orange costs the button; pulling it back into red costs the link. */
+    --brand: #e0452e;
+    --brand-600: #c1121f;
+    --brand-700: #ff9f7a;
+    --brand-200: rgba(224, 69, 46, .34);
+    /* Deliberately fainter than the old .14 — hover and active tints should whisper on this ramp. */
+    --brand-050: rgba(224, 69, 46, .09);
+    /* Deeper red for filled badges/CTAs, where white sits directly on it at small sizes (5.4:1). */
+    --accent: #c8331d;
+    /* The deep-red-into-warm-orange signature. --grad-accent carries white text, so its light end
+       stops at #d4431f (4.2:1). --grad-accent-hot runs all the way out to orange and is only ever
+       used where no text sits on it: section rules, hairlines, glows. */
+    --grad-accent: linear-gradient(135deg, #b5111d 0%, #d4431f 100%);
+    --grad-accent-hot: linear-gradient(90deg, #c1121f 0%, #ff7a3d 100%);
+    --glow-accent: 0 12px 34px -12px rgba(224, 69, 46, .55);
+    --ok: #35c48a;
+    --ok-700: #7fe3bb;
+    --ok-200: rgba(53, 196, 138, .32);
+    --ok-050: rgba(53, 196, 138, .12);
+    --danger: #f36868;
+    --danger-700: #ffb4b4;
+    --danger-200: rgba(243, 104, 104, .32);
+    --danger-050: rgba(243, 104, 104, .12);
+    --media-bg: #1b1b20;
+    --input-bg: #141418;
+    --hero-from: #16161b;
+    --hero-to: #4a1119;
+    --error-ui-bg: #4a3a12;
+    --error-ui-ink: #ffe1a0;
+    --radius: 16px;
+    /* Wide, low-opacity and offset well below the element — a showroom spotlight rather than the
+       tight drop shadow of a UI kit. The first layer is a 1px top highlight that separates a raised
+       surface from the panel behind it without drawing a border. */
+    --shadow: 0 1px 0 rgba(255, 255, 255, .03), 0 28px 64px -28px rgba(0, 0, 0, .85);
+    --maxw: 1280px;
+
+    /* ---- Spacing scale ----
+       Whitespace is the point of this layer, so the rhythm lives in tokens rather than in per-rule
+       magic numbers. --space-section is the gap between top-level page sections and is the single
+       value to turn if the page ever needs to breathe more (or less). */
+    --space-section: 108px;
+    --space-block: 56px;
+    --gutter: 32px;
+    color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+    /* The light theme takes the same warm-neutral turn: a bone page rather than the old blue-grey,
+       so both themes read as the same showroom under different lighting. */
+    --bg: #f5f4f2;
     --surface: #ffffff;
-    --ink: #14161f;
-    --muted: #667085;
-    --line: #e6e8ef;
-    --brand: #3b3ba6;
-    --brand-600: #2f2f8f;
-    --brand-050: #eef0ff;
-    --accent: #ff7a45;
+    --ink: #16161a;
+    --muted: #6c6b74;
+    --line: #e5e3df;
+    /* Same warm red, darkened for a white page: 6.4:1 as link text and as white-on-red buttons. */
+    --brand: #b5241a;
+    --brand-600: #8f1a12;
+    --brand-700: #7d160f;
+    --brand-200: #f2cdc7;
+    --brand-050: #fbeeeb;
+    --accent: #c8331d;
+    --grad-accent: linear-gradient(135deg, #9d1a14 0%, #c8451c 100%);
+    --grad-accent-hot: linear-gradient(90deg, #b5241a 0%, #e8752f 100%);
+    --glow-accent: 0 12px 34px -14px rgba(181, 36, 26, .40);
     --ok: #1a9d6a;
+    --ok-700: #12724c;
+    --ok-200: #bfe6d2;
+    --ok-050: #e6f6ee;
     --danger: #d33a3a;
-    --radius: 14px;
-    --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 8px 24px rgba(16, 24, 40, .06);
-    --maxw: 1200px;
+    --danger-700: #a12525;
+    --danger-200: #f4cccc;
+    --danger-050: #fdecec;
+    --surface-2: #faf9f7;
+    --media-bg: #efedea;
+    --input-bg: #ffffff;
+    --hero-from: #8f1a12;
+    --hero-to: #d4431f;
+    --error-ui-bg: #ffe9a8;
+    --error-ui-ink: #14161f;
+    --shadow: 0 1px 0 rgba(16, 24, 40, .03), 0 24px 56px -28px rgba(16, 24, 40, .22);
+    color-scheme: light;
 }
 
 * { box-sizing: border-box; }
+
+html {
+    /* The sticky header stack is ~190px tall. Without this, any in-page anchor lands with its
+       target hidden behind the header. */
+    scroll-padding-top: 206px;
+}
 
 html, body {
     margin: 0;
     padding: 0;
     background: var(--bg);
     color: var(--ink);
-    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
-    font-size: 15px;
-    line-height: 1.5;
+    /* "Play" is loaded in App.razor; the system stack behind it covers the swap period and any
+       offline/blocked-CDN case. */
+    font-family: "Play", "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    /* 1.65 rather than 1.5: at 16px this is the loosest setting that still holds a paragraph
+       together as a block, and it is what makes body copy feel unhurried next to the headings. */
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
+
+/* Form controls don't inherit the document font by default — without this the nav search box,
+   buttons, and checkout inputs would stay on the UA font while everything around them is Play. */
+button, input, select, textarea, optgroup { font-family: inherit; }
 
 a { color: var(--brand); text-decoration: none; }
 a:hover { text-decoration: underline; }
-h1, h2, h3 { line-height: 1.2; margin: 0 0 .5rem; }
+
+/* Headings. Play has no weights between 400 and 700, so hierarchy is carried by size, tracking and
+   the space around a heading rather than by weight steps. Tightening the tracking as the type grows
+   is what keeps a large heading from reading as merely "big" — the sizes below are fluid so the
+   relationship holds from a phone to a wide desktop. */
+h1, h2, h3, h4 { line-height: 1.14; margin: 0 0 .6rem; font-weight: 700; letter-spacing: -.02em; }
+h1 { font-size: clamp(2.1rem, 1.4rem + 2.4vw, 3.1rem); letter-spacing: -.03em; }
+h2 { font-size: clamp(1.5rem, 1.15rem + 1.2vw, 2rem); }
+h3 { font-size: 1.15rem; letter-spacing: -.01em; }
+p { margin: 0 0 1rem; }
 img { max-width: 100%; display: block; }
 
-.container { max-width: var(--maxw); margin: 0 auto; padding: 0 20px; }
+/* Small uppercase labels (eyebrows, category captions, chips) get opened up instead of bolded —
+   letter-spacing is the only lever Play leaves at these sizes. */
+.eyebrow {
+    display: block; font-size: .74rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .18em; color: var(--muted); margin-bottom: .9rem;
+}
+
+.container { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); }
+/* The spacing scale steps down on narrow screens: 108px between sections is generous on a desktop
+   and simply a lot of scrolling on a phone. */
+@media (max-width: 860px) { :root { --space-section: 72px; --space-block: 40px; --gutter: 24px; } }
+@media (max-width: 560px) { :root { --space-section: 56px; --gutter: 20px; } }
 
 /* ---------- Header ---------- */
-.site-header { background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
-.site-header__row { display: flex; align-items: center; gap: 20px; height: 68px; }
-.brand { font-weight: 800; font-size: 1.35rem; letter-spacing: -.02em; color: var(--ink); white-space: nowrap; }
+/* The header sits on the page colour, not on --surface: a lighter bar across the top of a dark room
+   reads as chrome, and this layer wants the shell to recede so the content is the only lit thing.
+   The blur keeps it legible once content scrolls under it. */
+.site-header {
+    background: color-mix(in srgb, var(--bg) 86%, transparent);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20;
+}
+.site-header__row { display: flex; align-items: center; gap: 28px; height: 84px; }
+.brand { font-weight: 700; font-size: 1.45rem; letter-spacing: -.03em; color: var(--ink); white-space: nowrap; }
 .brand span { color: var(--brand); }
 .brand:hover { text-decoration: none; }
 .searchbar { flex: 1; display: flex; max-width: 620px; }
 .searchbar input {
     flex: 1; border: 1px solid var(--line); border-right: none;
-    border-radius: 10px 0 0 10px; padding: 10px 14px; font-size: .95rem; outline: none;
+    border-radius: 12px 0 0 12px; padding: 13px 16px; font-size: .92rem; outline: none;
+    background: var(--input-bg); color: var(--ink); transition: border-color .2s;
 }
+.searchbar input::placeholder { color: var(--muted); }
 .searchbar input:focus { border-color: var(--brand); }
 .searchbar button {
-    border: none; background: var(--brand); color: #fff; padding: 0 18px;
-    border-radius: 0 10px 10px 0; cursor: pointer; font-weight: 600;
+    border: none; background: var(--grad-accent); color: #fff; padding: 0 22px;
+    border-radius: 0 12px 12px 0; cursor: pointer; font-weight: 700; font-size: .9rem;
 }
-.header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.header-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
 .header-link {
-    display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px;
-    border-radius: 10px; color: var(--ink); font-weight: 600; font-size: .9rem;
+    display: inline-flex; align-items: center; gap: 7px; padding: 10px 13px;
+    border-radius: 10px; color: var(--ink); font-weight: 700; font-size: .87rem;
+    transition: background .2s, color .2s;
 }
-.header-link:hover { background: var(--brand-050); text-decoration: none; }
+.header-link:hover { background: var(--surface-2); text-decoration: none; }
 .cart-badge {
-    background: var(--accent); color: #fff; border-radius: 999px; font-size: .72rem;
-    padding: 1px 7px; font-weight: 700;
+    background: var(--grad-accent); color: #fff; border-radius: 999px; font-size: .7rem;
+    padding: 2px 8px; font-weight: 700;
 }
+
+/* Theme toggle. The icon shows the theme you'd switch *to*, and is picked by CSS from the
+   data-theme attribute rather than component state — the attribute is already correct on the
+   first frame, whereas the circuit cannot read localStorage until after it renders. */
+.theme-toggle { border: none; background: transparent; font: inherit; cursor: pointer; }
+.theme-toggle__moon { display: none; }
+:root[data-theme="light"] .theme-toggle__sun { display: none; }
+:root[data-theme="light"] .theme-toggle__moon { display: inline; }
 
 /* ---------- Language switcher ---------- */
 .lang-switch { display: inline-flex; align-items: center; gap: 2px; margin-right: 4px; }
 .lang-switch__item {
     border: none; background: none; font: inherit; cursor: pointer;
     padding: 8px 8px; border-radius: 10px;
-    color: var(--muted); font-weight: 700; font-size: .82rem; letter-spacing: .03em;
+    color: var(--muted); font-weight: 700; font-size: .78rem; letter-spacing: .08em;
 }
-.lang-switch__item:hover:not(:disabled) { background: var(--brand-050); color: var(--brand); }
+.lang-switch__item:hover:not(:disabled) { background: var(--surface-2); color: var(--ink); }
 .lang-switch__item.is-active { color: var(--brand); background: var(--brand-050); cursor: default; }
 .lang-switch__sep { color: var(--line); font-size: .82rem; user-select: none; }
 
@@ -79,8 +217,8 @@ img { max-width: 100%; display: block; }
 .icon--sm { width: 16px; height: 16px; }
 
 /* ---------- Top contact bar (Phase 12) ---------- */
-.topbar { background: var(--bg); border-bottom: 1px solid var(--line); font-size: .8rem; }
-.topbar__row { display: flex; align-items: center; gap: 26px; min-height: 38px; flex-wrap: wrap; }
+.topbar { background: var(--bg); border-bottom: 1px solid var(--line); font-size: .78rem; }
+.topbar__row { display: flex; align-items: center; gap: 34px; min-height: 46px; flex-wrap: wrap; }
 .topbar__item { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); }
 .topbar__item--link { color: var(--muted); }
 .topbar__item--link:hover { color: var(--brand); text-decoration: none; }
@@ -91,59 +229,69 @@ img { max-width: 100%; display: block; }
 .topbar__social a:hover { color: var(--brand); }
 
 /* ---------- Main nav strip (Phase 12) ---------- */
-.mainnav { background: var(--surface); border-bottom: 1px solid var(--line); }
-.mainnav__row { display: flex; align-items: center; gap: 4px; overflow-x: auto; padding: 6px 0; }
+/* Transparent rather than --surface: the nav is a line of type under the header, not a second bar. */
+.mainnav { background: transparent; border-bottom: 1px solid var(--line); }
+.mainnav__row { display: flex; align-items: center; gap: 2px; overflow-x: auto; padding: 10px 0; }
 .mainnav__link {
-    white-space: nowrap; color: var(--ink); font-weight: 600; font-size: .86rem;
-    padding: 8px 12px; border-radius: 8px;
+    position: relative; white-space: nowrap; color: var(--muted); font-weight: 700; font-size: .8rem;
+    letter-spacing: .04em; padding: 10px 14px; border-radius: 8px; transition: color .2s;
 }
-.mainnav__link:hover { color: var(--brand); background: var(--brand-050); text-decoration: none; }
-/* NavLink stamps is-active on the current section. */
-.mainnav__link.is-active { color: var(--brand); }
+.mainnav__link:hover { color: var(--ink); background: transparent; text-decoration: none; }
+/* NavLink stamps is-active on the current section. The accent appears as a short gradient rule
+   under the active item rather than as a colour swap — one lit mark in the strip, not several. */
+.mainnav__link.is-active { color: var(--ink); }
+.mainnav__link.is-active::after {
+    content: ""; position: absolute; left: 14px; right: 14px; bottom: 2px; height: 2px;
+    border-radius: 2px; background: var(--grad-accent-hot);
+}
 .mainnav__telegram {
     display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
-    color: var(--ink); font-weight: 700; font-size: .86rem; padding: 8px 12px; border-radius: 8px;
+    color: var(--ink); font-weight: 700; font-size: .8rem; letter-spacing: .04em;
+    padding: 10px 14px; border-radius: 8px;
 }
 .mainnav__telegram .icon { color: var(--brand); }
 .mainnav__telegram:hover { color: var(--brand); background: var(--brand-050); text-decoration: none; }
 
 /* ---------- Layout ---------- */
-main { min-height: 60vh; padding: 28px 0 48px; }
-.page-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
-.page-head h1 { font-size: 1.6rem; }
+main { min-height: 60vh; padding: 56px 0 var(--space-section); }
+.page-head { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; margin-bottom: 40px; flex-wrap: wrap; }
 .muted { color: var(--muted); }
-.stack { display: grid; gap: 16px; }
-.split { display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start; }
+/* Measure cap for standalone body copy — long lines are the fastest way to lose a premium feel. */
+.lede { color: var(--muted); font-size: 1.02rem; max-width: 62ch; }
+.stack { display: grid; gap: 20px; }
+.split { display: grid; grid-template-columns: 260px 1fr; gap: 40px; align-items: start; }
 @media (max-width: 860px) { .split { grid-template-columns: 1fr; } }
 
 /* ---------- Shell body: category rail + page content (Phase 12) ---------- */
-.shell-body { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 28px; align-items: start; }
+.shell-body { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 56px; align-items: start; }
 /* minmax(0,…) above stops wide children (carousels, tables) from forcing the column open. */
 .shell-content { min-width: 0; }
 
 .sidebar {
-    position: sticky; top: 96px; display: flex; flex-direction: column; gap: 10px;
+    /* Offset clears the whole sticky header stack (topbar + brand row + nav ≈ 190px). */
+    position: sticky; top: 206px; display: flex; flex-direction: column; gap: 16px;
     /* min-height as well as max: without a floor the rail collapses to its content and the
        margin-top:auto on the CTA has no slack to push into, so the button would sit directly
        under the last category instead of at the foot of the rail. */
-    min-height: calc(100vh - 150px); max-height: calc(100vh - 116px);
+    min-height: calc(100vh - 260px); max-height: calc(100vh - 226px);
 }
 .sidebar__list { display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
 .sidebar__item {
-    display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 10px;
-    color: var(--ink); font-weight: 600; font-size: .88rem;
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px;
+    color: var(--muted); font-weight: 700; font-size: .85rem; transition: color .2s, background .2s;
 }
-.sidebar__item:hover { background: var(--brand-050); color: var(--brand); text-decoration: none; }
+.sidebar__item:hover { background: var(--surface); color: var(--ink); text-decoration: none; }
 .sidebar__item.is-active { background: var(--brand-050); color: var(--brand); }
-.sidebar__icon { color: var(--muted); }
-.sidebar__item:hover .sidebar__icon, .sidebar__item.is-active .sidebar__icon { color: var(--brand); }
+.sidebar__icon { color: var(--muted); transition: color .2s; }
+.sidebar__item:hover .sidebar__icon { color: var(--ink); }
+.sidebar__item.is-active .sidebar__icon { color: var(--brand); }
 /* Pinned to the bottom of the rail: margin-top:auto pushes it past the category list. */
 .sidebar__cta {
     margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 8px;
-    background: var(--brand); color: #fff; font-weight: 700; font-size: .84rem;
-    padding: 12px 14px; border-radius: 10px;
+    background: var(--grad-accent); color: #fff; font-weight: 700; font-size: .82rem;
+    letter-spacing: .03em; padding: 15px 16px; border-radius: 12px; box-shadow: var(--glow-accent);
 }
-.sidebar__cta:hover { background: var(--brand-600); text-decoration: none; }
+.sidebar__cta:hover { filter: brightness(1.08); text-decoration: none; }
 @media (max-width: 1024px) {
     .shell-body { grid-template-columns: 1fr; }
     .sidebar { display: none; }
@@ -155,79 +303,109 @@ main { min-height: 60vh; padding: 28px 0 48px; }
     display: flex; flex-direction: column; gap: 2px;
 }
 .contact-rail__btn {
-    display: grid; place-items: center; width: 44px; height: 44px;
-    background: var(--brand); color: #fff;
+    display: grid; place-items: center; width: 46px; height: 46px;
+    background: var(--grad-accent); color: #fff; transition: filter .25s;
 }
-.contact-rail__btn:first-child { border-radius: 10px 0 0 0; }
-.contact-rail__btn:last-child { border-radius: 0 0 0 10px; }
-.contact-rail__btn:hover { background: var(--brand-600); text-decoration: none; }
+.contact-rail__btn:first-child { border-radius: 12px 0 0 0; }
+.contact-rail__btn:last-child { border-radius: 0 0 0 12px; }
+.contact-rail__btn:hover { filter: brightness(1.12); text-decoration: none; }
 @media (max-width: 1024px) { .contact-rail { display: none; } }
 
 /* ---------- Breadcrumb / placeholder pages ---------- */
-.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: .84rem; margin-bottom: 16px; }
+.breadcrumb { display: flex; align-items: center; gap: 10px; font-size: .78rem; letter-spacing: .04em; margin-bottom: 32px; }
 .breadcrumb span[aria-hidden] { color: var(--muted); }
-.coming-soon { max-width: 620px; }
-.coming-soon .btn { margin-top: 14px; }
+.coming-soon { max-width: 620px; padding: 24px 0 64px; }
+.coming-soon .btn { margin-top: 28px; }
 
 /* ---------- Cards / grid ---------- */
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
-.pad { padding: 18px; }
-.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 18px; }
-.product-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow .15s, transform .15s; }
-.product-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); text-decoration: none; }
-.product-card__media { aspect-ratio: 1 / 1; background: #f0f1f6; display: grid; place-items: center; overflow: hidden; }
-.product-card__media img { width: 100%; height: 100%; object-fit: cover; }
-.product-card__body { padding: 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
-.product-card__brand { font-size: .74rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
-.product-card__name { color: var(--ink); font-weight: 600; font-size: .95rem; min-height: 2.6em; }
+.pad { padding: 28px; }
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 28px; }
+/* The card rests on --surface and lifts to --surface-2 on hover: the product itself brightens
+   under the pointer rather than the card growing a coloured border or a hard shadow. */
+.product-card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: hidden; display: flex; flex-direction: column;
+    transition: box-shadow .35s ease, transform .35s ease, background .35s ease, border-color .35s ease;
+}
+.product-card:hover {
+    background: var(--surface-2); border-color: color-mix(in srgb, var(--brand) 26%, var(--line));
+    box-shadow: var(--shadow); transform: translateY(-4px); text-decoration: none;
+}
+.product-card__media { aspect-ratio: 1 / 1; background: var(--media-bg); display: grid; place-items: center; overflow: hidden; }
+.product-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.product-card:hover .product-card__media img { transform: scale(1.035); }
+.product-card__body { padding: 20px; display: flex; flex-direction: column; gap: 9px; flex: 1; }
+.product-card__brand { font-size: .7rem; text-transform: uppercase; letter-spacing: .16em; color: var(--muted); }
+.product-card__name { color: var(--ink); font-weight: 400; font-size: .95rem; line-height: 1.5; min-height: 3em; transition: color .2s; }
 .product-card__name:hover { color: var(--brand); text-decoration: none; }
-.product-card__price { margin-top: auto; font-weight: 800; font-size: 1.05rem; }
+.product-card__price { margin-top: auto; padding-top: 4px; font-weight: 700; font-size: 1.2rem; letter-spacing: -.02em; }
 
 /* Thumbnail selector: only rendered when a product actually has more than one image. */
-.product-card__dots { display: flex; justify-content: center; gap: 6px; padding: 10px 0 0; }
+.product-card__dots { display: flex; justify-content: center; gap: 7px; padding: 14px 0 0; }
 .product-card__dot {
     width: 7px; height: 7px; padding: 0; border-radius: 50%; cursor: pointer;
     border: none; background: var(--line);
 }
 .product-card__dot:hover { background: var(--brand-200); }
 .product-card__dot.is-active { background: var(--brand); }
-.product-card__add { margin-top: 10px; align-self: flex-start; }
+/* Sits quiet until the card is hovered, then fills with the accent — so at rest the grid is
+   graphite and only the card under the pointer is lit. */
+.product-card__add { margin-top: 18px; align-self: stretch; padding: 12px 20px; font-size: .82rem; }
+.product-card:hover .product-card__add {
+    background: var(--grad-accent); border-color: transparent; color: #fff; box-shadow: var(--glow-accent);
+}
 .product-card__error { color: var(--danger); font-size: .8rem; }
-.pill { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
-.pill--ok { background: #e6f6ee; color: var(--ok); }
-.pill--out { background: #fdecec; color: var(--danger); }
+.pill {
+    display: inline-block; align-self: flex-start; font-size: .66rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .1em; padding: 4px 11px; border-radius: 999px;
+    border: 1px solid transparent;
+}
+/* Outlined rather than filled: stock state is a footnote on a product card, not a call to action. */
+.pill--ok { background: transparent; border-color: var(--ok-200); color: var(--ok); }
+.pill--out { background: transparent; border-color: var(--danger-200); color: var(--danger); }
 
 /* ---------- Buttons / forms ---------- */
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid transparent; border-radius: 10px; padding: 10px 18px; font-weight: 700; font-size: .95rem; cursor: pointer; transition: background .15s, border-color .15s; }
+/* Buttons are the main place the accent is allowed to appear at full strength, so they carry the
+   gradient and the glow. Everything else on the page stays graphite. */
+.btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    border: 1px solid transparent; border-radius: 12px; padding: 14px 28px;
+    font-weight: 700; font-size: .9rem; letter-spacing: .02em; cursor: pointer;
+    transition: background .25s, border-color .25s, box-shadow .25s, filter .25s, color .25s;
+}
 .btn:hover { text-decoration: none; }
-.btn--primary { background: var(--brand); color: #fff; }
-.btn--primary:hover { background: var(--brand-600); }
-.btn--accent { background: var(--accent); color: #fff; }
+.btn--primary { background: var(--grad-accent); color: #fff; box-shadow: var(--glow-accent); }
+.btn--primary:hover { filter: brightness(1.1); }
+.btn--accent { background: var(--grad-accent); color: #fff; box-shadow: var(--glow-accent); }
+.btn--accent:hover { filter: brightness(1.1); }
 .btn--ghost { background: transparent; border-color: var(--line); color: var(--ink); }
-.btn--ghost:hover { border-color: var(--brand); color: var(--brand); }
+.btn--ghost:hover { border-color: color-mix(in srgb, var(--brand) 55%, var(--line)); color: var(--brand); }
 .btn--block { width: 100%; }
 .btn:disabled { opacity: .55; cursor: not-allowed; }
 
 .field { display: grid; gap: 6px; margin-bottom: 14px; }
 .field label { font-weight: 600; font-size: .88rem; }
 .field input, .field select, .field textarea {
-    border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: .95rem; outline: none; width: 100%; background: #fff;
+    border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: .95rem; outline: none; width: 100%; background: var(--input-bg); color: var(--ink);
 }
 .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--brand); }
 
 .alert { border-radius: 10px; padding: 12px 14px; font-size: .9rem; margin-bottom: 14px; }
-.alert--error { background: #fdecec; color: #a12525; border: 1px solid #f4cccc; }
-.alert--ok { background: #e6f6ee; color: #12724c; border: 1px solid #bfe6d2; }
-.alert--info { background: var(--brand-050); color: var(--brand-600); border: 1px solid #d7d9fb; }
+.alert--error { background: var(--danger-050); color: var(--danger-700); border: 1px solid var(--danger-200); }
+.alert--ok { background: var(--ok-050); color: var(--ok-700); border: 1px solid var(--ok-200); }
+.alert--info { background: var(--brand-050); color: var(--brand-700); border: 1px solid var(--brand-200); }
 
 /* ---------- Hero ---------- */
-.hero { background: linear-gradient(120deg, var(--brand) 0%, #5a5ad6 100%); color: #fff; border-radius: 20px; padding: 44px; margin-bottom: 28px; }
-.hero h1 { font-size: 2.1rem; margin-bottom: .4rem; }
-.hero p { opacity: .9; max-width: 46ch; margin-bottom: 20px; }
-.hero .btn--accent { box-shadow: 0 8px 20px rgba(255, 122, 69, .35); }
+.hero {
+    background: linear-gradient(120deg, var(--hero-from) 0%, var(--hero-to) 100%);
+    color: #fff; border-radius: 22px; padding: 88px 72px; margin-bottom: var(--space-block);
+}
+.hero h1 { margin-bottom: 1rem; max-width: 18ch; }
+.hero p { opacity: .82; max-width: 46ch; margin-bottom: 36px; font-size: 1.05rem; }
 
 /* ---------- Banners ---------- */
-.banner-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 28px; }
+.banner-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: var(--space-block); }
 .banner { position: relative; border-radius: 18px; overflow: hidden; aspect-ratio: 10 / 3; display: block; }
 .banner img { width: 100%; height: 100%; object-fit: cover; }
 .banner:hover { text-decoration: none; }
@@ -239,88 +417,115 @@ main { min-height: 60vh; padding: 28px 0 48px; }
    Every rule below draws from the tokens declared at the top of this file, so the whole page follows
    the dark/light switch without a second palette. */
 
-.home-section { margin: 0 0 44px; }
+/* The single value that sets the page's breathing room. Sections are separated by ~108px of empty
+   charcoal, which is what carries the "showroom" reading more than any individual component does. */
+.home-section { margin: 0 0 var(--space-section); }
 .home-section--centered { text-align: center; }
-.home-section__head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
-/* Red rule under the heading — the reference site's section marker. */
-.home-section__title { font-size: 1.15rem; margin: 0; padding-bottom: 8px; position: relative; }
-.home-section__title::after {
-    content: ""; position: absolute; left: 0; bottom: 0; width: 46px; height: 2px; background: var(--brand);
+.home-section__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 40px; }
+/* Gradient rule under the heading — deep red into warm orange, the one accent mark a section gets. */
+.home-section__title {
+    font-size: clamp(1.5rem, 1.15rem + 1.2vw, 2rem); font-weight: 700; letter-spacing: -.02em;
+    margin: 0; padding-bottom: 18px; position: relative;
 }
-.home-section__title--centered { display: inline-block; margin-bottom: 26px; }
+.home-section__title::after {
+    content: ""; position: absolute; left: 0; bottom: 0; width: 56px; height: 2px;
+    border-radius: 2px; background: var(--grad-accent-hot);
+}
+.home-section__title--centered { display: inline-block; margin-bottom: 48px; }
 .home-section__title--centered::after { left: 50%; transform: translateX(-50%); }
 
 /* Carousel arrows + "NN / NN" counter, shared by the product, testimonial and logo rows. */
-.carousel-nav { display: inline-flex; align-items: center; gap: 10px; }
+.carousel-nav { display: inline-flex; align-items: center; gap: 14px; }
 .carousel-nav__btn {
-    width: 30px; height: 30px; border-radius: 50%; cursor: pointer; line-height: 1;
-    border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 1.1rem;
+    width: 42px; height: 42px; border-radius: 50%; cursor: pointer; line-height: 1;
+    border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 1.05rem;
+    transition: border-color .25s, color .25s, background .25s;
 }
-.carousel-nav__btn:hover { border-color: var(--brand); color: var(--brand); }
-.carousel-nav__count { color: var(--muted); font-size: .82rem; font-variant-numeric: tabular-nums; }
+.carousel-nav__btn:hover { border-color: color-mix(in srgb, var(--brand) 55%, var(--line)); color: var(--brand); background: var(--surface); }
+.carousel-nav__count { color: var(--muted); font-size: .8rem; letter-spacing: .06em; font-variant-numeric: tabular-nums; }
+
+/* The CMS intro block. It used to be a bordered card; as an unboxed statement centred in its own
+   whitespace it sets the tone for the page instead of reading as one more panel. */
+.home-intro { max-width: 68ch; margin: 0 auto var(--space-section); text-align: center; }
+.home-intro h2 { margin-bottom: 1.1rem; }
+.home-intro .lede { margin: 0 auto; }
 
 /* ---------- Hero carousel ---------- */
-.hero-carousel { position: relative; border-radius: 20px; overflow: hidden; margin-bottom: 28px; }
+.hero-carousel { position: relative; border-radius: 22px; overflow: hidden; margin-bottom: var(--space-section); }
 .hero-carousel__slide { display: block; position: relative; aspect-ratio: 21 / 8; }
 .hero-carousel__slide:hover { text-decoration: none; }
 .hero-carousel__slide img { width: 100%; height: 100%; object-fit: cover; }
 .hero-carousel__overlay {
     position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center;
-    /* 72px of horizontal padding keeps the copy clear of the prev/next arrows, which sit 16px in. */
-    gap: 10px; align-items: flex-start; padding: 44px 72px; color: #fff;
-    background: linear-gradient(90deg, rgba(0, 0, 0, .62), rgba(0, 0, 0, .05));
+    /* 88px of horizontal padding keeps the copy clear of the prev/next arrows, which sit 24px in. */
+    gap: 18px; align-items: flex-start; padding: 56px 88px; color: #fff;
+    /* Ramped in three stops rather than two: the copy sits on near-solid charcoal while the right
+       half of the image stays almost untouched. */
+    background: linear-gradient(90deg, rgba(10, 10, 13, .88) 0%, rgba(10, 10, 13, .55) 42%, rgba(10, 10, 13, .05) 100%);
 }
-.hero-carousel__overlay h1 { font-size: 2.1rem; margin: 0; max-width: 18ch; }
-.hero-carousel__overlay p { margin: 0; max-width: 40ch; opacity: .92; }
+.hero-carousel__overlay h1 { margin: 0; max-width: 17ch; }
+.hero-carousel__overlay p { margin: 0; max-width: 42ch; opacity: .78; font-size: 1.05rem; }
 .hero-carousel__arrow {
-    position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px;
-    border-radius: 50%; border: none; cursor: pointer; font-size: 1.4rem; line-height: 1;
-    background: rgba(0, 0, 0, .45); color: #fff;
+    position: absolute; top: 50%; transform: translateY(-50%); width: 46px; height: 46px;
+    border-radius: 50%; cursor: pointer; font-size: 1.3rem; line-height: 1;
+    border: 1px solid rgba(255, 255, 255, .18); background: rgba(10, 10, 13, .4); color: #fff;
+    transition: background .25s, border-color .25s;
 }
-.hero-carousel__arrow:hover { background: var(--brand); }
-.hero-carousel__arrow--prev { left: 16px; }
-.hero-carousel__arrow--next { right: 16px; }
-.hero-carousel__dots { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; gap: 8px; }
+.hero-carousel__arrow:hover { background: var(--grad-accent); border-color: transparent; }
+.hero-carousel__arrow--prev { left: 24px; }
+.hero-carousel__arrow--next { right: 24px; }
+.hero-carousel__dots { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; gap: 10px; }
+/* Inactive dots are hairline outlines; only the current slide gets filled accent. */
 .hero-carousel__dot {
-    width: 9px; height: 9px; padding: 0; border-radius: 50%; border: none; cursor: pointer;
-    background: rgba(255, 255, 255, .5);
+    width: 8px; height: 8px; padding: 0; border-radius: 50%; cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, .5); background: transparent; transition: background .25s, width .25s;
 }
-.hero-carousel__dot.is-active { background: var(--brand); }
+.hero-carousel__dot.is-active { width: 24px; border-radius: 4px; border-color: transparent; background: var(--grad-accent-hot); }
+@media (max-width: 860px) {
+    .hero { padding: 48px 28px; }
+    .hero-carousel__overlay { padding: 28px 32px; gap: 12px; }
+    .hero-carousel__arrow { display: none; }
+}
 
 /* ---------- Category circles ---------- */
-.cat-circles { display: flex; flex-wrap: wrap; gap: 22px; justify-content: center; margin: 0 0 40px; }
-.cat-circle { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 132px; }
+.cat-circles { display: flex; flex-wrap: wrap; gap: 40px 32px; justify-content: center; margin: 0 0 var(--space-section); }
+.cat-circle { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 140px; }
 .cat-circle:hover { text-decoration: none; }
 .cat-circle__ring {
-    width: 96px; height: 96px; border-radius: 50%; display: grid; place-items: center;
-    background: var(--media-bg); border: 2px solid var(--line); transition: border-color .15s;
+    width: 104px; height: 104px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--surface); border: 1px solid var(--line);
+    transition: border-color .3s, background .3s, box-shadow .3s, transform .3s;
 }
-.cat-circle:hover .cat-circle__ring { border-color: var(--brand); }
-.cat-circle__monogram { font-size: 1.9rem; font-weight: 800; color: var(--muted); }
+.cat-circle:hover .cat-circle__ring {
+    background: var(--surface-2); border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
+    box-shadow: var(--glow-accent); transform: translateY(-3px);
+}
+.cat-circle__monogram { font-size: 1.9rem; font-weight: 700; color: var(--muted); transition: color .3s; }
 .cat-circle:hover .cat-circle__monogram { color: var(--brand); }
 .cat-circle__label {
-    font-size: .76rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
-    color: var(--ink); text-align: center;
+    font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .14em;
+    color: var(--muted); text-align: center; line-height: 1.5; transition: color .3s;
 }
+.cat-circle:hover .cat-circle__label { color: var(--ink); }
 
 /* ---------- How we work ---------- */
 .steps {
     list-style: none; margin: 0; padding: 0; display: grid;
-    grid-template-columns: repeat(3, 1fr); gap: 24px; position: relative;
+    grid-template-columns: repeat(3, 1fr); gap: 40px; position: relative;
 }
 /* The connecting rule behind the three icons. */
 .steps::before {
-    content: ""; position: absolute; left: 12%; right: 12%; top: 34px; height: 1px;
+    content: ""; position: absolute; left: 12%; right: 12%; top: 39px; height: 1px;
     background: var(--line);
 }
-.step { display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; }
+.step { display: flex; flex-direction: column; align-items: center; gap: 18px; position: relative; }
 .step__icon {
-    width: 68px; height: 68px; border-radius: 50%; display: grid; place-items: center;
-    background: var(--surface); border: 1px solid var(--line); color: var(--ink);
+    width: 78px; height: 78px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--surface); border: 1px solid var(--line); color: var(--brand);
 }
 .step__icon svg { width: 30px; height: 30px; }
-.step__title { font-size: .95rem; margin: 0; }
-.step__body { margin: 0; font-size: .85rem; max-width: 30ch; }
+.step__title { font-size: 1.05rem; margin: 0; }
+.step__body { margin: 0; font-size: .9rem; max-width: 30ch; line-height: 1.7; }
 @media (max-width: 760px) {
     .steps { grid-template-columns: 1fr; }
     .steps::before { display: none; }
@@ -328,71 +533,86 @@ main { min-height: 60vh; padding: 28px 0 48px; }
 
 /* ---------- Configurator promo ---------- */
 .build-promo {
-    display: grid; grid-template-columns: 1fr auto auto; gap: 32px; align-items: center;
-    padding: 36px; margin: 0 0 44px;
+    display: grid; grid-template-columns: 1fr auto auto; gap: 56px; align-items: center;
+    padding: 64px 56px; margin: 0 0 var(--space-section);
+    /* A barely-there warm wash from the left keeps this panel distinct from the product cards
+       above it without introducing a second surface colour. */
+    background:
+        radial-gradient(120% 160% at 0% 50%, color-mix(in srgb, var(--brand) 7%, transparent) 0%, transparent 62%),
+        var(--surface);
 }
-.build-promo__title { font-size: 1.5rem; margin-bottom: 6px; }
-.build-promo__copy .btn { margin-top: 16px; }
-.build-promo__art { color: var(--brand); opacity: .75; }
-.build-promo__art svg { width: 120px; height: 120px; }
-.build-promo__links { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; font-size: .88rem; }
+.build-promo__title { margin-bottom: 14px; }
+.build-promo__copy p { max-width: 52ch; }
+.build-promo__copy .btn { margin-top: 26px; }
+.build-promo__art { color: var(--brand); opacity: .35; }
+.build-promo__art svg { width: 132px; height: 132px; }
+.build-promo__links { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; font-size: .9rem; }
 @media (max-width: 860px) {
-    .build-promo { grid-template-columns: 1fr; gap: 20px; }
+    .build-promo { grid-template-columns: 1fr; gap: 32px; padding: 40px 28px; }
     .build-promo__art { display: none; }
 }
 
 /* ---------- Testimonials ---------- */
-.testimonial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; text-align: left; }
-.testimonial { margin: 0; display: flex; flex-direction: column; gap: 10px; }
-.testimonial__author { display: flex; flex-direction: column; }
-.testimonial__name { font-weight: 700; font-size: .92rem; }
-.testimonial__city { font-size: .8rem; }
-.testimonial__body { margin: 0; font-size: .87rem; line-height: 1.6; color: var(--muted); }
-.testimonial-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 18px; }
-.testimonial-foot__all { font-size: .85rem; font-weight: 600; }
+.testimonial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; text-align: left; }
+.testimonial {
+    margin: 0; display: flex; flex-direction: column; gap: 18px;
+    padding: 32px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+}
+.testimonial__author { display: flex; flex-direction: column; gap: 2px; }
+.testimonial__name { font-weight: 700; font-size: .95rem; }
+.testimonial__city { font-size: .78rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+.testimonial__body { margin: 0; font-size: .92rem; line-height: 1.8; color: var(--muted); }
+.testimonial-foot { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 36px; }
+.testimonial-foot__all { font-size: .85rem; font-weight: 700; }
 
 /* ---------- Logo strips ---------- */
-.logo-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; }
-.logo-tile { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.logo-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 36px 24px; }
+.logo-tile { display: flex; flex-direction: column; align-items: center; gap: 16px; }
 .logo-tile:hover { text-decoration: none; }
+/* Partner marks sit at reduced opacity and come up to full on hover — a wall of logos at full
+   strength would out-shout the products. */
 .logo-tile__disc {
-    width: 104px; height: 104px; border-radius: 50%; display: grid; place-items: center; overflow: hidden;
-    background: var(--media-bg); border: 1px solid var(--line); transition: border-color .15s;
+    width: 108px; height: 108px; border-radius: 50%; display: grid; place-items: center; overflow: hidden;
+    background: var(--surface); border: 1px solid var(--line); opacity: .62;
+    transition: border-color .3s, opacity .3s, background .3s;
 }
-.logo-tile:hover .logo-tile__disc { border-color: var(--brand); }
-.logo-tile__disc img { max-width: 66%; max-height: 66%; object-fit: contain; }
-.logo-tile__monogram { font-size: 1.8rem; font-weight: 800; color: var(--muted); }
-.logo-tile__label { font-size: .8rem; color: var(--muted); text-align: center; }
+.logo-tile:hover .logo-tile__disc {
+    opacity: 1; background: var(--surface-2);
+    border-color: color-mix(in srgb, var(--brand) 40%, var(--line));
+}
+.logo-tile__disc img { max-width: 62%; max-height: 62%; object-fit: contain; }
+.logo-tile__monogram { font-size: 1.7rem; font-weight: 700; color: var(--muted); }
+.logo-tile__label { font-size: .74rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); text-align: center; }
 
 /* ---------- Tables / lists ---------- */
 .table { width: 100%; border-collapse: collapse; }
 .table th, .table td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--line); font-size: .92rem; }
 .table th { color: var(--muted); font-weight: 600; }
 
-.status { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .76rem; font-weight: 700; background: var(--brand-050); color: var(--brand-600); }
-.status--paid, .status--delivered { background: #e6f6ee; color: var(--ok); }
-.status--cancelled, .status--refunded { background: #fdecec; color: var(--danger); }
+.status { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .76rem; font-weight: 700; background: var(--brand-050); color: var(--brand-700); }
+.status--paid, .status--delivered { background: var(--ok-050); color: var(--ok); }
+.status--cancelled, .status--refunded { background: var(--danger-050); color: var(--danger); }
 
 /* ---------- Cart / summary ---------- */
 .line-item { display: grid; grid-template-columns: 72px 1fr auto; gap: 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
-.line-item__media { width: 72px; height: 72px; border-radius: 10px; overflow: hidden; background: #f0f1f6; }
+.line-item__media { width: 72px; height: 72px; border-radius: 10px; overflow: hidden; background: var(--media-bg); }
 .qty { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-.qty button { border: none; background: #fff; width: 34px; height: 34px; font-size: 1.1rem; cursor: pointer; }
+.qty button { border: none; background: var(--input-bg); color: var(--ink); width: 34px; height: 34px; font-size: 1.1rem; cursor: pointer; }
 .qty span { min-width: 34px; text-align: center; font-weight: 700; }
 .summary-row { display: flex; justify-content: space-between; padding: 6px 0; }
 .summary-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 1.15rem; border-top: 1px solid var(--line); padding-top: 12px; margin-top: 6px; }
 
 /* ---------- Footer (Phase 12) ---------- */
 .site-footer {
-    border-top: 1px solid var(--line); background: var(--surface); padding: 40px 0 22px;
-    color: var(--muted); font-size: .86rem; margin-top: 40px;
+    border-top: 1px solid var(--line); background: var(--surface); padding: 88px 0 32px;
+    color: var(--muted); font-size: .88rem; margin-top: 0;
 }
 .footer-grid {
-    display: grid; grid-template-columns: 1.4fr 1fr 1.4fr 1.2fr; gap: 32px; align-items: start;
-    padding-bottom: 26px;
+    display: grid; grid-template-columns: 1.4fr 1fr 1.4fr 1.2fr; gap: 56px 40px; align-items: start;
+    padding-bottom: 56px;
 }
-.footer-brand__tagline { margin: 12px 0 16px; max-width: 30ch; }
-.footer-brand__partner { margin: 0 0 10px; font-weight: 700; color: var(--ink); }
+.footer-brand__tagline { margin: 18px 0 28px; max-width: 30ch; line-height: 1.7; }
+.footer-brand__partner { margin: 0 0 14px; font-weight: 700; color: var(--ink); }
 .partner-logos { display: flex; gap: 10px; flex-wrap: wrap; }
 /* Text chips stand in for the real NVIDIA / ASUS partner artwork. */
 .partner-chip {
@@ -400,19 +620,22 @@ main { min-height: 60vh; padding: 28px 0 48px; }
     font-weight: 800; font-size: .76rem; letter-spacing: .06em; color: var(--ink);
     background: var(--media-bg);
 }
-.footer-col__title { font-size: .95rem; color: var(--ink); margin: 0 0 14px; }
-.footer-col__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.footer-col__list a { color: var(--muted); }
-.footer-col__list a:hover { color: var(--brand); }
+.footer-col__title {
+    font-size: .74rem; text-transform: uppercase; letter-spacing: .16em;
+    color: var(--ink); margin: 0 0 22px;
+}
+.footer-col__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.footer-col__list a { color: var(--muted); transition: color .2s; }
+.footer-col__list a:hover { color: var(--ink); text-decoration: none; }
 /* The catalog column runs two-up like the reference footer once it has enough entries. */
-.footer-col__list--split { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px; }
-.footer-phone { display: inline-block; font-weight: 800; font-size: 1rem; color: var(--ink); margin-bottom: 12px; }
+.footer-col__list--split { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 24px; }
+.footer-phone { display: inline-block; font-weight: 700; font-size: 1.2rem; letter-spacing: -.02em; color: var(--ink); margin-bottom: 16px; }
 .footer-phone:hover { color: var(--brand); text-decoration: none; }
-.footer-address { margin: 0 0 14px; color: var(--brand); max-width: 34ch; line-height: 1.6; }
-.footer-social { display: flex; gap: 12px; }
-.footer-social a { color: var(--muted); display: inline-flex; }
+.footer-address { margin: 0 0 22px; color: var(--muted); max-width: 34ch; line-height: 1.7; }
+.footer-social { display: flex; gap: 14px; }
+.footer-social a { color: var(--muted); display: inline-flex; transition: color .2s; }
 .footer-social a:hover { color: var(--brand); }
-.footer-legal { border-top: 1px solid var(--line); padding-top: 18px; font-size: .82rem; }
+.footer-legal { border-top: 1px solid var(--line); padding-top: 28px; font-size: .8rem; }
 @media (max-width: 900px) {
     .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px; }
 }
@@ -421,9 +644,17 @@ main { min-height: 60vh; padding: 28px 0 48px; }
     .footer-col__list--split { grid-template-columns: 1fr; }
 }
 
-.center-narrow { max-width: 440px; margin: 30px auto; }
-.spinner { width: 30px; height: 30px; border: 3px solid var(--line); border-top-color: var(--brand); border-radius: 50%; animation: spin 1s linear infinite; margin: 40px auto; }
+.center-narrow { max-width: 440px; margin: 48px auto; }
+.spinner { width: 30px; height: 30px; border: 2px solid var(--line); border-top-color: var(--brand); border-radius: 50%; animation: spin 1s linear infinite; margin: 96px auto; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-#blazor-error-ui { background: #ffe9a8; bottom: 0; box-shadow: 0 -1px 2px rgba(0,0,0,.2); display: none; left: 0; padding: 10px 16px; position: fixed; width: 100%; z-index: 1000; }
+/* This layer leans on slow transitions, so honour the OS setting rather than leaving motion on. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important; scroll-behavior: auto !important;
+    }
+}
+
+#blazor-error-ui { background: var(--error-ui-bg); color: var(--error-ui-ink); bottom: 0; box-shadow: 0 -1px 2px rgba(0,0,0,.2); display: none; left: 0; padding: 10px 16px; position: fixed; width: 100%; z-index: 1000; }
 #blazor-error-ui .dismiss { cursor: pointer; position: absolute; right: 12px; top: 8px; }
