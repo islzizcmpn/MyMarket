@@ -798,6 +798,85 @@
     <value>Фото {0}</value>
   </data>
 
+  <data name="Payment.PageTitle" xml:space="preserve">
+    <value>Оплата и доставка — PCMarket</value>
+  </data>
+  <data name="Payment.Heading" xml:space="preserve">
+    <value>Оплата и доставка</value>
+  </data>
+  <data name="Payment.Intro" xml:space="preserve">
+    <value>Закажите нужную технику на сайте или по телефону — и мы доставим её вам. Наш оператор свяжется с вами, чтобы подтвердить заказ, согласовать дату доставки и выбрать способ оплаты.</value>
+  </data>
+  <data name="Payment.BadgeAmount" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="Payment.BadgeUnit" xml:space="preserve">
+    <value>сум</value>
+  </data>
+  <data name="Payment.FreeDelivery" xml:space="preserve">
+    <value>Бесплатная доставка по Ташкенту</value>
+  </data>
+  <data name="Payment.RegionsHeading" xml:space="preserve">
+    <value>Доставка по регионам Узбекистана</value>
+  </data>
+  <data name="Payment.Term1" xml:space="preserve">
+    <value>Доставка по Ташкенту осуществляется бесплатно, за исключением крупногабаритных грузов.</value>
+  </data>
+  <data name="Payment.Term2" xml:space="preserve">
+    <value>Доставка во все регионы Узбекистана осуществляется согласно действующему тарифному плану.</value>
+  </data>
+  <data name="Payment.Term3" xml:space="preserve">
+    <value>Риск случайного повреждения или утраты товара переходит к покупателю в момент доставки.</value>
+  </data>
+  <data name="Payment.ExchangeHeading" xml:space="preserve">
+    <value>Обмен или возврат</value>
+  </data>
+  <data name="Payment.Exchange1" xml:space="preserve">
+    <value>Обмен товара и возврат денежных средств производятся после независимой экспертизы сервисного центра.</value>
+  </data>
+  <data name="Payment.Exchange2" xml:space="preserve">
+    <value>Товар надлежащего качества возврату и обмену не подлежит.</value>
+  </data>
+  <data name="Payment.AttentionTitle" xml:space="preserve">
+    <value>Внимание!</value>
+  </data>
+  <data name="Payment.AttentionBody" xml:space="preserve">
+    <value>Если оператор не сможет дозвониться до покупателя по указанному в заказе номеру телефона в течение 3 рабочих дней, заказ будет аннулирован. Чтобы подтвердить заказ, свяжитесь с оператором напрямую по телефону или в Telegram.</value>
+  </data>
+  <data name="Payment.OrderHeading" xml:space="preserve">
+    <value>Выдача заказа</value>
+  </data>
+  <data name="Payment.Order1" xml:space="preserve">
+    <value>Заказ передаётся покупателю или лицу, указанному в заказе, только при предъявлении документа, удостоверяющего личность.</value>
+  </data>
+  <data name="Payment.Order2" xml:space="preserve">
+    <value>Для юридических лиц требуется доверенность на получение товара.</value>
+  </data>
+  <data name="Payment.Order3" xml:space="preserve">
+    <value>Обмен и возврат оформляются после независимой экспертизы сервисного центра.</value>
+  </data>
+  <data name="Payment.MethodsHeading" xml:space="preserve">
+    <value>Способы оплаты</value>
+  </data>
+  <data name="Payment.CashTitle" xml:space="preserve">
+    <value>Наличные</value>
+  </data>
+  <data name="Payment.CashBody" xml:space="preserve">
+    <value>Оплачивается курьеру наличными при получении заказа.</value>
+  </data>
+  <data name="Payment.CashlessTitle" xml:space="preserve">
+    <value>Безналичный расчёт</value>
+  </data>
+  <data name="Payment.CashlessBody" xml:space="preserve">
+    <value>Банковский перевод. Требуется подписанный договор с описанием товара.</value>
+  </data>
+  <data name="Payment.UzcardTitle" xml:space="preserve">
+    <value>Оплата картой UZCARD</value>
+  </data>
+  <data name="Payment.UzcardBody" xml:space="preserve">
+    <value>Принимаются пластиковые карты — они приравниваются к оплате наличными.</value>
+  </data>
+
   <data name="Contacts.PageTitle" xml:space="preserve">
     <value>Контакты — PCMarket</value>
   </data>

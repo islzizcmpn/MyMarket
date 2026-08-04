@@ -798,6 +798,85 @@
     <value>{0}-rasm</value>
   </data>
 
+  <data name="Payment.PageTitle" xml:space="preserve">
+    <value>Toʻlov va yetkazib berish — PCMarket</value>
+  </data>
+  <data name="Payment.Heading" xml:space="preserve">
+    <value>Toʻlov va yetkazib berish</value>
+  </data>
+  <data name="Payment.Intro" xml:space="preserve">
+    <value>Kerakli texnikani saytda yoki telefon orqali buyurtma qiling — biz uni sizga yetkazib beramiz. Operatorimiz buyurtmani tasdiqlash, yetkazib berish sanasini kelishish va toʻlov usulini tanlash uchun siz bilan bogʻlanadi.</value>
+  </data>
+  <data name="Payment.BadgeAmount" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="Payment.BadgeUnit" xml:space="preserve">
+    <value>soʻm</value>
+  </data>
+  <data name="Payment.FreeDelivery" xml:space="preserve">
+    <value>Toshkent boʻylab bepul yetkazib berish</value>
+  </data>
+  <data name="Payment.RegionsHeading" xml:space="preserve">
+    <value>Oʻzbekiston viloyatlariga yetkazib berish</value>
+  </data>
+  <data name="Payment.Term1" xml:space="preserve">
+    <value>Toshkent boʻylab yetkazib berish bepul, yirik gabaritli yuklar bundan mustasno.</value>
+  </data>
+  <data name="Payment.Term2" xml:space="preserve">
+    <value>Oʻzbekistonning barcha viloyatlariga yetkazib berish amaldagi tarif rejasiga muvofiq amalga oshiriladi.</value>
+  </data>
+  <data name="Payment.Term3" xml:space="preserve">
+    <value>Tovarning tasodifiy shikastlanishi yoki yoʻqolishi xavfi yetkazib berish paytida xaridorga oʻtadi.</value>
+  </data>
+  <data name="Payment.ExchangeHeading" xml:space="preserve">
+    <value>Almashtirish yoki qaytarish</value>
+  </data>
+  <data name="Payment.Exchange1" xml:space="preserve">
+    <value>Tovarni almashtirish va pulni qaytarish servis markazining mustaqil ekspertizasidan soʻng amalga oshiriladi.</value>
+  </data>
+  <data name="Payment.Exchange2" xml:space="preserve">
+    <value>Sifatli tovar qaytarilmaydi va almashtirilmaydi.</value>
+  </data>
+  <data name="Payment.AttentionTitle" xml:space="preserve">
+    <value>Diqqat!</value>
+  </data>
+  <data name="Payment.AttentionBody" xml:space="preserve">
+    <value>Agar operator 3 ish kuni ichida buyurtmada koʻrsatilgan telefon raqami orqali xaridorga bogʻlana olmasa, buyurtma bekor qilinadi. Buyurtmangizni tasdiqlash uchun operator bilan telefon yoki Telegram orqali bevosita bogʻlaning.</value>
+  </data>
+  <data name="Payment.OrderHeading" xml:space="preserve">
+    <value>Buyurtmani topshirish</value>
+  </data>
+  <data name="Payment.Order1" xml:space="preserve">
+    <value>Buyurtma xaridorga yoki buyurtmada koʻrsatilgan shaxsga faqat shaxsni tasdiqlovchi hujjat taqdim etilgandan soʻng topshiriladi.</value>
+  </data>
+  <data name="Payment.Order2" xml:space="preserve">
+    <value>Yuridik shaxslar uchun tovarni olishga ishonchnoma talab qilinadi.</value>
+  </data>
+  <data name="Payment.Order3" xml:space="preserve">
+    <value>Almashtirish va qaytarish servis markazining mustaqil ekspertizasidan soʻng rasmiylashtiriladi.</value>
+  </data>
+  <data name="Payment.MethodsHeading" xml:space="preserve">
+    <value>Toʻlov usullari</value>
+  </data>
+  <data name="Payment.CashTitle" xml:space="preserve">
+    <value>Naqd pul</value>
+  </data>
+  <data name="Payment.CashBody" xml:space="preserve">
+    <value>Buyurtmani olayotganda kuryerga naqd pulda toʻlanadi.</value>
+  </data>
+  <data name="Payment.CashlessTitle" xml:space="preserve">
+    <value>Naqd pulsiz hisob-kitob</value>
+  </data>
+  <data name="Payment.CashlessBody" xml:space="preserve">
+    <value>Bank oʻtkazmasi. Tovar tavsifi koʻrsatilgan imzolangan shartnoma talab qilinadi.</value>
+  </data>
+  <data name="Payment.UzcardTitle" xml:space="preserve">
+    <value>UZCARD karta orqali toʻlov</value>
+  </data>
+  <data name="Payment.UzcardBody" xml:space="preserve">
+    <value>Plastik kartalar qabul qilinadi — ular naqd pul toʻlovi bilan tenglashtiriladi.</value>
+  </data>
+
   <data name="Contacts.PageTitle" xml:space="preserve">
     <value>Kontaktlar — PCMarket</value>
   </data>

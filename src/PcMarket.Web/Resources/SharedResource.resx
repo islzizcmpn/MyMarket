@@ -832,6 +832,88 @@
     <comment>{0} is the 1-based image number.</comment>
   </data>
 
+  <data name="Payment.PageTitle" xml:space="preserve">
+    <value>Payment and delivery — PCMarket</value>
+  </data>
+  <data name="Payment.Heading" xml:space="preserve">
+    <value>Payment and delivery</value>
+    <comment>Rendered in caps by CSS; keep sentence case here so other scripts are not forced upper.</comment>
+  </data>
+  <data name="Payment.Intro" xml:space="preserve">
+    <value>Order the equipment you need on the site or by phone and we will deliver it to you. Our operator will contact you to confirm the order, agree the delivery date and choose the method of payment.</value>
+  </data>
+  <data name="Payment.BadgeAmount" xml:space="preserve">
+    <value>0</value>
+    <comment>Figure inside the round delivery-price badge. Paired with Payment.BadgeUnit.</comment>
+  </data>
+  <data name="Payment.BadgeUnit" xml:space="preserve">
+    <value>sum</value>
+    <comment>Currency word under the 0 in the delivery-price badge.</comment>
+  </data>
+  <data name="Payment.FreeDelivery" xml:space="preserve">
+    <value>Free delivery in Tashkent</value>
+  </data>
+  <data name="Payment.RegionsHeading" xml:space="preserve">
+    <value>Delivery to regions of Uzbekistan</value>
+  </data>
+  <data name="Payment.Term1" xml:space="preserve">
+    <value>Delivery within Tashkent is free of charge, with the exception of oversized cargo.</value>
+  </data>
+  <data name="Payment.Term2" xml:space="preserve">
+    <value>Delivery to all regions of Uzbekistan is carried out according to the current tariff plan.</value>
+  </data>
+  <data name="Payment.Term3" xml:space="preserve">
+    <value>The risk of accidental damage to or loss of the goods passes to the buyer at the moment of delivery.</value>
+  </data>
+  <data name="Payment.ExchangeHeading" xml:space="preserve">
+    <value>Exchange or return</value>
+  </data>
+  <data name="Payment.Exchange1" xml:space="preserve">
+    <value>Exchange of goods and refunds are made after an independent inspection by the service center.</value>
+  </data>
+  <data name="Payment.Exchange2" xml:space="preserve">
+    <value>Goods of proper quality are not subject to return or exchange.</value>
+  </data>
+  <data name="Payment.AttentionTitle" xml:space="preserve">
+    <value>Attention!</value>
+  </data>
+  <data name="Payment.AttentionBody" xml:space="preserve">
+    <value>If the operator is unable to reach the buyer on the phone number given in the order within 3 business days, the order will be cancelled. To confirm your order, please contact the operator directly by phone or on Telegram.</value>
+  </data>
+  <data name="Payment.OrderHeading" xml:space="preserve">
+    <value>Delivery of the order</value>
+  </data>
+  <data name="Payment.Order1" xml:space="preserve">
+    <value>The order is handed over to the buyer, or to the person named in the order, only on presentation of an identity document.</value>
+  </data>
+  <data name="Payment.Order2" xml:space="preserve">
+    <value>For legal entities, a power of attorney to receive the goods is required.</value>
+  </data>
+  <data name="Payment.Order3" xml:space="preserve">
+    <value>Exchanges and refunds are processed after an independent inspection by the service center.</value>
+  </data>
+  <data name="Payment.MethodsHeading" xml:space="preserve">
+    <value>Payment methods</value>
+  </data>
+  <data name="Payment.CashTitle" xml:space="preserve">
+    <value>Cash</value>
+  </data>
+  <data name="Payment.CashBody" xml:space="preserve">
+    <value>Paid to the courier in cash when you receive the order.</value>
+  </data>
+  <data name="Payment.CashlessTitle" xml:space="preserve">
+    <value>Cashless payment</value>
+  </data>
+  <data name="Payment.CashlessBody" xml:space="preserve">
+    <value>Bank transfer. Requires a signed contract containing a description of the product.</value>
+  </data>
+  <data name="Payment.UzcardTitle" xml:space="preserve">
+    <value>Payment by UZCARD</value>
+  </data>
+  <data name="Payment.UzcardBody" xml:space="preserve">
+    <value>Plastic cards are accepted and are treated as the equivalent of a cash payment.</value>
+  </data>
+
   <data name="Contacts.PageTitle" xml:space="preserve">
     <value>Contacts — PCMarket</value>
   </data>

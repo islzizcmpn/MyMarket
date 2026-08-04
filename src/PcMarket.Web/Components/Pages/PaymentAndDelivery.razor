@@ -1,7 +1,92 @@
 @page "/payment-and-delivery"
 @inject IStringLocalizer<SharedResource> L
 
-@* Placeholder — the real page is Phase 14. *@
-<PageTitle>@L["Nav.PaymentAndDelivery"] — PCMarket</PageTitle>
+@* Phase 14. Renders inside the Phase 12 storefront shell (MainLayout); scroll reveals are armed by
+   the layout's scan call. Structured to match the Contacts page: breadcrumb, one statement heading,
+   then measure-capped prose sections separated by the --space-section rhythm. *@
 
-<ComingSoon Title="@L["Nav.PaymentAndDelivery"]" Phase="14" />
+<PageTitle>@L["Payment.PageTitle"]</PageTitle>
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">@L["Nav.Home"]</a>
+    <span aria-hidden="true">›</span>
+    <span class="muted">@L["Nav.PaymentAndDelivery"]</span>
+</nav>
+
+<section class="home-section pay-intro" data-reveal="block">
+    <h1 class="pay-heading">@L["Payment.Heading"]</h1>
+</section>
+
+@* Delivery band. The badge overlaps the lower edge, so the band carries bottom padding to leave it
+   room rather than letting it collide with the copy. *@
+<section class="pay-hero" data-reveal="block">
+    <div class="pay-hero__copy">
+        <p>@L["Payment.Intro"]</p>
+    </div>
+
+    <div class="pay-hero__badge" aria-hidden="true">
+        <span class="pay-hero__badge-amount">@L["Payment.BadgeAmount"]</span>
+        <span class="pay-hero__badge-unit">@L["Payment.BadgeUnit"]</span>
+    </div>
+
+    <p class="pay-hero__free">@L["Payment.FreeDelivery"]</p>
+</section>
+
+<section class="home-section pay-block">
+    <h2 class="home-section__title" data-reveal="block">@L["Payment.RegionsHeading"]</h2>
+    <ul class="pay-list" data-reveal="stagger">
+        <li>@L["Payment.Term1"]</li>
+        <li>@L["Payment.Term2"]</li>
+        <li>@L["Payment.Term3"]</li>
+    </ul>
+</section>
+
+<section class="home-section pay-block">
+    <h2 class="home-section__title" data-reveal="block">@L["Payment.ExchangeHeading"]</h2>
+    <ul class="pay-list" data-reveal="stagger">
+        <li>@L["Payment.Exchange1"]</li>
+        <li>@L["Payment.Exchange2"]</li>
+    </ul>
+</section>
+
+@* Operator notice — a darker panel across the content column, the one place on the page the accent
+   is allowed to frame a whole block rather than just a mark. *@
+<aside class="pay-notice" data-reveal="block" role="note">
+    <span class="pay-notice__icon" aria-hidden="true"><ShellIcon Name="phone" /></span>
+    <div class="pay-notice__body">
+        <p class="pay-notice__title">@L["Payment.AttentionTitle"]</p>
+        <p>@L["Payment.AttentionBody"]</p>
+    </div>
+</aside>
+
+<section class="home-section pay-block">
+    <h2 class="home-section__title" data-reveal="block">@L["Payment.OrderHeading"]</h2>
+    <ul class="pay-list" data-reveal="stagger">
+        <li>@L["Payment.Order1"]</li>
+        <li>@L["Payment.Order2"]</li>
+        <li>@L["Payment.Order3"]</li>
+    </ul>
+</section>
+
+@* Same three-node construction as "How we work" and the Contacts row. *@
+<section class="home-section pay-methods">
+    <h2 class="home-section__title" data-reveal="block">@L["Payment.MethodsHeading"]</h2>
+
+    <ul class="pay-nodes" data-reveal="stagger">
+        <li class="pay-node">
+            <span class="pay-node__icon"><ShellIcon Name="cash" /></span>
+            <h3 class="pay-node__title">@L["Payment.CashTitle"]</h3>
+            <p class="pay-node__body muted">@L["Payment.CashBody"]</p>
+        </li>
+        <li class="pay-node">
+            <span class="pay-node__icon"><ShellIcon Name="bank" /></span>
+            <h3 class="pay-node__title">@L["Payment.CashlessTitle"]</h3>
+            <p class="pay-node__body muted">@L["Payment.CashlessBody"]</p>
+        </li>
+        <li class="pay-node">
+            <span class="pay-node__icon"><ShellIcon Name="card" /></span>
+            <h3 class="pay-node__title">@L["Payment.UzcardTitle"]</h3>
+            <p class="pay-node__body muted">@L["Payment.UzcardBody"]</p>
+        </li>
+    </ul>
+</section>

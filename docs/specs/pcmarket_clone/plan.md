@@ -1,7 +1,21 @@
 # pcmarket_clone
 
 ## Status
-**Complete — all phases 0–9 done, last updated 2026-07-26.** Phase 9 containerizes the system: multi-stage
+In Progress — last updated 2026-08-05. **Phases 0–15 and 18 are complete; Phases 16, 17, 19 and 20 are
+not started.** Phases 11–15 and 18 were verified against the running app on 2026-08-05: the Play font and
+charcoal retune are live and both themes were re-checked across home, catalog, product, cart and checkout;
+the storefront shell renders on every page; the home page, Payment and delivery, and Contacts are all built
+out; and Reviews resolves to the Telegram channel rather than an in-app page, as specified. One Phase 12
+item remains open — see the note under that phase. Phases 16, 17, 19 and 20 still serve `ComingSoon`
+placeholders at their routes.
+
+Layered on top of Phases 11–15, and not a phase of its own: a premium visual redesign of the
+storefront (charcoal/graphite foundation with a deep-red→warm-orange accent, ambient glow and
+cinematic hover-lift on cards, and IntersectionObserver scroll reveals), plus real photography and
+brand artwork wired into the home page and shell. All of it is driven from the existing `app.css`
+tokens, so both themes still follow from one place. See the Changelog for detail.
+
+Earlier status (2026-07-26): Phases 0–9 done. Phase 9 containerizes the system: multi-stage
 Dockerfiles for API/Web/Admin, a full `docker-compose.yml` (nginx + api + web + admin + postgres + redis +
 minio, only nginx exposed), host-based Nginx routing with WebSocket support and a MinIO media pass-through,
 GitHub Actions CI publishing images to GHCR, a manual deploy workflow with a **gated** migration step, tested
@@ -208,38 +222,71 @@ See the detailed plan in [mobile_app/plan.md](mobile_app/plan.md).
 - [x] Backup script (`pg_dump` + MinIO sync) and runbooks (deploy, restore, gateway onboarding) under `docs/`. (`scripts/backup.sh` → timestamped `postgres.dump` (`-Fc`) + `media/` mirror + `manifest.txt`, with retention pruning and a guard that fails the run if the media mirror did not reach the host; `scripts/restore.sh` stops the app, recreates the database, restores both, and re-applies the bucket policy behind a typed confirmation. Both **executed for real** against the running stack. Runbooks: `docs/runbooks/{deploy,restore,gateway-onboarding}.md`.)
 - [x] README with local `docker compose up` quickstart and configuration reference. (Two quickstarts — full stack in containers, and infra-only for `dotnet run` development — plus a deployment/operations section and a `.env` configuration table alongside the existing app-settings one.)
 
+### Phase 10 — Storefront dark / light theme
+- [x] Theme tokens moved to CSS custom properties in `app.css`: `:root` holds the dark palette (the default) and `:root[data-theme="light"]` overrides it, with `color-scheme` set per theme. Hard-coded colors in cards, pills, inputs, hero, and error UI replaced by tokens (`--media-bg`, `--input-bg`, `--hero-from/to`, `--ok-050`, `--danger-050`, …) so both themes stay in sync from one place.
+- [x] No flash of the wrong theme on load: an inline IIFE in `App.razor` reads `localStorage['pcmarket.theme']` and stamps `data-theme` on `<html>` **before** the stylesheet and before the Blazor circuit starts. It must stay inline and ahead of the `<link>` — an external file or a circuit-side read would paint the wrong theme first. Wrapped in `try/catch` so blocked storage degrades to the dark default.
+- [x] Sun/moon toggle button in the header nav (`MainLayout.razor`), calling `pcmarketTheme.toggle` over JS interop; the interop call is `try/catch`ed so a tearing-down circuit can't throw. The icon is chosen by CSS from the `data-theme` attribute rather than component state, since the attribute is already correct on the first frame.
+- [x] Choice persisted to `localStorage` on every toggle, so the theme survives reloads and new tabs; dark is the fallback when nothing is stored. **Not done: no automated test coverage** — verified in-browser only.
+
+### Phase 11 — Typography & dark styling ("Play" font)
+- [x] Add the "Play" Google font site-wide via `<link>` in `App.razor` (the `preconnect` to `fonts.googleapis.com` already exists), with a local system-sans fallback in the font stack.
+- [x] Set the base typography in `app.css`: `font-family: 'Play'`, `font-weight: 400`, `line-height: 1.5`, applied from `body` so headings, nav, buttons, and inputs all inherit it.
+- [x] Retune the dark palette toward a charcoal background (replacing the current blue-tinted `--bg: #0f1222` / `--surface: #171a2e`), adjusting `--line`, `--muted`, and `--media-bg` to keep contrast legible against charcoal.
+- [x] Take the reference styling cues from pcmarket.uz — spacing, header weight, and card treatment — without copying assets or branding.
+- [x] Verify both themes in-browser across home, catalog, product, cart, and checkout; confirm the light theme still reads correctly after the dark retune.
+
 ### Phase 12 — Shared storefront shell (header, nav, sidebar, footer)
-- [ ] Top contact bar (`TopContactBar.razor`): brand logo far left, then "Call us" + placeholder phone `+998000000000`, "Working hours Mon–Sat 9.00–18.00", and Instagram/Facebook/Telegram icon links far right — all through `IStringLocalizer<SharedResource>` (`Shell.CallUs`, `Shell.WorkingHours`, …) with RU/UZ/EN entries in `SharedResource*.resx`.
-- [ ] Main navigation row (`MainNav.razor`): Home, Payment and delivery, Stock, Reviews, Service Center, Contacts, PC Configurator, plus a Telegram-icon "Order on Telegram" link out to the channel; the active item renders in `--brand` red. Routes land in Phases 13–19, so this phase ships links + placeholder pages.
+- [x] Top contact bar (`TopContactBar.razor`): brand logo far left, then "Call us" + placeholder phone `+998000000000`, "Working hours Mon–Sat 9.00–18.00", and Instagram/Facebook/Telegram icon links far right — all through `IStringLocalizer<SharedResource>` (`Shell.CallUs`, `Shell.WorkingHours`, …) with RU/UZ/EN entries in `SharedResource*.resx`.
+- [x] Main navigation row (`MainNav.razor`): Home, Payment and delivery, Stock, Reviews, Service Center, Contacts, PC Configurator, plus a Telegram-icon "Order on Telegram" link out to the channel; the active item renders in `--brand` red. Routes land in Phases 13–19, so this phase ships links + placeholder pages.
 - [ ] Utility row beneath the nav (`HeaderUtilityRow.razor`): cart icon with item badge and a search toggle. (Currency switching is its own Phase 20.)
-- [ ] Left category sidebar (`CategorySidebar.razor`) rendering **only the app's real categories** from the live tree (`CatalogApiClient.GetCategoriesAsync` → `/api/v1/catalog/categories`, currently Computers/Laptops/Memory/Accessories/Mice) — no invented pcmarket.uz list. Each row gets a leading category icon, and a sticky red "Go to PC Configurator" button pins to the bottom of the sidebar rail. Note: the reference site's sidebar (Printers and MFPs, All-in-one PCs, Monitors, Projectors, UPS, …) is *catalog data*, not shell markup — matching it is a seeding task, not this phase.
-- [ ] Fixed right-edge contact rail (`FloatingContactRail.razor`): stacked Telegram and call buttons in `--brand`, visible on every page and collapsing on narrow viewports.
-- [ ] Shared footer (`SiteFooter.razor`): PC MARKET logo, "Online store of computer equipment and components" tagline, "Official partner:" + NVIDIA/ASUS partner logos, a Pages column (Payment and delivery, About the company, Service Center, Reviews, PC Configurator), a two-column Catalog list driven by the real category tree, and a Contacts column with the placeholder phone, the address "Uzbekistan, Tashkent, Yunusabad district, 13th quarter, 2A, Trade Complex 'Lion', Landmark 'Mega Planet'" in accent red, and the social icons. Replaces the current one-line copyright footer.
-- [ ] Compose all pieces into the shell so every page inherits them (`MainLayout.razor` + `Components/Layout/Shell/`), styled only from the existing charcoal/red/Play tokens in `app.css` (`--bg`, `--surface`, `--brand`, `--line`, `--muted`) so both themes follow automatically — the reference pages render correctly in light as well as dark.
+- [x] Left category sidebar (`CategorySidebar.razor`) rendering **only the app's real categories** from the live tree (`CatalogApiClient.GetCategoriesAsync` → `/api/v1/catalog/categories`, currently Computers/Laptops/Memory/Accessories/Mice) — no invented pcmarket.uz list. Each row gets a leading category icon, and a sticky red "Go to PC Configurator" button pins to the bottom of the sidebar rail. Note: the reference site's sidebar (Printers and MFPs, All-in-one PCs, Monitors, Projectors, UPS, …) is *catalog data*, not shell markup — matching it is a seeding task, not this phase.
+- [x] Fixed right-edge contact rail (`FloatingContactRail.razor`): stacked Telegram and call buttons in `--brand`, visible on every page and collapsing on narrow viewports.
+- [x] Shared footer (`SiteFooter.razor`): PC MARKET logo, "Online store of computer equipment and components" tagline, "Official partner:" + NVIDIA/ASUS partner logos, a Pages column (Payment and delivery, About the company, Service Center, Reviews, PC Configurator), a two-column Catalog list driven by the real category tree, and a Contacts column with the placeholder phone, the address "Uzbekistan, Tashkent, Yunusabad district, 13th quarter, 2A, Trade Complex 'Lion', Landmark 'Mega Planet'" in accent red, and the social icons. Replaces the current one-line copyright footer.
+- [x] Compose all pieces into the shell so every page inherits them (`MainLayout.razor` + `Components/Layout/Shell/`), styled only from the existing charcoal/red/Play tokens in `app.css` (`--bg`, `--surface`, `--brand`, `--line`, `--muted`) so both themes follow automatically — the reference pages render correctly in light as well as dark.
+
+> **Open item:** the utility row above is the one part of Phase 12 not built. There is no
+> `HeaderUtilityRow.razor`; the cart badge and the search box live directly in `MainLayout.razor`'s
+> header row *above* the nav rather than in a dedicated row beneath it. The function is present, the
+> component and placement are not, so the box stays unchecked.
 
 ### Phase 13 — Home page content
-- [ ] Full-bleed hero carousel at the top of `Home.razor` (reference slide: a dark "Офис под ключ" promo with headline, sub-copy, and a red accent line).
-- [ ] Category circle links — round product images inside a red ring with the category name beneath, driven by the real category tree from Phase 12.
-- [ ] "Bestsellers 2026" and "We recommend" product carousels reusing **real catalog products** (`CatalogApiClient.GetProductsAsync`) in a new `ProductCarousel.razor`; each carousel has prev/next arrows and an "N / M" page counter in its top-right, and cards show a multi-image dot indicator, price, and a red "Add to cart" button (extending the existing `ProductCard.razor`).
-- [ ] "How we work" three-step section — circular outline icons on a connecting rule: Deciding on the product / Payment / Free shipping, each with a short caption.
-- [ ] "Build a computer to suit your taste!" configurator promo — PC hero image, a red "Go to PC Configurator" button, and two secondary links (Assembling a computer with Intel, Build a PC with AMD) pointing at the Phase 19 entry paths.
-- [ ] "What they say about us" testimonials carousel (name + city + quote cards, arrows + counter, a "Read all reviews" link to the Phase 18 Telegram channel), then "They trust us" partner logos and "Brands" — both circular-logo carousels with their own counters.
-- [ ] All headings, step copy, and testimonial text through `IStringLocalizer<SharedResource>` (RU/UZ/EN); static sections hardcoded to the reference design, themed from `app.css` tokens with no new colors.
+- [x] Full-bleed hero carousel at the top of `Home.razor` (reference slide: a dark "Офис под ключ" promo with headline, sub-copy, and a red accent line).
+- [x] Category circle links — round product images inside a red ring with the category name beneath, driven by the real category tree from Phase 12.
+- [x] "Bestsellers 2026" and "We recommend" product carousels reusing **real catalog products** (`CatalogApiClient.GetProductsAsync`) in a new `ProductCarousel.razor`; each carousel has prev/next arrows and an "N / M" page counter in its top-right, and cards show a multi-image dot indicator, price, and a red "Add to cart" button (extending the existing `ProductCard.razor`).
+- [x] "How we work" three-step section — circular outline icons on a connecting rule: Deciding on the product / Payment / Free shipping, each with a short caption.
+- [x] "Build a computer to suit your taste!" configurator promo — PC hero image, a red "Go to PC Configurator" button, and two secondary links (Assembling a computer with Intel, Build a PC with AMD) pointing at the Phase 19 entry paths.
+- [x] "What they say about us" testimonials carousel (name + city + quote cards, arrows + counter, a "Read all reviews" link to the Phase 18 Telegram channel), then "They trust us" partner logos and "Brands" — both circular-logo carousels with their own counters.
+- [x] All headings, step copy, and testimonial text through `IStringLocalizer<SharedResource>` (RU/UZ/EN); static sections hardcoded to the reference design, themed from `app.css` tokens with no new colors.
+
+> **Built on top of this phase, not a phase of its own:** the premium visual redesign (charcoal
+> foundation, deep-red→warm-orange accent, ambient card glow + hover lift, scroll reveals) and the
+> real photography/brand artwork now wired into the home page and shell. The home page also carries
+> an extra decorative "Featured components" carousel that is not in the list above. Both additions
+> draw only on existing `app.css` tokens.
 
 ### Phase 14 — Payment and delivery page
-- [ ] Route `/payment-and-delivery` (`PaymentAndDelivery.razor`) with breadcrumb Home › Payment and delivery and a wide delivery hero image carrying the intro paragraph as overlay text.
-- [ ] Large red "0 sum" circle badge overlapping the hero, with "FREE DELIVERY IN TASHKENT" set beneath it in heavy caps.
-- [ ] "DELIVERY TO REGIONS OF UZBEKISTAN" terms and an "EXCHANGE OR RETURN" policy section.
-- [ ] "ATTENTION!" operator notice as a full-width darker panel (`--surface` over `--bg`), followed by the "DELIVERY OF THE ORDER" terms.
-- [ ] "PAYMENT METHODS" block — three circular outline icons with captions: CASH, CASHLESS PAYMENT, PAYMENT BY UZCARD.
-- [ ] Every string in `SharedResource*.resx` under a `PaymentDelivery.*` prefix (RU/UZ/EN) — no literal copy in the `.razor`.
+- [x] Route `/payment-and-delivery` (`PaymentAndDelivery.razor`) with breadcrumb Home › Payment and delivery and a wide delivery hero image carrying the intro paragraph as overlay text.
+- [x] Large red "0 sum" circle badge overlapping the hero, with "FREE DELIVERY IN TASHKENT" set beneath it in heavy caps.
+- [x] "DELIVERY TO REGIONS OF UZBEKISTAN" terms and an "EXCHANGE OR RETURN" policy section.
+- [x] "ATTENTION!" operator notice as a full-width darker panel (`--surface` over `--bg`), followed by the "DELIVERY OF THE ORDER" terms.
+- [x] "PAYMENT METHODS" block — three circular outline icons with captions: CASH, CASHLESS PAYMENT, PAYMENT BY UZCARD.
+- [x] Every string in `SharedResource*.resx` under a `PaymentDelivery.*` prefix (RU/UZ/EN) — no literal copy in the `.razor`.
+
+> **Two deviations, both intentional.** The keys shipped under a `Payment.*` prefix, not
+> `PaymentDelivery.*` (26 keys × RU/UZ/EN, no literal copy in the `.razor`). And no delivery
+> photograph was supplied, so the hero is the same lit gradient band the hero fallback uses rather
+> than an image with overlay text — swapping a photo in later touches one CSS declaration.
 
 ### Phase 15 — Contacts page
-- [ ] Route `/contacts` (`Contacts.razor`) with breadcrumb Home › About the company and the "NEED COMPUTER EQUIPMENT?" heading.
-- [ ] Three large circular contact nodes joined by a horizontal rule: "Our Telegram" (paper-plane icon), the placeholder phone `+998000000000` (phone icon), and "Our mail" (envelope icon) using a **dummy placeholder address** — the reference's `sale@pcmarket.uz` is deliberately *not* reused.
-- [ ] About-the-company paragraphs plus the ASUS/NVIDIA authorized-partner certificate image.
-- [ ] "We are on the map" — a full-width embedded Google Map `<iframe>` (no API key) pinned to the Yunusabad address from Phase 12's footer.
-- [ ] All copy localized under `Contacts.*` (RU/UZ/EN); verify the page in both themes, since the reference renders it light and dark.
+- [x] Route `/contacts` (`Contacts.razor`) with breadcrumb Home › About the company and the "NEED COMPUTER EQUIPMENT?" heading.
+- [x] Three large circular contact nodes joined by a horizontal rule: "Our Telegram" (paper-plane icon), the placeholder phone `+998000000000` (phone icon), and "Our mail" (envelope icon) using a **dummy placeholder address** — the reference's `sale@pcmarket.uz` is deliberately *not* reused.
+- [x] About-the-company paragraphs plus the ASUS/NVIDIA authorized-partner certificate image.
+- [x] "We are on the map" — a full-width embedded Google Map `<iframe>` (no API key) pinned to the Yunusabad address from Phase 12's footer.
+- [x] All copy localized under `Contacts.*` (RU/UZ/EN); verify the page in both themes, since the reference renders it light and dark.
+
+> **Deviation:** no authorized-partner certificate image was supplied, so the partner claim renders
+> as the localized line plus the real ASUS and NVIDIA logo files. The dummy mail address is
+> `info@example.com` on the IANA-reserved documentation domain, so it can never resolve.
 
 ### Phase 16 — Service Center page
 - [ ] Route `/service-center` (`ServiceCenter.razor`) with breadcrumb Home › Service Center and a two-column service-partner layout.
@@ -256,8 +303,8 @@ See the detailed plan in [mobile_app/plan.md](mobile_app/plan.md).
 - [ ] Card labels, "Read more", and dummy copy localized under `Stock.*` (RU/UZ/EN); cards reuse the existing surface/shadow tokens.
 
 ### Phase 18 — Reviews
-- [ ] Reviews nav entry opens the Telegram reviews channel `https://t.me/otzivPCmarket` ("Отзывы PC Market") in a new tab via `target="_blank" rel="noopener"` — **no in-app reviews page**; the home-page "Read all reviews" link from Phase 13 points at the same URL.
-- [ ] Localize the nav label under `Nav.Reviews` (RU/UZ/EN); the destination URL is a config constant, not a translated string.
+- [x] Reviews nav entry opens the Telegram reviews channel `https://t.me/otzivPCmarket` ("Отзывы PC Market") in a new tab via `target="_blank" rel="noopener"` — **no in-app reviews page**; the home-page "Read all reviews" link from Phase 13 points at the same URL.
+- [x] Localize the nav label under `Nav.Reviews` (RU/UZ/EN); the destination URL is a config constant, not a translated string.
 
 ### Phase 19 — PC Configurator (build-your-own-PC tool)
 - [ ] In-app configurator at `/configurator` — **not** a link to `configurator.pcmarket.uz`; every component, price, and image comes from this app's own catalog/API. It renders in its own slim chrome (logo, "Write to us"/"Call us"/"Working hours", a red progress rule under a centered "CONFIGURATOR" title) rather than the Phase 12 storefront shell.

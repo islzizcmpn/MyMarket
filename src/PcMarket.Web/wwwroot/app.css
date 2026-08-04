@@ -884,6 +884,127 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
 .logo-tile__monogram { font-size: 1.7rem; font-weight: 700; color: var(--muted); }
 .logo-tile__label { font-size: .74rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); text-align: center; }
 
+/* ---------- Payment and delivery page (Phase 14) ----------
+   Shares the Contacts page's shape: one statement heading, measure-capped prose, sections separated
+   by --space-section. Everything draws from the tokens at the top of this file. */
+.pay-intro { margin-bottom: var(--space-block); }
+.pay-heading { text-transform: uppercase; letter-spacing: .01em; max-width: 18ch; margin: 0; }
+
+/* Delivery band. No delivery photograph shipped with the project, so the band is the same lit
+   gradient the hero fallback uses — vignette over bloom over the charcoal-to-deep-red base — rather
+   than a stock image that would not match the rest of the art direction. */
+.pay-hero {
+    /* Deliberately not overflow:hidden — the badge below is meant to hang past the lower edge, and
+       clipping here would cut it in half. The gradient is a background on this element, so the
+       border-radius already contains it without needing to clip children. */
+    position: relative;
+    background:
+        var(--hero-vignette),
+        var(--hero-bloom),
+        linear-gradient(120deg, var(--hero-from) 0%, var(--hero-to) 100%);
+    color: #fff; border-radius: 22px;
+    /* Deep bottom padding is what gives the badge somewhere to sit without meeting the copy. */
+    padding: 64px 72px 132px;
+    margin-bottom: var(--space-section);
+}
+.pay-hero__copy { max-width: 54ch; }
+.pay-hero__copy p { margin: 0; font-size: 1.05rem; line-height: 1.8; opacity: .88; }
+
+/* The "0 sum" mark. Overlaps the band's lower edge, which is why the band pads out to 132px. */
+.pay-hero__badge {
+    position: absolute; left: 72px; bottom: -46px;
+    width: 132px; height: 132px; border-radius: 50%;
+    display: grid; place-content: center; text-align: center; gap: 2px;
+    background: var(--grad-accent); color: #fff;
+    box-shadow: var(--shadow-lift);
+    /* Ring in the page colour so the circle reads as sitting on top of the band, not cut into it. */
+    border: 6px solid var(--bg);
+}
+.pay-hero__badge-amount { font-size: 2.4rem; font-weight: 700; line-height: 1; letter-spacing: -.03em; }
+.pay-hero__badge-unit { font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .16em; }
+.pay-hero__free {
+    position: absolute; left: 236px; bottom: 26px; margin: 0; max-width: 22ch;
+    font-size: clamp(1.1rem, .8rem + 1vw, 1.6rem); font-weight: 700;
+    text-transform: uppercase; letter-spacing: .02em; line-height: 1.2;
+}
+
+.pay-block { max-width: 74ch; }
+/* Markers are the accent's only appearance in the prose — a short gradient dash per item. */
+.pay-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; }
+.pay-list li {
+    position: relative; padding-left: 34px;
+    font-size: 1.02rem; line-height: 1.8; color: var(--muted);
+}
+.pay-list li::before {
+    content: ""; position: absolute; left: 0; top: .82em; width: 18px; height: 2px;
+    border-radius: 2px; background: var(--grad-accent-hot);
+}
+
+.pay-notice {
+    position: relative; overflow: hidden;
+    display: flex; gap: 22px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 32px 36px; margin: 0 0 var(--space-section);
+    box-shadow: var(--shadow);
+}
+/* Accent edge as a pseudo-element rather than border-image, which cannot follow a border-radius. */
+.pay-notice::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--grad-accent-hot);
+}
+.pay-notice__icon {
+    flex: none; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--surface-2); border: 1px solid var(--line); color: var(--brand);
+}
+.pay-notice__body { min-width: 0; }
+.pay-notice__title {
+    margin: 0 0 .6rem; font-weight: 700; font-size: .8rem;
+    text-transform: uppercase; letter-spacing: .16em; color: var(--brand);
+}
+.pay-notice__body p:last-child { margin: 0; color: var(--muted); line-height: 1.8; max-width: 64ch; }
+
+/* Three nodes joined by a rule — the same construction as .steps and .contact-nodes. */
+.pay-nodes {
+    list-style: none; margin: 0; padding: 0; position: relative;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px;
+}
+.pay-nodes::before {
+    content: ""; position: absolute; left: 14%; right: 14%; top: 39px; height: 1px;
+    background: var(--line);
+}
+.pay-node { display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; position: relative; }
+.pay-node__icon {
+    width: 78px; height: 78px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--surface); border: 1px solid var(--line); color: var(--brand);
+    transition:
+        transform var(--lift-out) var(--lift-ease-return),
+        box-shadow var(--lift-out) var(--lift-ease-return),
+        border-color var(--lift-out) ease, background var(--lift-out) ease;
+}
+.pay-node:hover .pay-node__icon {
+    transform: translateY(var(--lift-distance));
+    box-shadow: var(--shadow-lift);
+    border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
+    background: var(--surface-2);
+    transition-duration: var(--lift-in); transition-timing-function: var(--lift-ease);
+}
+.pay-node__icon svg { width: 30px; height: 30px; }
+.pay-node__title { margin: 0; font-size: 1.02rem; text-transform: uppercase; letter-spacing: .06em; }
+.pay-node__body { margin: 0; font-size: .92rem; line-height: 1.75; max-width: 32ch; }
+
+/* Narrow screens drop the overlap entirely: badge and caption return to normal flow and stack under
+   the copy, which is more legible than trying to preserve an offset that has no room to sit in. */
+@media (max-width: 860px) {
+    .pay-hero { padding: 44px 28px 48px; }
+    .pay-hero__badge { position: static; width: 112px; height: 112px; margin: 32px 0 22px; }
+    .pay-hero__free { position: static; margin: 0; max-width: none; }
+    .pay-notice { flex-direction: column; gap: 18px; padding: 28px; }
+}
+@media (max-width: 760px) {
+    .pay-nodes { grid-template-columns: 1fr; gap: 36px; }
+    .pay-nodes::before { display: none; }
+}
+
 /* ---------- Contacts page (Phase 15) ----------
    Every value below comes from the tokens at the top of this file, so the page follows the
    dark/light switch and the Layer 2 lift timings without introducing anything of its own. */
