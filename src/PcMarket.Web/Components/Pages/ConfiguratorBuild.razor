@@ -1,0 +1,47 @@
+@page "/configurator/build"
+@using PcMarket.Contracts.Configurator
+@inject IStringLocalizer<SharedResource> L
+
+@* Phase 19, stage 3 lands here. This is deliberately a stub: its whole job this stage is to prove
+   the chooser's selection survives the navigation, so it echoes the chosen path back and offers a
+   way to change it. The route and the ?build= contract are real and will not move — stage 3
+   replaces the body, not the address. *@
+
+<PageTitle>@PageHeading</PageTitle>
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">@L["Nav.Home"]</a>
+    <span aria-hidden="true">›</span>
+    <a href="/configurator">@L["Nav.Configurator"]</a>
+    <span aria-hidden="true">›</span>
+    <span class="muted">@PathLabel</span>
+</nav>
+
+<section class="home-section cfg-stub" data-reveal="block">
+    <p class="cfg-stub__eyebrow">@L["Configurator.SelectedPath"]</p>
+    <h1 class="cfg-heading">@PathLabel</h1>
+
+    <p class="cfg-stub__body muted">@L["Configurator.PickerComingSoon"]</p>
+
+    <div class="cfg-stub__actions">
+        <a class="btn btn--ghost" href="/configurator">@L["Configurator.ChangeType"]</a>
+    </div>
+</section>
+
+@code {
+    [Parameter, SupplyParameterFromQuery(Name = ConfiguratorPaths.QueryKey)]
+    public string? Build { get; set; }
+
+    /// <summary>Unknown or absent token falls back to Intel, the default path, rather than erroring.</summary>
+    private ConfiguratorPath Path => ConfiguratorPaths.Parse(Build) ?? ConfiguratorPath.Intel;
+
+    private string PathLabel => Path switch
+    {
+        ConfiguratorPath.Intel => L["Configurator.IntelTitle"],
+        ConfiguratorPath.Amd => L["Configurator.AmdTitle"],
+        ConfiguratorPath.Ready => L["Configurator.ReadyTitle"],
+        _ => L["Nav.Configurator"]
+    };
+
+    private string PageHeading => $"{PathLabel} — {L["Nav.Configurator"]}";
+}

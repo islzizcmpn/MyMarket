@@ -1086,4 +1086,49 @@
   <data name="Stock.NotFoundHint" xml:space="preserve">
     <value>This promotion may have ended or the link may be out of date.</value>
   </data>
+
+  <!-- ===== PC Configurator (Phase 19) ===== -->
+  <data name="Configurator.PageTitle" xml:space="preserve">
+    <value>PC Configurator — PC Market</value>
+  </data>
+  <data name="Configurator.Heading" xml:space="preserve">
+    <value>Configurator</value>
+  </data>
+  <data name="Configurator.SelectType" xml:space="preserve">
+    <value>Select the type of configurator you need.</value>
+  </data>
+  <data name="Configurator.Recommended" xml:space="preserve">
+    <value>Recommended</value>
+  </data>
+  <data name="Configurator.Choose" xml:space="preserve">
+    <value>Choose</value>
+  </data>
+  <data name="Configurator.IntelTitle" xml:space="preserve">
+    <value>Build a PC with Intel</value>
+  </data>
+  <data name="Configurator.IntelBlurb" xml:space="preserve">
+    <value>Pick an Intel processor and a matching board, then build up from there. The widest choice of components.</value>
+  </data>
+  <data name="Configurator.AmdTitle" xml:space="preserve">
+    <value>Build a PC with AMD</value>
+  </data>
+  <data name="Configurator.AmdBlurb" xml:space="preserve">
+    <value>Start from an AMD Ryzen processor on the AM5 platform and assemble the rest of the machine around it.</value>
+  </data>
+  <data name="Configurator.ReadyTitle" xml:space="preserve">
+    <value>Ready-made assemblies</value>
+  </data>
+  <data name="Configurator.ReadyBlurb" xml:space="preserve">
+    <value>Choose a build we have already put together and tested, then adjust anything you want to change.</value>
+  </data>
+  <data name="Configurator.SelectedPath" xml:space="preserve">
+    <value>Selected configurator</value>
+  </data>
+  <data name="Configurator.ChangeType" xml:space="preserve">
+    <value>Change configurator type</value>
+  </data>
+  <data name="Configurator.PickerComingSoon" xml:space="preserve">
+    <value>The component picker is being built and lands in the next stage. Your choice above has been carried through and will open the right parts list.</value>
+    <comment>Stage-2 stub copy; removed when the picker ships.</comment>
+  </data>
 </root>

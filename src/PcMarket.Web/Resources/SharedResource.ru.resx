@@ -1043,4 +1043,48 @@
   <data name="Stock.NotFoundHint" xml:space="preserve">
     <value>Возможно, акция завершилась или ссылка устарела.</value>
   </data>
+
+  <!-- ===== Конфигуратор ПК (Phase 19) ===== -->
+  <data name="Configurator.PageTitle" xml:space="preserve">
+    <value>Конфигуратор ПК — PC Market</value>
+  </data>
+  <data name="Configurator.Heading" xml:space="preserve">
+    <value>Конфигуратор</value>
+  </data>
+  <data name="Configurator.SelectType" xml:space="preserve">
+    <value>Выберите тип конфигуратора, который вам нужен.</value>
+  </data>
+  <data name="Configurator.Recommended" xml:space="preserve">
+    <value>Рекомендуем</value>
+  </data>
+  <data name="Configurator.Choose" xml:space="preserve">
+    <value>Выбрать</value>
+  </data>
+  <data name="Configurator.IntelTitle" xml:space="preserve">
+    <value>Собрать ПК на Intel</value>
+  </data>
+  <data name="Configurator.IntelBlurb" xml:space="preserve">
+    <value>Выберите процессор Intel и подходящую материнскую плату, а затем соберите остальное. Самый широкий выбор комплектующих.</value>
+  </data>
+  <data name="Configurator.AmdTitle" xml:space="preserve">
+    <value>Собрать ПК на AMD</value>
+  </data>
+  <data name="Configurator.AmdBlurb" xml:space="preserve">
+    <value>Начните с процессора AMD Ryzen на платформе AM5 и соберите вокруг него всю систему.</value>
+  </data>
+  <data name="Configurator.ReadyTitle" xml:space="preserve">
+    <value>Готовые сборки</value>
+  </data>
+  <data name="Configurator.ReadyBlurb" xml:space="preserve">
+    <value>Выберите готовую сборку, которую мы уже собрали и протестировали, и измените в ней всё, что захотите.</value>
+  </data>
+  <data name="Configurator.SelectedPath" xml:space="preserve">
+    <value>Выбранный конфигуратор</value>
+  </data>
+  <data name="Configurator.ChangeType" xml:space="preserve">
+    <value>Изменить тип конфигуратора</value>
+  </data>
+  <data name="Configurator.PickerComingSoon" xml:space="preserve">
+    <value>Подбор комплектующих находится в разработке и появится на следующем этапе. Ваш выбор сохранён и откроет нужный список компонентов.</value>
+  </data>
 </root>

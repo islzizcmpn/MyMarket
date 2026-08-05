@@ -1,8 +1,111 @@
 @page "/configurator"
+@using PcMarket.Contracts.Configurator
 @inject IStringLocalizer<SharedResource> L
+@inject HomeImages Images
+@inject NavigationManager Nav
 
-@* Placeholder — the real configurator is Phase 19. The Phase 13 home promo links here with a
-   ?build=intel / ?build=amd query, which the real page will pick up. *@
-<PageTitle>@L["Nav.Configurator"] — PCMarket</PageTitle>
+@* Phase 19, stage 2 — the entry screen. Renders inside the Phase 12 storefront shell; the slim
+   configurator chrome the plan describes belongs with the picker, not here, so this stage keeps the
+   shell intact as instructed.
 
-<ComingSoon Title="@L["Nav.Configurator"]" Phase="19" />
+   A ?build= token means the path is already chosen — the Phase 13 home promo links straight to
+   /configurator?build=intel — so those deep links skip the chooser and land on the picker rather
+   than asking a question the shopper has already answered. *@
+
+<PageTitle>@L["Configurator.PageTitle"]</PageTitle>
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">@L["Nav.Home"]</a>
+    <span aria-hidden="true">›</span>
+    <span class="muted">@L["Nav.Configurator"]</span>
+</nav>
+
+<section class="home-section cfg-intro" data-reveal="block">
+    <h1 class="cfg-heading">@L["Configurator.Heading"]</h1>
+    <p class="cfg-intro__body muted">@L["Configurator.SelectType"]</p>
+</section>
+
+@* Wide image-left / copy-right cards, the reference's own layout. Each is a real anchor so the
+   choice survives middle-click and "open in new tab" — a button driving component state would lose
+   both, and the URL *is* the selection here. *@
+<ul class="cfg-paths" data-reveal="stagger">
+    @foreach (var option in Options)
+    {
+        <li class="cfg-path @(option.IsPrimary ? "cfg-path--primary" : null)">
+            <a class="cfg-path__link" href="@PickerHref(option.Path)">
+                <span class="cfg-path__media">
+                    @if (Images.First(option.ImageCandidates) is { } image)
+                    {
+                        <img src="@image" alt="" loading="lazy" decoding="async" />
+                    }
+                </span>
+
+                <span class="cfg-path__body">
+                    @if (option.IsPrimary)
+                    {
+                        <span class="cfg-path__badge">@L["Configurator.Recommended"]</span>
+                    }
+
+                    <span class="cfg-path__title">@option.Title</span>
+                    <span class="cfg-path__blurb">@option.Blurb</span>
+
+                    <span class="cfg-path__cta">
+                        @L["Configurator.Choose"]
+                        <span aria-hidden="true">›</span>
+                    </span>
+                </span>
+            </a>
+        </li>
+    }
+</ul>
+
+@code {
+    /// <summary>
+    /// A chosen path arriving by query string. Bound rather than parsed by hand so Blazor re-reads
+    /// it on every navigation, including one triggered from this page itself.
+    /// </summary>
+    [Parameter, SupplyParameterFromQuery(Name = ConfiguratorPaths.QueryKey)]
+    public string? Build { get; set; }
+
+    private sealed record PathOption(
+        ConfiguratorPath Path,
+        string Title,
+        string Blurb,
+        string[] ImageCandidates,
+        bool IsPrimary);
+
+    // Intel leads and carries the badge, matching the reference's default. Each slot names its
+    // preferred photograph plus stand-ins, so HomeImages can fall back rather than emit a broken
+    // image if the art set changes; all three come from the existing wwwroot/images/home set.
+    private List<PathOption> Options =>
+    [
+        new(ConfiguratorPath.Intel,
+            L["Configurator.IntelTitle"],
+            L["Configurator.IntelBlurb"],
+            ["feat-mobo-1.jpg", "promo-pc.jpg", "hero-desk.jpg"],
+            IsPrimary: true),
+        new(ConfiguratorPath.Amd,
+            L["Configurator.AmdTitle"],
+            L["Configurator.AmdBlurb"],
+            ["feat-mobo-6.jpg", "feat-mobo-2.jpg", "promo-gaming.jpg"],
+            IsPrimary: false),
+        new(ConfiguratorPath.Ready,
+            L["Configurator.ReadyTitle"],
+            L["Configurator.ReadyBlurb"],
+            ["feat-case-1.jpg", "promo-setup.jpg", "hero-gaming.jpg"],
+            IsPrimary: false),
+    ];
+
+    private static string PickerHref(ConfiguratorPath path) =>
+        $"/configurator/build?{ConfiguratorPaths.QueryKey}={ConfiguratorPaths.ToToken(path)}";
+
+    // A recognised ?build= token is a decision already made, so forward it. An unrecognised one
+    // falls through to the chooser instead of erroring — Parse returns null for anything unknown.
+    protected override void OnParametersSet()
+    {
+        if (ConfiguratorPaths.Parse(Build) is { } chosen)
+        {
+            Nav.NavigateTo(PickerHref(chosen), replace: true);
+        }
+    }
+}

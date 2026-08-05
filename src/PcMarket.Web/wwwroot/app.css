@@ -1321,6 +1321,131 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
     .stock-article__crumb { max-width: 18ch; }
 }
 
+/* ---------- PC Configurator — entry screen (Phase 19, stage 2) ----------
+   Wide image-left / copy-right path cards. They carry the Layer 2 treatment the product cards use —
+   ambient glow beneath the content, vignette over the photo, lift on the same four tokens — so a
+   path card and a product card read as the same object class. No literal colours, so both themes
+   and the reduced-motion block follow from the tokens. */
+.cfg-intro { margin-bottom: var(--space-block); }
+.cfg-heading { text-transform: uppercase; letter-spacing: .04em; margin: 0; }
+.cfg-intro__body { max-width: 52ch; margin: 22px 0 0; font-size: 1.06rem; line-height: 1.8; }
+
+.cfg-paths {
+    list-style: none; margin: 0 0 var(--space-section); padding: 0;
+    display: grid; gap: 24px;
+}
+.cfg-path {
+    position: relative; overflow: hidden; isolation: isolate;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition:
+        box-shadow var(--lift-out) var(--lift-ease-return),
+        transform var(--lift-out) var(--lift-ease-return),
+        background var(--lift-out) ease,
+        border-color var(--lift-out) ease;
+}
+/* Ambient glow under the row, weighted to the left where the photo sits. */
+.cfg-path::before {
+    content: ""; position: absolute; inset: 0; z-index: 0;
+    pointer-events: none; background: var(--glow-media);
+    opacity: .26; transform: scale(.9) translateX(-14%);
+    transition: opacity var(--lift-out) ease, transform var(--lift-out) var(--lift-ease-return);
+}
+/* Half the product card's rise: these are full-width rows, and a 16px lift on a band this wide
+   reads as the page shifting rather than a card picking itself up. */
+.cfg-path:hover,
+.cfg-path:focus-within {
+    transform: translateY(calc(var(--lift-distance) / 2));
+    background: var(--surface-2);
+    border-color: color-mix(in srgb, var(--brand) 34%, var(--line));
+    box-shadow: var(--shadow-lift);
+    transition-duration: var(--lift-in); transition-timing-function: var(--lift-ease);
+}
+.cfg-path:hover::before,
+.cfg-path:focus-within::before {
+    opacity: 1; transform: scale(1.06) translateX(-14%);
+    transition-duration: var(--lift-in); transition-timing-function: var(--lift-ease);
+}
+
+/* The default path. A permanent accent edge and a warmer resting border mark it out before any
+   hover happens — the same pseudo-element trick .pay-notice and .svc-centre use, since border-image
+   cannot follow a border-radius. */
+.cfg-path--primary { border-color: color-mix(in srgb, var(--brand) 30%, var(--line)); }
+.cfg-path--primary::after {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; z-index: 3;
+    background: var(--grad-accent-hot);
+}
+
+.cfg-path__link {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: minmax(0, 320px) 1fr; align-items: stretch;
+    color: var(--ink); min-height: 208px;
+}
+.cfg-path__link:hover { text-decoration: none; }
+
+.cfg-path__media {
+    position: relative; overflow: hidden;
+    background: color-mix(in srgb, var(--media-bg) 55%, transparent);
+}
+.cfg-path__media::after {
+    content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    background: var(--vignette-media); transition: opacity var(--lift-out) ease;
+}
+.cfg-path:hover .cfg-path__media::after,
+.cfg-path:focus-within .cfg-path__media::after { opacity: .5; transition-duration: var(--lift-in); }
+.cfg-path__media img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    transition: transform var(--lift-out) var(--lift-ease-return);
+}
+.cfg-path:hover .cfg-path__media img,
+.cfg-path:focus-within .cfg-path__media img {
+    transform: scale(1.03);
+    transition-duration: var(--lift-in); transition-timing-function: var(--lift-ease);
+}
+
+.cfg-path__body {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 12px;
+    padding: 36px 40px; justify-content: center;
+}
+.cfg-path__badge {
+    display: inline-block; padding: 5px 12px; border-radius: 999px;
+    background: var(--grad-accent); color: #fff;
+    font-size: .64rem; font-weight: 700; text-transform: uppercase; letter-spacing: .16em;
+}
+.cfg-path__title {
+    font-size: clamp(1.2rem, 1rem + .8vw, 1.65rem); font-weight: 700; line-height: 1.25;
+    letter-spacing: -.01em; transition: color .2s;
+}
+.cfg-path:hover .cfg-path__title,
+.cfg-path:focus-within .cfg-path__title { color: var(--brand); }
+.cfg-path__blurb { max-width: 58ch; font-size: .96rem; line-height: 1.75; color: var(--muted); }
+/* The affordance: a text CTA whose chevron slides out as the row lifts, so the whole card reads as
+   one clickable thing without needing a button inside an anchor. */
+.cfg-path__cta {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 6px;
+    font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .14em;
+    color: var(--brand); transition: gap .25s;
+}
+.cfg-path:hover .cfg-path__cta,
+.cfg-path:focus-within .cfg-path__cta { gap: 15px; }
+
+/* ---------- Picker stub (replaced in stage 3) ---------- */
+.cfg-stub { max-width: 62ch; }
+.cfg-stub__eyebrow {
+    margin: 0 0 12px;
+    font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .16em;
+    color: var(--brand);
+}
+.cfg-stub__body { margin: 24px 0 0; font-size: 1.02rem; line-height: 1.8; }
+.cfg-stub__actions { margin-top: 32px; }
+
+@media (max-width: 760px) {
+    /* Photo over copy rather than beside it — a 320px image column leaves the text nowhere to go. */
+    .cfg-path__link { grid-template-columns: 1fr; min-height: 0; }
+    .cfg-path__media { aspect-ratio: 16 / 9; }
+    .cfg-path__body { padding: 26px 24px 30px; }
+}
+
 /* ---------- Tables / lists ---------- */
 .table { width: 100%; border-collapse: collapse; }
 .table th, .table td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--line); font-size: .92rem; }
@@ -1456,6 +1581,18 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
     .stock-card:hover::before,
     .stock-card:focus-within::before { transform: scale(.84) translateY(-8%); }
     .stock-article__back:hover { gap: 9px; }
+
+    /* Configurator path cards (Phase 19 stage 2) share that construction — same treatment: drop the
+       movement, keep the colour, glow and shadow that carry the hover state. */
+    .cfg-path:hover,
+    .cfg-path:focus-within { transform: none; }
+    .cfg-path:hover .cfg-path__media img,
+    .cfg-path:focus-within .cfg-path__media img { transform: none; }
+    .cfg-path::before,
+    .cfg-path:hover::before,
+    .cfg-path:focus-within::before { transform: scale(.9) translateX(-14%); }
+    .cfg-path:hover .cfg-path__cta,
+    .cfg-path:focus-within .cfg-path__cta { gap: 8px; }
 
     /* reveal.js refuses to arm under this preference, so these never normally apply. They are the
        safety net for the one case it cannot catch: the preference being switched on after the page

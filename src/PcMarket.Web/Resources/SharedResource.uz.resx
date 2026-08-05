@@ -1043,4 +1043,48 @@
   <data name="Stock.NotFoundHint" xml:space="preserve">
     <value>Ehtimol, aksiya tugagan yoki havola eskirgan.</value>
   </data>
+
+  <!-- ===== Kompyuter konfiguratori (Phase 19) ===== -->
+  <data name="Configurator.PageTitle" xml:space="preserve">
+    <value>Kompyuter konfiguratori — PC Market</value>
+  </data>
+  <data name="Configurator.Heading" xml:space="preserve">
+    <value>Konfigurator</value>
+  </data>
+  <data name="Configurator.SelectType" xml:space="preserve">
+    <value>Sizga kerakli konfigurator turini tanlang.</value>
+  </data>
+  <data name="Configurator.Recommended" xml:space="preserve">
+    <value>Tavsiya etamiz</value>
+  </data>
+  <data name="Configurator.Choose" xml:space="preserve">
+    <value>Tanlash</value>
+  </data>
+  <data name="Configurator.IntelTitle" xml:space="preserve">
+    <value>Intel asosida PK yigʻish</value>
+  </data>
+  <data name="Configurator.IntelBlurb" xml:space="preserve">
+    <value>Intel protsessori va unga mos ona platani tanlang, soʻng qolgan qismini yigʻing. Komplektlovchilarning eng keng tanlovi.</value>
+  </data>
+  <data name="Configurator.AmdTitle" xml:space="preserve">
+    <value>AMD asosida PK yigʻish</value>
+  </data>
+  <data name="Configurator.AmdBlurb" xml:space="preserve">
+    <value>AM5 platformasidagi AMD Ryzen protsessoridan boshlang va uning atrofida butun tizimni yigʻing.</value>
+  </data>
+  <data name="Configurator.ReadyTitle" xml:space="preserve">
+    <value>Tayyor yigʻmalar</value>
+  </data>
+  <data name="Configurator.ReadyBlurb" xml:space="preserve">
+    <value>Biz allaqachon yigʻgan va sinovdan oʻtkazgan tayyor yigʻmani tanlang va undagi istagan narsani oʻzgartiring.</value>
+  </data>
+  <data name="Configurator.SelectedPath" xml:space="preserve">
+    <value>Tanlangan konfigurator</value>
+  </data>
+  <data name="Configurator.ChangeType" xml:space="preserve">
+    <value>Konfigurator turini oʻzgartirish</value>
+  </data>
+  <data name="Configurator.PickerComingSoon" xml:space="preserve">
+    <value>Komplektlovchilarni tanlash boʻlimi ishlab chiqilmoqda va keyingi bosqichda paydo boʻladi. Sizning tanlovingiz saqlandi va kerakli komponentlar roʻyxatini ochadi.</value>
+  </data>
 </root>
