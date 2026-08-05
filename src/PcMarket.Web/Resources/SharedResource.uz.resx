@@ -1084,7 +1084,75 @@
   <data name="Configurator.ChangeType" xml:space="preserve">
     <value>Konfigurator turini oʻzgartirish</value>
   </data>
-  <data name="Configurator.PickerComingSoon" xml:space="preserve">
-    <value>Komplektlovchilarni tanlash boʻlimi ishlab chiqilmoqda va keyingi bosqichda paydo boʻladi. Sizning tanlovingiz saqlandi va kerakli komponentlar roʻyxatini ochadi.</value>
+  <data name="Configurator.Categories" xml:space="preserve">
+    <value>Komplektlovchilar</value>
+  </data>
+  <data name="Configurator.OrderHint" xml:space="preserve">
+    <value>Raqamlar tavsiya etilgan tartibni koʻrsatadi — toifalarni istalgan ketma-ketlikda tanlashingiz mumkin.</value>
+  </data>
+  <data name="Configurator.YourAssembly" xml:space="preserve">
+    <value>Sizning yigʻmangiz</value>
+  </data>
+  <data name="Configurator.AssemblyEmpty" xml:space="preserve">
+    <value>Hozircha hech narsa tanlanmagan. Yigʻishni boshlash uchun komplektlovchini tanlang.</value>
+  </data>
+  <data name="Configurator.Total" xml:space="preserve">
+    <value>Umumiy summa</value>
+  </data>
+  <data name="Configurator.SeeBuild" xml:space="preserve">
+    <value>Yigʻmani koʻrish</value>
+  </data>
+  <data name="Configurator.Select" xml:space="preserve">
+    <value>Tanlash</value>
+  </data>
+  <data name="Configurator.Selected" xml:space="preserve">
+    <value>Tanlandi</value>
+  </data>
+  <data name="Configurator.Remove" xml:space="preserve">
+    <value>Olib tashlash</value>
+  </data>
+  <data name="Configurator.PartCount" xml:space="preserve">
+    <value>{0} ta variant</value>
+  </data>
+  <data name="Configurator.NoParts" xml:space="preserve">
+    <value>Bu toifada tanlangan platforma uchun hozircha komplektlovchilar yoʻq.</value>
+  </data>
+  <data name="Configurator.Loading" xml:space="preserve">
+    <value>Komplektlovchilar yuklanmoqda…</value>
+  </data>
+  <data name="Configurator.LoadFailed" xml:space="preserve">
+    <value>Komplektlovchilar roʻyxatini yuklab boʻlmadi. Iltimos, qaytadan urinib koʻring.</value>
+  </data>
+  <data name="Configurator.Retry" xml:space="preserve">
+    <value>Qayta urinish</value>
+  </data>
+  <data name="Configurator.SummaryComingSoon" xml:space="preserve">
+    <value>Yakuniy yigʻma sahifasi ishlab chiqilmoqda va keyingi bosqichda paydo boʻladi. Tanlovingiz shu ekranda saqlanib turadi.</value>
+  </data>
+
+  <!-- Komplektlovchilar toifalari nomlari. -->
+  <data name="Configurator.CatMotherboard" xml:space="preserve">
+    <value>Ona plata</value>
+  </data>
+  <data name="Configurator.CatCpu" xml:space="preserve">
+    <value>Protsessor</value>
+  </data>
+  <data name="Configurator.CatCooler" xml:space="preserve">
+    <value>Sovutish tizimi</value>
+  </data>
+  <data name="Configurator.CatRam" xml:space="preserve">
+    <value>Operativ xotira</value>
+  </data>
+  <data name="Configurator.CatStorage" xml:space="preserve">
+    <value>Saqlash qurilmalari</value>
+  </data>
+  <data name="Configurator.CatGpu" xml:space="preserve">
+    <value>Videokarta</value>
+  </data>
+  <data name="Configurator.CatPsu" xml:space="preserve">
+    <value>Quvvat bloki</value>
+  </data>
+  <data name="Configurator.CatCase" xml:space="preserve">
+    <value>Korpus</value>
   </data>
 </root>

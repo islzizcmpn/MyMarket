@@ -1084,7 +1084,75 @@
   <data name="Configurator.ChangeType" xml:space="preserve">
     <value>Изменить тип конфигуратора</value>
   </data>
-  <data name="Configurator.PickerComingSoon" xml:space="preserve">
-    <value>Подбор комплектующих находится в разработке и появится на следующем этапе. Ваш выбор сохранён и откроет нужный список компонентов.</value>
+  <data name="Configurator.Categories" xml:space="preserve">
+    <value>Комплектующие</value>
+  </data>
+  <data name="Configurator.OrderHint" xml:space="preserve">
+    <value>Номера показывают рекомендуемый порядок — выбирать категории можно в любой последовательности.</value>
+  </data>
+  <data name="Configurator.YourAssembly" xml:space="preserve">
+    <value>Ваша сборка</value>
+  </data>
+  <data name="Configurator.AssemblyEmpty" xml:space="preserve">
+    <value>Пока ничего не выбрано. Выберите комплектующее, чтобы начать сборку.</value>
+  </data>
+  <data name="Configurator.Total" xml:space="preserve">
+    <value>Итоговая сумма</value>
+  </data>
+  <data name="Configurator.SeeBuild" xml:space="preserve">
+    <value>Посмотреть сборку</value>
+  </data>
+  <data name="Configurator.Select" xml:space="preserve">
+    <value>Выбрать</value>
+  </data>
+  <data name="Configurator.Selected" xml:space="preserve">
+    <value>Выбрано</value>
+  </data>
+  <data name="Configurator.Remove" xml:space="preserve">
+    <value>Убрать</value>
+  </data>
+  <data name="Configurator.PartCount" xml:space="preserve">
+    <value>{0} вариантов</value>
+  </data>
+  <data name="Configurator.NoParts" xml:space="preserve">
+    <value>В этой категории пока нет комплектующих для выбранной платформы.</value>
+  </data>
+  <data name="Configurator.Loading" xml:space="preserve">
+    <value>Загружаем комплектующие…</value>
+  </data>
+  <data name="Configurator.LoadFailed" xml:space="preserve">
+    <value>Не удалось загрузить список комплектующих. Пожалуйста, попробуйте ещё раз.</value>
+  </data>
+  <data name="Configurator.Retry" xml:space="preserve">
+    <value>Повторить</value>
+  </data>
+  <data name="Configurator.SummaryComingSoon" xml:space="preserve">
+    <value>Страница итоговой сборки находится в разработке и появится на следующем этапе. Ваш выбор сохраняется на этом экране.</value>
+  </data>
+
+  <!-- Названия категорий комплектующих. -->
+  <data name="Configurator.CatMotherboard" xml:space="preserve">
+    <value>Материнская плата</value>
+  </data>
+  <data name="Configurator.CatCpu" xml:space="preserve">
+    <value>Процессор</value>
+  </data>
+  <data name="Configurator.CatCooler" xml:space="preserve">
+    <value>Система охлаждения</value>
+  </data>
+  <data name="Configurator.CatRam" xml:space="preserve">
+    <value>Оперативная память</value>
+  </data>
+  <data name="Configurator.CatStorage" xml:space="preserve">
+    <value>Накопители</value>
+  </data>
+  <data name="Configurator.CatGpu" xml:space="preserve">
+    <value>Видеокарта</value>
+  </data>
+  <data name="Configurator.CatPsu" xml:space="preserve">
+    <value>Блок питания</value>
+  </data>
+  <data name="Configurator.CatCase" xml:space="preserve">
+    <value>Корпус</value>
   </data>
 </root>

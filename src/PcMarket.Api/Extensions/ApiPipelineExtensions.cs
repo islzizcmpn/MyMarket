@@ -79,6 +79,7 @@ public static class ApiPipelineExtensions
         app.MapAdminEndpoints();
         app.MapMediaEndpoints();
         app.MapContentEndpoints();
+        app.MapConfiguratorEndpoints();
         app.MapBotEndpoints();
 
         app.MapHub<OrderStatusHub>("/hubs/orders");

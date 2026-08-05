@@ -1,11 +1,15 @@
 @page "/configurator/build"
 @using PcMarket.Contracts.Configurator
 @inject IStringLocalizer<SharedResource> L
+@inject ConfiguratorApiClient Api
+@inject NavigationManager Nav
 
-@* Phase 19, stage 3 lands here. This is deliberately a stub: its whole job this stage is to prove
-   the chooser's selection survives the navigation, so it echoes the chosen path back and offers a
-   way to change it. The route and the ?build= contract are real and will not move — stage 3
-   replaces the body, not the address. *@
+@* Phase 19, stage 3 — the three-column picker. Selection is free: nothing here blocks an odd
+   pairing, and the compatibility rules built in stage 1 are deliberately *not* wired in yet.
+
+   Renders inside the Phase 12 shell, as the earlier stages do. The slim configurator chrome the
+   plan describes is a later change and would affect the entry screen too, so it is not smuggled in
+   here. *@
 
 <PageTitle>@PageHeading</PageTitle>
 
@@ -17,23 +21,364 @@
     <span class="muted">@PathLabel</span>
 </nav>
 
-<section class="home-section cfg-stub" data-reveal="block">
-    <p class="cfg-stub__eyebrow">@L["Configurator.SelectedPath"]</p>
-    <h1 class="cfg-heading">@PathLabel</h1>
-
-    <p class="cfg-stub__body muted">@L["Configurator.PickerComingSoon"]</p>
-
-    <div class="cfg-stub__actions">
-        <a class="btn btn--ghost" href="/configurator">@L["Configurator.ChangeType"]</a>
+<section class="cfg-build__head" data-reveal="block">
+    <div>
+        <p class="cfg-build__eyebrow">@L["Configurator.SelectedPath"]</p>
+        <h1 class="cfg-heading">@PathLabel</h1>
     </div>
+    <a class="btn btn--ghost" href="/configurator">@L["Configurator.ChangeType"]</a>
 </section>
+
+@if (_loading)
+{
+    <div class="spinner" role="status" aria-label="@L["Configurator.Loading"]"></div>
+}
+else if (_error is not null)
+{
+    <div class="card pad cfg-build__error">
+        <p>@L["Configurator.LoadFailed"]</p>
+        <button class="btn btn--primary" type="button" @onclick="LoadAsync">@L["Configurator.Retry"]</button>
+    </div>
+}
+else if (IsReadyMade)
+{
+    @* The Ready-made path is a list of finished builds, not a part picker — it gets its own view
+       rather than an empty three-column shell. *@
+    <ul class="cfg-bundles" data-reveal="stagger">
+        @foreach (var bundle in _catalog.Bundles)
+        {
+            <li class="cfg-bundle @(_selectedBundleId == bundle.Id ? "is-selected" : null)">
+                <div class="cfg-bundle__body">
+                    <h2 class="cfg-bundle__title">@bundle.Name</h2>
+                    <p class="cfg-bundle__blurb">@bundle.Description</p>
+                    <p class="cfg-bundle__parts muted">@BundleSummary(bundle)</p>
+                </div>
+                <div class="cfg-bundle__aside">
+                    <span class="cfg-bundle__price">@Format.Money(bundle.TotalPrice)</span>
+                    <button class="btn @(_selectedBundleId == bundle.Id ? "btn--ghost" : "btn--primary")"
+                            type="button" @onclick="() => SelectBundle(bundle)">
+                        @(_selectedBundleId == bundle.Id ? L["Configurator.Selected"] : L["Configurator.Select"])
+                    </button>
+                </div>
+            </li>
+        }
+    </ul>
+}
+
+@if (ShowPicker)
+{
+    <div class="cfg-build">
+        @* ---- Left: category menu ---- *@
+        <nav class="cfg-menu" aria-label="@L["Configurator.Categories"]">
+            <p class="cfg-menu__title">@L["Configurator.Categories"]</p>
+
+            <ol class="cfg-menu__list">
+                @foreach (var (category, index) in CategoryOrder.Select((c, i) => (c, i)))
+                {
+                    var chosen = _selection.GetValueOrDefault(category);
+                    <li>
+                        <button type="button"
+                                class="cfg-menu__item @(category == _activeCategory ? "is-active" : null) @(chosen is not null ? "is-filled" : null)"
+                                @onclick="() => _activeCategory = category">
+                            @* The step number is the suggested order, not a gate — every category
+                               stays clickable whatever else has been picked. *@
+                            <span class="cfg-menu__step" aria-hidden="true">@(index + 1)</span>
+                            <span class="cfg-menu__label">
+                                <span class="cfg-menu__name">@CategoryName(category)</span>
+                                @if (chosen is not null)
+                                {
+                                    <span class="cfg-menu__chosen">@chosen.Name</span>
+                                }
+                            </span>
+                            @if (chosen is not null)
+                            {
+                                <span class="cfg-menu__tick" aria-hidden="true">✓</span>
+                            }
+                        </button>
+                    </li>
+                }
+            </ol>
+
+            <p class="cfg-menu__hint muted">@L["Configurator.OrderHint"]</p>
+        </nav>
+
+        @* ---- Middle: parts in the active category ---- *@
+        <section class="cfg-list" aria-label="@CategoryName(_activeCategory)">
+            <header class="cfg-list__head">
+                <h2 class="cfg-list__title">@CategoryName(_activeCategory)</h2>
+                <span class="cfg-list__count muted">@L["Configurator.PartCount", VisibleParts.Count]</span>
+            </header>
+
+            @if (VisibleParts.Count == 0)
+            {
+                <p class="muted cfg-list__empty">@L["Configurator.NoParts"]</p>
+            }
+            else
+            {
+                <ul class="cfg-parts">
+                    @foreach (var part in VisibleParts)
+                    {
+                        var isSelected = _selection.GetValueOrDefault(_activeCategory)?.Id == part.Id;
+                        <li class="cfg-part @(isSelected ? "is-selected" : null)">
+                            <span class="cfg-part__media">
+                                @if (part.ImageUrl is { Length: > 0 } image)
+                                {
+                                    <img src="@image" alt="" loading="lazy" decoding="async" />
+                                }
+                            </span>
+
+                            <span class="cfg-part__body">
+                                <span class="cfg-part__name">@part.Name</span>
+                                @if (SpecLine(part) is { Length: > 0 } spec)
+                                {
+                                    <span class="cfg-part__spec muted">@spec</span>
+                                }
+                            </span>
+
+                            <span class="cfg-part__aside">
+                                <span class="cfg-part__price">@Format.Money(part.Price)</span>
+                                <button type="button"
+                                        class="btn @(isSelected ? "btn--ghost" : "btn--primary") cfg-part__btn"
+                                        @onclick="() => Toggle(part)">
+                                    @(isSelected ? L["Configurator.Remove"] : L["Configurator.Select"])
+                                </button>
+                            </span>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+
+        @* ---- Right: the running build ---- *@
+        <aside class="cfg-summary" aria-label="@L["Configurator.YourAssembly"]">
+            <div class="cfg-summary__inner">
+                <p class="cfg-summary__platform">@PathLabel</p>
+                <h2 class="cfg-summary__title">@L["Configurator.YourAssembly"]</h2>
+
+                @if (_selection.Count == 0)
+                {
+                    <p class="cfg-summary__empty muted">@L["Configurator.AssemblyEmpty"]</p>
+                }
+                else
+                {
+                    <ul class="cfg-summary__list">
+                        @foreach (var category in CategoryOrder.Where(_selection.ContainsKey))
+                        {
+                            var part = _selection[category];
+                            <li class="cfg-summary__row">
+                                <button type="button" class="cfg-summary__remove"
+                                        title="@L["Configurator.Remove"]"
+                                        aria-label="@L["Configurator.Remove"]: @part.Name"
+                                        @onclick="() => Remove(category)">×</button>
+                                <span class="cfg-summary__cell">
+                                    <span class="cfg-summary__category">@CategoryName(category)</span>
+                                    <span class="cfg-summary__part">@part.Name</span>
+                                </span>
+                                <span class="cfg-summary__price">@Format.Money(part.Price)</span>
+                            </li>
+                        }
+                    </ul>
+                }
+
+                <p class="cfg-summary__total">
+                    <span>@L["Configurator.Total"]</span>
+                    <strong>@Format.Money(Total)</strong>
+                </p>
+
+                <button class="btn btn--primary btn--block" type="button"
+                        disabled="@(_selection.Count == 0)" @onclick="SeeBuild">
+                    @L["Configurator.SeeBuild"]
+                </button>
+
+                @if (_seeBuildNote)
+                {
+                    <p class="cfg-summary__note muted">@L["Configurator.SummaryComingSoon"]</p>
+                }
+            </div>
+        </aside>
+    </div>
+}
 
 @code {
     [Parameter, SupplyParameterFromQuery(Name = ConfiguratorPaths.QueryKey)]
     public string? Build { get; set; }
 
-    /// <summary>Unknown or absent token falls back to Intel, the default path, rather than erroring.</summary>
+    /// <summary>Suggested build order, and the order the menu and the summary both read in.</summary>
+    private static readonly ConfiguratorCategory[] CategoryOrder =
+    [
+        ConfiguratorCategory.Motherboard,
+        ConfiguratorCategory.Cpu,
+        ConfiguratorCategory.Cooler,
+        ConfiguratorCategory.Ram,
+        ConfiguratorCategory.Storage,
+        ConfiguratorCategory.Gpu,
+        ConfiguratorCategory.Psu,
+        ConfiguratorCategory.Case,
+    ];
+
+    private ConfiguratorCatalogDto _catalog = new([], []);
+    private bool _loading = true;
+    private string? _error;
+
+    private ConfiguratorCategory _activeCategory = ConfiguratorCategory.Motherboard;
+
+    // One part per category: re-selecting in a category replaces rather than appends, which is what
+    // "a build" means here. A dictionary keyed by category is what enforces that.
+    private readonly Dictionary<ConfiguratorCategory, ConfiguratorComponentDto> _selection = [];
+
+    private string? _selectedBundleId;
+    private bool _seeBuildNote;
+
     private ConfiguratorPath Path => ConfiguratorPaths.Parse(Build) ?? ConfiguratorPath.Intel;
+
+    private bool IsReadyMade => Path == ConfiguratorPath.Ready;
+
+    /// <summary>
+    /// The Intel and AMD paths open straight into the picker. The Ready-made path shows its bundle
+    /// list first and only reveals the picker once a bundle is loaded — at which point the picker is
+    /// how you adjust it.
+    /// </summary>
+    private bool ShowPicker =>
+        !_loading && _error is null && (!IsReadyMade || _selectedBundleId is not null);
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _error = null;
+
+        try
+        {
+            _catalog = await Api.GetCatalogAsync();
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    /// <summary>
+    /// Parts in the active category, narrowed to the chosen platform. Vendor-neutral parts (cases,
+    /// PSUs, storage, most coolers) appear on both paths, which is why the filter is an OR rather
+    /// than an equality test.
+    /// </summary>
+    private List<ConfiguratorComponentDto> VisibleParts =>
+    [
+        .. _catalog.Components.Where(part =>
+            part.Category == _activeCategory
+            && (IsReadyMade
+                || part.Platform == ConfiguratorPlatform.Either
+                || part.Platform == PlatformFor(Path)))
+    ];
+
+    private decimal Total => _selection.Values.Sum(part => part.Price);
+
+    private void Toggle(ConfiguratorComponentDto part)
+    {
+        if (_selection.GetValueOrDefault(_activeCategory)?.Id == part.Id)
+        {
+            _selection.Remove(_activeCategory);
+        }
+        else
+        {
+            _selection[_activeCategory] = part;
+        }
+
+        _seeBuildNote = false;
+    }
+
+    private void Remove(ConfiguratorCategory category)
+    {
+        _selection.Remove(category);
+        _seeBuildNote = false;
+    }
+
+    /// <summary>Loads a ready-made build into the picker so it can be adjusted part by part.</summary>
+    private void SelectBundle(ConfiguratorBundleDto bundle)
+    {
+        _selection.Clear();
+
+        foreach (var part in bundle.ComponentIds
+            .Select(id => _catalog.Components.FirstOrDefault(c => c.Id == id))
+            .OfType<ConfiguratorComponentDto>())
+        {
+            _selection[part.Category] = part;
+        }
+
+        _selectedBundleId = bundle.Id;
+        _activeCategory = CategoryOrder.FirstOrDefault(_selection.ContainsKey);
+        _seeBuildNote = false;
+    }
+
+    // Stage 5 builds the summary page. Until it exists, say so rather than routing nowhere.
+    private void SeeBuild() => _seeBuildNote = true;
+
+    private string BundleSummary(ConfiguratorBundleDto bundle) =>
+        string.Join(" · ", bundle.ComponentIds
+            .Select(id => _catalog.Components.FirstOrDefault(c => c.Id == id))
+            .OfType<ConfiguratorComponentDto>()
+            .Where(part => part.Category is ConfiguratorCategory.Cpu
+                or ConfiguratorCategory.Gpu
+                or ConfiguratorCategory.Ram)
+            .Select(part => part.Name));
+
+    private static ConfiguratorPlatform PlatformFor(ConfiguratorPath path) => path switch
+    {
+        ConfiguratorPath.Intel => ConfiguratorPlatform.Intel,
+        ConfiguratorPath.Amd => ConfiguratorPlatform.Amd,
+        _ => ConfiguratorPlatform.Either
+    };
+
+    private string CategoryName(ConfiguratorCategory category) => category switch
+    {
+        ConfiguratorCategory.Motherboard => L["Configurator.CatMotherboard"],
+        ConfiguratorCategory.Cpu => L["Configurator.CatCpu"],
+        ConfiguratorCategory.Cooler => L["Configurator.CatCooler"],
+        ConfiguratorCategory.Ram => L["Configurator.CatRam"],
+        ConfiguratorCategory.Storage => L["Configurator.CatStorage"],
+        ConfiguratorCategory.Gpu => L["Configurator.CatGpu"],
+        ConfiguratorCategory.Psu => L["Configurator.CatPsu"],
+        ConfiguratorCategory.Case => L["Configurator.CatCase"],
+        _ => category.ToString()
+    };
+
+    /// <summary>The one spec worth showing beside a part name — socket, memory generation, wattage
+    /// and so on. Purely informational this stage; stage 4 is what makes these actionable.</summary>
+    private static string SpecLine(ConfiguratorComponentDto part) => part.Category switch
+    {
+        ConfiguratorCategory.Cpu => Join(part.Socket, Watts(part.PowerDraw)),
+        ConfiguratorCategory.Motherboard => Join(part.Socket, part.RamType?.ToString().ToUpperInvariant(), FormFactorLabel(part.FormFactor)),
+        ConfiguratorCategory.Ram => Join(part.RamType?.ToString().ToUpperInvariant()),
+        ConfiguratorCategory.Gpu => Join(Watts(part.PowerDraw), Mm(part.LengthMm)),
+        ConfiguratorCategory.Psu => Join(Watts(part.Wattage)),
+        ConfiguratorCategory.Cooler => Join(Mm(part.HeightMm), part.SocketSupport is { Count: > 0 } s ? string.Join(" / ", s) : null),
+        ConfiguratorCategory.Case => Join(
+            // Lambda, not a method group: the list elements are non-nullable and FormFactorLabel
+            // takes a nullable, which method-group conversion will not lift.
+            part.SupportedFormFactors is { Count: > 0 } f ? string.Join(" / ", f.Select(size => FormFactorLabel(size))) : null,
+            part.MaxGpuLengthMm is { } g ? $"GPU ≤ {g}mm" : null),
+        _ => ""
+    };
+
+    private static string Join(params string?[] parts) =>
+        string.Join(" · ", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
+
+    private static string? Watts(int? value) => value is { } w ? $"{w}W" : null;
+
+    private static string? Mm(int? value) => value is { } mm ? $"{mm}mm" : null;
+
+    private static string FormFactorLabel(ConfiguratorFormFactor? formFactor) => formFactor switch
+    {
+        ConfiguratorFormFactor.Itx => "Mini-ITX",
+        ConfiguratorFormFactor.MicroAtx => "Micro-ATX",
+        ConfiguratorFormFactor.Atx => "ATX",
+        _ => ""
+    };
 
     private string PathLabel => Path switch
     {

@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
         Register<UsersApiClient>(services, baseAddress);
         Register<AdminApiClient>(services, baseAddress);
         Register<ContentApiClient>(services, baseAddress);
+        Register<ConfiguratorApiClient>(services, baseAddress);
 
         return services;
     }

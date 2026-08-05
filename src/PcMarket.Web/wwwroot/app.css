@@ -1429,15 +1429,240 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
 .cfg-path:hover .cfg-path__cta,
 .cfg-path:focus-within .cfg-path__cta { gap: 15px; }
 
-/* ---------- Picker stub (replaced in stage 3) ---------- */
-.cfg-stub { max-width: 62ch; }
-.cfg-stub__eyebrow {
-    margin: 0 0 12px;
+/* ---------- Picker — three-column build screen (Phase 19, stage 3) ---------- */
+.cfg-build__head {
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
+    margin-bottom: var(--space-block); flex-wrap: wrap;
+}
+.cfg-build__eyebrow {
+    margin: 0 0 10px;
     font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .16em;
     color: var(--brand);
 }
-.cfg-stub__body { margin: 24px 0 0; font-size: 1.02rem; line-height: 1.8; }
-.cfg-stub__actions { margin-top: 32px; }
+.cfg-build__error { max-width: 52ch; margin-bottom: var(--space-section); }
+.cfg-build__error .btn { margin-top: 20px; }
+
+/* menu | list | summary. The outer columns are fixed and the list takes the slack.
+   The widths are deliberately tight: this screen renders inside the Phase 12 shell, which already
+   spends ~300px on its own category rail, so the three columns here are really the *second* through
+   fourth of four. Sizing them as if the full 1280px container were available is what collapses the
+   middle column to nothing. */
+.cfg-build {
+    display: grid; grid-template-columns: 200px minmax(0, 1fr) 272px;
+    gap: 16px; align-items: start; margin-bottom: var(--space-section);
+}
+
+/* ---- Left: category menu ---- */
+.cfg-menu {
+    position: sticky; top: 24px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 24px 18px; box-shadow: var(--shadow);
+}
+.cfg-menu__title {
+    margin: 0 0 18px; padding: 0 6px;
+    font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .16em;
+    color: var(--muted);
+}
+.cfg-menu__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: none; }
+.cfg-menu__item {
+    width: 100%; display: flex; align-items: center; gap: 12px;
+    padding: 11px 10px; border: 0; border-radius: 10px; cursor: pointer;
+    background: transparent; color: var(--ink); text-align: left; font: inherit;
+    transition: background .2s, color .2s;
+}
+.cfg-menu__item:hover { background: var(--brand-050); }
+.cfg-menu__item.is-active { background: var(--brand-050); color: var(--brand); }
+/* The suggested-order number. A hint, not a gate — every item stays enabled whatever is picked. */
+.cfg-menu__step {
+    flex: none; width: 24px; height: 24px; border-radius: 50%;
+    display: grid; place-items: center;
+    border: 1px solid var(--line); background: var(--surface-2);
+    font-size: .7rem; font-weight: 700; color: var(--muted);
+    transition: background .2s, border-color .2s, color .2s;
+}
+.cfg-menu__item.is-active .cfg-menu__step { border-color: transparent; background: var(--grad-accent); color: #fff; }
+.cfg-menu__item.is-filled .cfg-menu__step { border-color: color-mix(in srgb, var(--brand) 45%, var(--line)); color: var(--brand); }
+.cfg-menu__label { min-width: 0; display: grid; gap: 2px; }
+.cfg-menu__name { font-size: .9rem; font-weight: 700; }
+/* The chosen part under its category — one line, clipped, so a long model name cannot widen the rail. */
+.cfg-menu__chosen {
+    font-size: .74rem; color: var(--muted);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.cfg-menu__tick { margin-left: auto; color: var(--ok); font-weight: 700; font-size: .9rem; }
+.cfg-menu__hint {
+    margin: 18px 6px 0; padding-top: 16px; border-top: 1px solid var(--line);
+    font-size: .76rem; line-height: 1.6;
+}
+
+/* ---- Middle: parts list ---- */
+.cfg-list__head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+    margin-bottom: 18px;
+}
+.cfg-list__title { margin: 0; font-size: 1.2rem; text-transform: uppercase; letter-spacing: .04em; }
+.cfg-list__count { font-size: .78rem; letter-spacing: .06em; }
+.cfg-list__empty { padding: 40px 0; }
+
+.cfg-parts { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+/* Thumbnail spans both rows on the left; name over price+button on the right. Two rows rather than
+   one wide row because the middle column is only ~300px here — putting the name, the price and the
+   button on a single line is what made them collide. */
+.cfg-part {
+    position: relative; overflow: hidden; isolation: isolate;
+    display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 10px 14px; align-items: center;
+    padding: 14px 16px 14px 14px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    transition:
+        transform var(--lift-out) var(--lift-ease-return),
+        box-shadow var(--lift-out) var(--lift-ease-return),
+        background var(--lift-out) ease,
+        border-color var(--lift-out) ease;
+}
+/* Ambient glow, weighted left behind the thumbnail — the same construction the product cards use,
+   scaled down for a row rather than a tile. */
+.cfg-part::before {
+    content: ""; position: absolute; inset: 0; z-index: 0;
+    pointer-events: none; background: var(--glow-media);
+    opacity: 0; transform: scale(.86) translateX(-24%);
+    transition: opacity var(--lift-out) ease, transform var(--lift-out) var(--lift-ease-return);
+}
+.cfg-part:hover,
+.cfg-part:focus-within {
+    /* A third of the card lift: these rows are 100px tall and stacked 12px apart, so a full rise
+       would have a hovered row climbing into the one above it. */
+    transform: translateY(calc(var(--lift-distance) / 3));
+    background: var(--surface-2);
+    border-color: color-mix(in srgb, var(--brand) 26%, var(--line));
+    box-shadow: var(--shadow-lift);
+    transition-duration: var(--lift-in); transition-timing-function: var(--lift-ease);
+}
+.cfg-part:hover::before,
+.cfg-part:focus-within::before {
+    opacity: .8; transform: scale(1.04) translateX(-24%);
+    transition-duration: var(--lift-in); transition-timing-function: var(--lift-ease);
+}
+/* The selected row keeps the accent edge whether or not it is hovered, so scrolling the list never
+   loses track of what is already in the build. */
+.cfg-part.is-selected {
+    border-color: color-mix(in srgb, var(--brand) 42%, var(--line));
+    background: var(--surface-2);
+}
+.cfg-part.is-selected::after {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; z-index: 3;
+    background: var(--grad-accent-hot);
+}
+
+.cfg-part__media {
+    position: relative; z-index: 1;
+    grid-row: 1 / 3; align-self: stretch;
+    min-height: 68px; border-radius: 10px; overflow: hidden;
+    background: color-mix(in srgb, var(--media-bg) 60%, transparent);
+}
+.cfg-part__media img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform var(--lift-out) var(--lift-ease-return);
+}
+.cfg-part:hover .cfg-part__media img { transform: scale(1.05); transition-duration: var(--lift-in); }
+.cfg-part__body { position: relative; z-index: 1; min-width: 0; display: grid; gap: 4px; align-self: end; }
+.cfg-part__name { font-weight: 700; font-size: .92rem; line-height: 1.35; }
+.cfg-part__spec { font-size: .74rem; letter-spacing: .02em; }
+/* Second row of the right-hand column: price left, action right. */
+.cfg-part__aside {
+    position: relative; z-index: 1; min-width: 0; align-self: start;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.cfg-part__price { font-weight: 700; font-size: .95rem; letter-spacing: -.02em; white-space: nowrap; }
+.cfg-part__btn { padding: 8px 16px; font-size: .76rem; white-space: nowrap; flex: none; }
+
+/* ---- Right: the running build ---- */
+.cfg-summary { position: sticky; top: 24px; }
+.cfg-summary__inner {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 26px 22px; box-shadow: var(--shadow); position: relative; overflow: hidden;
+}
+/* Accent edge along the top, marking this column as the outcome rather than another list. */
+.cfg-summary__inner::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+    background: var(--grad-accent-hot);
+}
+.cfg-summary__platform {
+    margin: 0 0 4px;
+    font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .16em;
+    color: var(--brand);
+}
+.cfg-summary__title { margin: 0 0 20px; font-size: 1.05rem; text-transform: uppercase; letter-spacing: .04em; }
+.cfg-summary__empty { font-size: .88rem; line-height: 1.7; margin: 0 0 20px; }
+.cfg-summary__list { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 0; }
+.cfg-summary__row {
+    display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+    padding: 11px 0; border-bottom: 1px solid var(--line);
+}
+.cfg-summary__remove {
+    width: 20px; height: 20px; padding: 0; border-radius: 50%; cursor: pointer; line-height: 1;
+    border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: .9rem;
+    transition: background .2s, color .2s, border-color .2s;
+}
+.cfg-summary__remove:hover { background: var(--danger-050); color: var(--danger); border-color: var(--danger-200); }
+.cfg-summary__cell { min-width: 0; display: grid; gap: 2px; }
+.cfg-summary__category {
+    font-size: .64rem; font-weight: 700; text-transform: uppercase; letter-spacing: .14em;
+    color: var(--muted);
+}
+.cfg-summary__part { font-size: .84rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cfg-summary__price { font-size: .84rem; font-weight: 700; white-space: nowrap; }
+.cfg-summary__total {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    margin: 0 0 20px; padding-top: 6px;
+    font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .14em;
+    color: var(--muted);
+}
+.cfg-summary__total strong {
+    font-size: 1.3rem; letter-spacing: -.02em; color: var(--ink); text-transform: none;
+}
+.cfg-summary__note { margin: 14px 0 0; font-size: .78rem; line-height: 1.6; }
+
+/* ---- Ready-made bundles ---- */
+.cfg-bundles { list-style: none; margin: 0 0 var(--space-block); padding: 0; display: grid; gap: 16px; }
+.cfg-bundle {
+    position: relative; overflow: hidden;
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: center;
+    padding: 26px 28px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: border-color .25s, background .25s;
+}
+.cfg-bundle.is-selected {
+    border-color: color-mix(in srgb, var(--brand) 42%, var(--line));
+    background: var(--surface-2);
+}
+.cfg-bundle.is-selected::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--grad-accent-hot);
+}
+.cfg-bundle__title { margin: 0 0 8px; font-size: 1.1rem; }
+.cfg-bundle__blurb { margin: 0 0 10px; font-size: .92rem; line-height: 1.7; color: var(--muted); max-width: 62ch; }
+.cfg-bundle__parts { margin: 0; font-size: .78rem; letter-spacing: .02em; }
+.cfg-bundle__aside { display: grid; gap: 12px; justify-items: end; flex: none; }
+.cfg-bundle__price { font-weight: 700; font-size: 1.15rem; letter-spacing: -.02em; white-space: nowrap; }
+
+/* The shell hides its category rail at 1024px, which hands this screen ~300px back — so the columns
+   can afford to grow just as the viewport shrinks. Hence the widths going *up* here. */
+@media (max-width: 1024px) {
+    .cfg-build { grid-template-columns: 230px minmax(0, 1fr) 300px; gap: 20px; }
+}
+@media (max-width: 980px) {
+    /* Summary drops under the list; menu and list stay side by side while there is room. */
+    .cfg-build { grid-template-columns: 220px minmax(0, 1fr); }
+    .cfg-summary { grid-column: 1 / -1; position: static; }
+}
+@media (max-width: 720px) {
+    .cfg-build { grid-template-columns: 1fr; }
+    .cfg-menu { position: static; }
+    .cfg-menu__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cfg-bundle { grid-template-columns: 1fr; }
+    .cfg-bundle__aside { justify-items: start; }
+}
 
 @media (max-width: 760px) {
     /* Photo over copy rather than beside it — a 320px image column leaves the text nowhere to go. */
@@ -1593,6 +1818,14 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
     .cfg-path:focus-within::before { transform: scale(.9) translateX(-14%); }
     .cfg-path:hover .cfg-path__cta,
     .cfg-path:focus-within .cfg-path__cta { gap: 8px; }
+
+    /* Picker rows (stage 3) — same construction again. */
+    .cfg-part:hover,
+    .cfg-part:focus-within { transform: none; }
+    .cfg-part:hover .cfg-part__media img { transform: none; }
+    .cfg-part::before,
+    .cfg-part:hover::before,
+    .cfg-part:focus-within::before { transform: scale(.86) translateX(-24%); }
 
     /* reveal.js refuses to arm under this preference, so these never normally apply. They are the
        safety net for the one case it cannot catch: the preference being switched on after the page
