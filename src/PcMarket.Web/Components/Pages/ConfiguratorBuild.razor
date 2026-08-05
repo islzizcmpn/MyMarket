@@ -79,7 +79,7 @@ else if (IsReadyMade)
                     <li>
                         <button type="button"
                                 class="cfg-menu__item @(category == _activeCategory ? "is-active" : null) @(chosen is not null ? "is-filled" : null)"
-                                @onclick="() => _activeCategory = category">
+                                @onclick="() => OpenCategoryAsync(category)">
                             @* The step number is the suggested order, not a gate — every category
                                stays clickable whatever else has been picked. *@
                             <span class="cfg-menu__step" aria-hidden="true">@(index + 1)</span>
@@ -119,7 +119,10 @@ else if (IsReadyMade)
                     @foreach (var part in VisibleParts)
                     {
                         var isSelected = _selection.GetValueOrDefault(_activeCategory)?.Id == part.Id;
-                        <li class="cfg-part @(isSelected ? "is-selected" : null)">
+                        var conflicts = ConflictsFor(part.Id);
+                        @* Marked, never disabled: the shopper can still pick a flagged part. The
+                           catalog can be wrong, and a determined builder is sometimes right. *@
+                        <li class="cfg-part @(isSelected ? "is-selected" : null) @(conflicts.Count > 0 ? "is-incompatible" : null)">
                             <span class="cfg-part__media">
                                 @if (part.ImageUrl is { Length: > 0 } image)
                                 {
@@ -132,6 +135,13 @@ else if (IsReadyMade)
                                 @if (SpecLine(part) is { Length: > 0 } spec)
                                 {
                                     <span class="cfg-part__spec muted">@spec</span>
+                                }
+                                @if (conflicts.Count > 0)
+                                {
+                                    <span class="cfg-part__flag" title="@ConflictTitle(conflicts)">
+                                        <span aria-hidden="true">!</span>
+                                        @L["Configurator.Incompatible"]
+                                    </span>
                                 }
                             </span>
 
@@ -178,6 +188,38 @@ else if (IsReadyMade)
                             </li>
                         }
                     </ul>
+                }
+
+                @* Compatibility verdict. Warnings are advisory — nothing here disables the build or
+                   the button below it. *@
+                @if (_warnings.Count > 0)
+                {
+                    <section class="cfg-check cfg-check--warn" aria-live="polite">
+                        <p class="cfg-check__head">
+                            <span class="cfg-check__icon" aria-hidden="true">!</span>
+                            @L["Configurator.WarningsTitle", _warnings.Count]
+                        </p>
+                        <ul class="cfg-check__list">
+                            @foreach (var warning in _warnings)
+                            {
+                                <li>@WarningText(warning)</li>
+                            }
+                        </ul>
+                        <p class="cfg-check__foot">@L["Configurator.WarningsFoot"]</p>
+                    </section>
+                }
+                else if (_selection.Count > 0)
+                {
+                    <section class="cfg-check cfg-check--ok" aria-live="polite">
+                        <p class="cfg-check__head">
+                            <span class="cfg-check__icon" aria-hidden="true">✓</span>
+                            @L["Configurator.Compatible"]
+                        </p>
+                        @if (_requiredWattage > 0)
+                        {
+                            <p class="cfg-check__foot">@L["Configurator.PowerNote", _totalPowerDraw, _requiredWattage]</p>
+                        }
+                    </section>
                 }
 
                 <p class="cfg-summary__total">
@@ -229,6 +271,17 @@ else if (IsReadyMade)
     private string? _selectedBundleId;
     private bool _seeBuildNote;
 
+    // ---- Compatibility (stage 4). Every value here comes from the server, which runs the same
+    // CompatibilityChecker the stage-1 tests cover; nothing about the rules is reimplemented here.
+    private IReadOnlyList<CompatibilityWarningDto> _warnings = [];
+    private Dictionary<string, IReadOnlyList<CompatibilityIssueDto>> _conflicts = [];
+    private int _totalPowerDraw;
+    private int _requiredWattage;
+
+    // Guards against an out-of-order response overwriting a newer one: clicks can outpace the round
+    // trip, and the last *request* is the only one whose answer is still true.
+    private int _evaluationToken;
+
     private ConfiguratorPath Path => ConfiguratorPaths.Parse(Build) ?? ConfiguratorPath.Intel;
 
     private bool IsReadyMade => Path == ConfiguratorPath.Ready;
@@ -260,7 +313,127 @@ else if (IsReadyMade)
         {
             _loading = false;
         }
+
+        // Marks the opening category's options even before anything is picked.
+        await EvaluateAsync();
     }
+
+    /// <summary>
+    /// Re-checks the build after any change to the selection or the open category. Called for its
+    /// effect on <see cref="_warnings"/> and <see cref="_conflicts"/>.
+    /// <para>
+    /// A failure here is deliberately silent: compatibility advice is a helper, and losing it should
+    /// not take down a picker that is otherwise working. The previous verdict is cleared rather than
+    /// left on screen, so a stale "compatible" can never outlive the selection it described.
+    /// </para>
+    /// </summary>
+    private async Task EvaluateAsync()
+    {
+        if (_error is not null)
+        {
+            return;
+        }
+
+        var token = ++_evaluationToken;
+
+        try
+        {
+            var result = await Api.EvaluateAsync(new ConfiguratorEvaluateRequest(
+                [.. _selection.Values.Select(part => part.Id)],
+                _activeCategory));
+
+            if (token != _evaluationToken)
+            {
+                return;
+            }
+
+            _warnings = result.Warnings;
+            _totalPowerDraw = result.TotalPowerDraw;
+            _requiredWattage = result.RequiredWattage;
+            _conflicts = result.Previews
+                .Where(preview => preview.Issues.Count > 0)
+                .ToDictionary(preview => preview.ComponentId, preview => preview.Issues);
+        }
+        catch
+        {
+            if (token == _evaluationToken)
+            {
+                _warnings = [];
+                _conflicts = [];
+            }
+        }
+    }
+
+    /// <summary>Issues that would arise from picking <paramref name="componentId"/>, if any.</summary>
+    private IReadOnlyList<CompatibilityIssueDto> ConflictsFor(string componentId) =>
+        _conflicts.GetValueOrDefault(componentId, []);
+
+    private string ConflictTitle(IReadOnlyList<CompatibilityIssueDto> issues) =>
+        string.Join(" ", issues.Select(issue => L[IssueKey(issue) + ".Short"].Value));
+
+    private static string IssueKey(CompatibilityIssueDto issue) => "Configurator.Warn" + issue;
+
+    private ConfiguratorComponentDto? Part(string id) =>
+        _catalog.Components.FirstOrDefault(part => part.Id == id);
+
+    /// <summary>
+    /// The localized sentence for a warning.
+    /// <para>
+    /// Built from the issue code and the parts the warning names, rather than from the engine's own
+    /// <c>Message</c>: the rules live in the backend and speak English, while every other string on
+    /// this site comes from the resx files. Mapping the code here is what lets a warning appear in
+    /// Russian and Uzbek without the domain carrying translations. If a key or a part were ever
+    /// missing, the engine's English prose is the fallback, so the shopper still sees the problem.
+    /// </para>
+    /// </summary>
+    private string WarningText(CompatibilityWarningDto warning)
+    {
+        var parts = warning.ComponentIds.Select(Part).OfType<ConfiguratorComponentDto>().ToList();
+        var key = IssueKey(warning.Issue);
+
+        object[]? args = warning.Issue switch
+        {
+            // Ids arrive in the order the rule listed them — see CompatibilityChecker.
+            CompatibilityIssueDto.SocketMismatch when parts is [var cpu, var board] =>
+                [cpu.Name, cpu.Socket ?? "", board.Name, board.Socket ?? ""],
+
+            CompatibilityIssueDto.RamTypeMismatch when parts is [var ram, var board] =>
+                [board.Name, RamLabel(board.RamType), RamLabel(ram.RamType)],
+
+            CompatibilityIssueDto.InsufficientPsuWattage when parts is [var psu] =>
+                [psu.Name, psu.Wattage ?? 0, _totalPowerDraw, _requiredWattage],
+
+            CompatibilityIssueDto.CaseFormFactorUnsupported when parts is [var board, var chassis] =>
+                [board.Name, FormFactorLabel(board.FormFactor), chassis.Name, SupportedList(chassis)],
+
+            CompatibilityIssueDto.GpuTooLong when parts is [var gpu, var chassis] =>
+                [gpu.Name, gpu.LengthMm ?? 0, chassis.Name, chassis.MaxGpuLengthMm ?? 0],
+
+            CompatibilityIssueDto.CoolerTooTall when parts is [var cooler, var chassis] =>
+                [cooler.Name, cooler.HeightMm ?? 0, chassis.Name, chassis.MaxCoolerHeightMm ?? 0],
+
+            CompatibilityIssueDto.CoolerSocketUnsupported when parts is [var cooler, var cpu] =>
+                [cooler.Name, cpu.Socket ?? "", string.Join(", ", cooler.SocketSupport ?? [])],
+
+            _ => null
+        };
+
+        // A resx lookup that misses returns the key itself, which would leak on screen — fall back
+        // to the engine's sentence instead.
+        if (args is null)
+        {
+            return warning.Message;
+        }
+
+        var localized = L[key, args];
+        return localized.ResourceNotFound ? warning.Message : localized.Value;
+    }
+
+    private static string SupportedList(ConfiguratorComponentDto chassis) =>
+        string.Join(", ", (chassis.SupportedFormFactors ?? []).Select(size => FormFactorLabel(size)));
+
+    private static string RamLabel(ConfiguratorRamType? type) =>
+        type?.ToString().ToUpperInvariant() ?? "";
 
     /// <summary>
     /// Parts in the active category, narrowed to the chosen platform. Vendor-neutral parts (cases,
@@ -278,7 +451,14 @@ else if (IsReadyMade)
 
     private decimal Total => _selection.Values.Sum(part => part.Price);
 
-    private void Toggle(ConfiguratorComponentDto part)
+    /// <summary>Opens a category and re-marks its options against the current build.</summary>
+    private async Task OpenCategoryAsync(ConfiguratorCategory category)
+    {
+        _activeCategory = category;
+        await EvaluateAsync();
+    }
+
+    private async Task Toggle(ConfiguratorComponentDto part)
     {
         if (_selection.GetValueOrDefault(_activeCategory)?.Id == part.Id)
         {
@@ -290,16 +470,18 @@ else if (IsReadyMade)
         }
 
         _seeBuildNote = false;
+        await EvaluateAsync();
     }
 
-    private void Remove(ConfiguratorCategory category)
+    private async Task Remove(ConfiguratorCategory category)
     {
         _selection.Remove(category);
         _seeBuildNote = false;
+        await EvaluateAsync();
     }
 
     /// <summary>Loads a ready-made build into the picker so it can be adjusted part by part.</summary>
-    private void SelectBundle(ConfiguratorBundleDto bundle)
+    private async Task SelectBundle(ConfiguratorBundleDto bundle)
     {
         _selection.Clear();
 
@@ -313,6 +495,7 @@ else if (IsReadyMade)
         _selectedBundleId = bundle.Id;
         _activeCategory = CategoryOrder.FirstOrDefault(_selection.ContainsKey);
         _seeBuildNote = false;
+        await EvaluateAsync();
     }
 
     // Stage 5 builds the summary page. Until it exists, say so rather than routing nowhere.

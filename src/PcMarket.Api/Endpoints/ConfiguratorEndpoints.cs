@@ -28,7 +28,71 @@ public static class ConfiguratorEndpoints
                 [.. ComponentCatalog.Bundles.Select(ToDto)]))
             .CacheOutput()
             .WithName("GetConfiguratorCatalog");
+
+        // Not cached: the answer depends entirely on the posted selection.
+        group.MapPost("/evaluate", (ConfiguratorEvaluateRequest request) => Evaluate(request))
+            .WithName("EvaluateConfiguratorBuild");
     }
+
+    /// <summary>
+    /// Runs the domain's <see cref="CompatibilityChecker"/> over a posted selection.
+    /// <para>
+    /// This is a server call rather than storefront logic on purpose. The rules are covered by the
+    /// stage-1 unit tests against <c>PcMarket.Domain</c>, and the storefront cannot reference Domain
+    /// — so evaluating here keeps exactly one implementation of the rules instead of a tested copy
+    /// and a drifting client copy.
+    /// </para>
+    /// <para>
+    /// The per-part preview is folded into the same response for the same reason, and to keep it to
+    /// one round trip: marking a category's options means re-running the rules once per candidate,
+    /// which would otherwise be a request each.
+    /// </para>
+    /// </summary>
+    private static ConfiguratorEvaluationDto Evaluate(ConfiguratorEvaluateRequest request)
+    {
+        var selected = (request.SelectedIds ?? [])
+            .Select(ComponentCatalog.Find)
+            .OfType<Component>()
+            .ToList();
+
+        List<ComponentCompatibilityDto> previews = [];
+
+        if (request.PreviewCategory is { } previewCategory)
+        {
+            var category = (ComponentCategory)previewCategory;
+
+            // The rest of the build, with this category's current pick taken out — the candidate is
+            // what fills the hole. Without removing it, every candidate would be judged against the
+            // part it is meant to replace.
+            var others = selected.Where(part => part.Category != category).ToList();
+
+            previews =
+            [
+                .. ComponentCatalog.InCategory(category).Select(candidate =>
+                    new ComponentCompatibilityDto(
+                        candidate.Id,
+                        [
+                            // Only the problems this candidate is party to. A build that already has
+                            // an unrelated conflict should not paint every option in the open
+                            // category as incompatible.
+                            .. CompatibilityChecker.Check([.. others, candidate])
+                                .Where(warning => warning.ComponentIds.Contains(candidate.Id))
+                                .Select(warning => (CompatibilityIssueDto)warning.Issue)
+                        ]))
+            ];
+        }
+
+        return new ConfiguratorEvaluationDto(
+            [.. CompatibilityChecker.Check(selected).Select(ToDto)],
+            previews,
+            CompatibilityChecker.TotalPowerDraw(selected),
+            CompatibilityChecker.RequiredWattage(selected));
+    }
+
+    private static CompatibilityWarningDto ToDto(CompatibilityWarning warning) => new(
+        (CompatibilityIssueDto)warning.Issue,
+        warning.Message,
+        warning.ComponentIds);
 
     private static ConfiguratorComponentDto ToDto(Component part) => new(
         part.Id,

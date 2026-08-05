@@ -1622,6 +1622,61 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
 }
 .cfg-summary__note { margin: 14px 0 0; font-size: .78rem; line-height: 1.6; }
 
+/* ---- Compatibility verdict (stage 4) ----
+   Advisory, so it is a panel rather than anything that blocks: the Buy path stays live underneath.
+   Both variants use the existing --danger / --ok token families, so light and dark follow. */
+.cfg-check { border-radius: 12px; padding: 14px 16px; margin: 0 0 18px; border: 1px solid; }
+.cfg-check--warn { background: var(--danger-050); border-color: var(--danger-200); }
+.cfg-check--ok { background: var(--ok-050); border-color: var(--ok-200); }
+.cfg-check__head {
+    display: flex; align-items: center; gap: 9px; margin: 0;
+    font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+}
+.cfg-check--warn .cfg-check__head { color: var(--danger); }
+.cfg-check--ok .cfg-check__head { color: var(--ok); }
+.cfg-check__icon {
+    flex: none; width: 18px; height: 18px; border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: .7rem; font-weight: 700; color: #fff;
+}
+.cfg-check--warn .cfg-check__icon { background: var(--danger); }
+.cfg-check--ok .cfg-check__icon { background: var(--ok); }
+.cfg-check__list {
+    list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 10px;
+}
+.cfg-check__list li {
+    position: relative; padding-left: 14px;
+    font-size: .8rem; line-height: 1.6; color: var(--ink);
+}
+.cfg-check__list li::before {
+    content: ""; position: absolute; left: 0; top: .6em;
+    width: 5px; height: 5px; border-radius: 50%; background: var(--danger);
+}
+.cfg-check__foot { margin: 12px 0 0; font-size: .74rem; line-height: 1.55; color: var(--muted); }
+
+/* ---- Incompatible option marker (stage 4) ----
+   Dimmed and flagged, never disabled — picking a flagged part stays possible on purpose. The dim is
+   deliberately mild: at lower opacity the name stops being readable, and a shopper cannot weigh an
+   option they cannot read. */
+.cfg-part.is-incompatible { opacity: .62; }
+.cfg-part.is-incompatible:hover,
+.cfg-part.is-incompatible:focus-within { opacity: 1; }
+.cfg-part.is-incompatible .cfg-part__media { filter: grayscale(.7); }
+.cfg-part.is-incompatible:hover .cfg-part__media { filter: none; }
+.cfg-part__flag {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 2px;
+    font-size: .68rem; font-weight: 700; letter-spacing: .04em; color: var(--danger);
+}
+.cfg-part__flag span {
+    flex: none; width: 13px; height: 13px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--danger); color: #fff; font-size: .58rem;
+}
+/* A selected part that also conflicts keeps its accent edge; the flag is what says it is a problem,
+   so the edge must not be recoloured or the row would read as unselected. */
+.cfg-part.is-selected.is-incompatible { opacity: 1; }
+.cfg-part.is-selected.is-incompatible .cfg-part__media { filter: none; }
+
 /* ---- Ready-made bundles ---- */
 .cfg-bundles { list-style: none; margin: 0 0 var(--space-block); padding: 0; display: grid; gap: 16px; }
 .cfg-bundle {

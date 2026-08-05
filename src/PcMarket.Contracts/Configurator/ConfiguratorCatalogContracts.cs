@@ -85,3 +85,63 @@ public sealed record ConfiguratorBundleDto(
 public sealed record ConfiguratorCatalogDto(
     IReadOnlyList<ConfiguratorComponentDto> Components,
     IReadOnlyList<ConfiguratorBundleDto> Bundles);
+
+/// <summary>Wire mirror of the domain's <c>CompatibilityIssue</c>. Values must stay in step.</summary>
+public enum CompatibilityIssueDto
+{
+    SocketMismatch = 0,
+    RamTypeMismatch = 1,
+    InsufficientPsuWattage = 2,
+    CaseFormFactorUnsupported = 3,
+    GpuTooLong = 4,
+    CoolerTooTall = 5,
+    CoolerSocketUnsupported = 6
+}
+
+/// <summary>
+/// One compatibility problem in the current build.
+/// <para>
+/// <see cref="Issue"/> is what the storefront renders from — it maps the code to a localized
+/// <c>Configurator.Warn*</c> string and fills in the part names and numbers from the catalog it
+/// already holds. <see cref="Message"/> is the engine's own English prose, kept as a fallback for
+/// any future client that has no resource files of its own.
+/// </para>
+/// </summary>
+public sealed record CompatibilityWarningDto(
+    CompatibilityIssueDto Issue,
+    string Message,
+    IReadOnlyList<string> ComponentIds);
+
+/// <summary>
+/// What would go wrong if <see cref="ComponentId"/> were selected into the current build. Empty
+/// <see cref="Issues"/> means the part is a clean fit.
+/// </summary>
+public sealed record ComponentCompatibilityDto(
+    string ComponentId,
+    IReadOnlyList<CompatibilityIssueDto> Issues);
+
+/// <summary>
+/// Ask the server to evaluate a build.
+/// </summary>
+/// <param name="SelectedIds">Component ids currently in the build.</param>
+/// <param name="PreviewCategory">Optional. When set, the response also reports, for every part in
+/// that category, whether swapping it in would conflict — which is what lets the picker mark
+/// incompatible options without the storefront owning a second copy of the rules.</param>
+public sealed record ConfiguratorEvaluateRequest(
+    IReadOnlyList<string> SelectedIds,
+    ConfiguratorCategory? PreviewCategory);
+
+/// <summary>
+/// Result of evaluating a build.
+/// </summary>
+/// <param name="Warnings">Problems with the build as it stands. Empty means nothing found.</param>
+/// <param name="Previews">Per-part verdicts for the requested preview category; empty when none was asked for.</param>
+/// <param name="TotalPowerDraw">Measured draw across the selection, in watts.</param>
+/// <param name="RequiredWattage">Smallest PSU this build should be paired with, margin included.
+/// Returned rather than recomputed client-side so the safety margin stays a single authoritative
+/// number in the domain.</param>
+public sealed record ConfiguratorEvaluationDto(
+    IReadOnlyList<CompatibilityWarningDto> Warnings,
+    IReadOnlyList<ComponentCompatibilityDto> Previews,
+    int TotalPowerDraw,
+    int RequiredWattage);

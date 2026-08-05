@@ -1155,4 +1155,64 @@
   <data name="Configurator.CatCase" xml:space="preserve">
     <value>Корпус</value>
   </data>
+
+  <!-- ===== Совместимость (Phase 19, stage 4) ===== -->
+  <data name="Configurator.Compatible" xml:space="preserve">
+    <value>Сборка совместима</value>
+  </data>
+  <data name="Configurator.WarningsTitle" xml:space="preserve">
+    <value>Проблем совместимости: {0}</value>
+  </data>
+  <data name="Configurator.WarningsFoot" xml:space="preserve">
+    <value>Это рекомендации — вы всё равно можете заказать такую сборку.</value>
+  </data>
+  <data name="Configurator.PowerNote" xml:space="preserve">
+    <value>Потребление около {0} Вт; рекомендуется не менее {1} Вт.</value>
+  </data>
+  <data name="Configurator.Incompatible" xml:space="preserve">
+    <value>Не подходит к этой сборке</value>
+  </data>
+
+  <data name="Configurator.WarnSocketMismatch" xml:space="preserve">
+    <value>{0} — процессор с сокетом {1}, а у платы {2} сокет {3}. Выберите плату и процессор с одинаковым сокетом.</value>
+  </data>
+  <data name="Configurator.WarnSocketMismatch.Short" xml:space="preserve">
+    <value>Сокет не совпадает.</value>
+  </data>
+  <data name="Configurator.WarnRamTypeMismatch" xml:space="preserve">
+    <value>Плате {0} нужна память {1}, а выбрана {2}. DDR4 и DDR5 не подходят к одним и тем же слотам — замените одно из двух.</value>
+  </data>
+  <data name="Configurator.WarnRamTypeMismatch.Short" xml:space="preserve">
+    <value>Тип памяти не совпадает.</value>
+  </data>
+  <data name="Configurator.WarnInsufficientPsuWattage" xml:space="preserve">
+    <value>{0} выдаёт {1} Вт, а сборка потребляет около {2} Вт и требует минимум {3} Вт с запасом. Выберите более мощный блок питания.</value>
+  </data>
+  <data name="Configurator.WarnInsufficientPsuWattage.Short" xml:space="preserve">
+    <value>Недостаточно мощности.</value>
+  </data>
+  <data name="Configurator.WarnCaseFormFactorUnsupported" xml:space="preserve">
+    <value>{0} — форм-фактор {1}, а корпус {2} рассчитан только на {3}. Выберите корпус побольше или плату поменьше.</value>
+  </data>
+  <data name="Configurator.WarnCaseFormFactorUnsupported.Short" xml:space="preserve">
+    <value>Размер платы не подходит корпусу.</value>
+  </data>
+  <data name="Configurator.WarnGpuTooLong" xml:space="preserve">
+    <value>Длина {0} — {1} мм, а корпус {2} принимает карты до {3} мм. Она не поместится.</value>
+  </data>
+  <data name="Configurator.WarnGpuTooLong.Short" xml:space="preserve">
+    <value>Карта слишком длинная для корпуса.</value>
+  </data>
+  <data name="Configurator.WarnCoolerTooTall" xml:space="preserve">
+    <value>Высота {0} — {1} мм, а корпус {2} допускает {3} мм. Боковая крышка не закроется.</value>
+  </data>
+  <data name="Configurator.WarnCoolerTooTall.Short" xml:space="preserve">
+    <value>Кулер слишком высокий для корпуса.</value>
+  </data>
+  <data name="Configurator.WarnCoolerSocketUnsupported" xml:space="preserve">
+    <value>У {0} нет крепления для сокета {1} — поддерживаются {2}. Выберите кулер под сокет вашего процессора.</value>
+  </data>
+  <data name="Configurator.WarnCoolerSocketUnsupported.Short" xml:space="preserve">
+    <value>Кулер не подходит к этому сокету.</value>
+  </data>
 </root>

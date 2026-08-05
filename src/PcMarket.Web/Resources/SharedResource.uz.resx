@@ -1155,4 +1155,64 @@
   <data name="Configurator.CatCase" xml:space="preserve">
     <value>Korpus</value>
   </data>
+
+  <!-- ===== Moslik (Phase 19, stage 4) ===== -->
+  <data name="Configurator.Compatible" xml:space="preserve">
+    <value>Yigʻma mos keladi</value>
+  </data>
+  <data name="Configurator.WarningsTitle" xml:space="preserve">
+    <value>Moslik muammolari: {0}</value>
+  </data>
+  <data name="Configurator.WarningsFoot" xml:space="preserve">
+    <value>Bu tavsiyalar — bunday yigʻmani baribir buyurtma qilishingiz mumkin.</value>
+  </data>
+  <data name="Configurator.PowerNote" xml:space="preserve">
+    <value>Taxminan {0} Vt isteʼmol qiladi; kamida {1} Vt tavsiya etiladi.</value>
+  </data>
+  <data name="Configurator.Incompatible" xml:space="preserve">
+    <value>Bu yigʻmaga mos kelmaydi</value>
+  </data>
+
+  <data name="Configurator.WarnSocketMismatch" xml:space="preserve">
+    <value>{0} — {1} soketli protsessor, {2} platasida esa {3} soketi bor. Bir xil soketli plata va protsessorni tanlang.</value>
+  </data>
+  <data name="Configurator.WarnSocketMismatch.Short" xml:space="preserve">
+    <value>Soket mos kelmaydi.</value>
+  </data>
+  <data name="Configurator.WarnRamTypeMismatch" xml:space="preserve">
+    <value>{0} platasiga {1} xotira kerak, siz esa {2} tanladingiz. DDR4 va DDR5 bir xil slotlarga mos kelmaydi — birini almashtiring.</value>
+  </data>
+  <data name="Configurator.WarnRamTypeMismatch.Short" xml:space="preserve">
+    <value>Xotira turi mos kelmaydi.</value>
+  </data>
+  <data name="Configurator.WarnInsufficientPsuWattage" xml:space="preserve">
+    <value>{0} {1} Vt beradi, bu yigʻma esa taxminan {2} Vt isteʼmol qiladi va zaxira bilan kamida {3} Vt talab qiladi. Quvvatliroq blok tanlang.</value>
+  </data>
+  <data name="Configurator.WarnInsufficientPsuWattage.Short" xml:space="preserve">
+    <value>Quvvat yetarli emas.</value>
+  </data>
+  <data name="Configurator.WarnCaseFormFactorUnsupported" xml:space="preserve">
+    <value>{0} — {1} formatidagi plata, {2} korpusi esa faqat {3} uchun moʻljallangan. Kattaroq korpus yoki kichikroq plata tanlang.</value>
+  </data>
+  <data name="Configurator.WarnCaseFormFactorUnsupported.Short" xml:space="preserve">
+    <value>Plata oʻlchami korpusga mos emas.</value>
+  </data>
+  <data name="Configurator.WarnGpuTooLong" xml:space="preserve">
+    <value>{0} uzunligi {1} mm, {2} korpusi esa {3} mm gacha kartalarni qabul qiladi. U sigʻmaydi.</value>
+  </data>
+  <data name="Configurator.WarnGpuTooLong.Short" xml:space="preserve">
+    <value>Karta korpus uchun juda uzun.</value>
+  </data>
+  <data name="Configurator.WarnCoolerTooTall" xml:space="preserve">
+    <value>{0} balandligi {1} mm, {2} korpusi esa {3} mm ga ruxsat beradi. Yon qopqoq yopilmaydi.</value>
+  </data>
+  <data name="Configurator.WarnCoolerTooTall.Short" xml:space="preserve">
+    <value>Sovutgich korpus uchun juda baland.</value>
+  </data>
+  <data name="Configurator.WarnCoolerSocketUnsupported" xml:space="preserve">
+    <value>{0} da {1} soketi uchun mahkamlagich yoʻq — {2} qoʻllab-quvvatlanadi. Protsessoringiz soketiga mos sovutgich tanlang.</value>
+  </data>
+  <data name="Configurator.WarnCoolerSocketUnsupported.Short" xml:space="preserve">
+    <value>Sovutgich bu soketga mos emas.</value>
+  </data>
 </root>

@@ -1200,4 +1200,76 @@
   <data name="Configurator.CatCase" xml:space="preserve">
     <value>PC case</value>
   </data>
+
+  <!-- ===== Compatibility (Phase 19, stage 4) =====
+       The rules run in PcMarket.Domain and produce English prose; these are the localized
+       equivalents, selected by issue code and filled from the catalog. Placeholder order is fixed by
+       WarningText() in ConfiguratorBuild.razor — change both together. -->
+  <data name="Configurator.Compatible" xml:space="preserve">
+    <value>Compatible build</value>
+  </data>
+  <data name="Configurator.WarningsTitle" xml:space="preserve">
+    <value>{0} compatibility issue(s)</value>
+    <comment>{0} is the number of warnings.</comment>
+  </data>
+  <data name="Configurator.WarningsFoot" xml:space="preserve">
+    <value>These are advisory — you can still order this build.</value>
+  </data>
+  <data name="Configurator.PowerNote" xml:space="preserve">
+    <value>Draws about {0}W; at least {1}W recommended.</value>
+    <comment>{0} measured draw, {1} recommended PSU wattage.</comment>
+  </data>
+  <data name="Configurator.Incompatible" xml:space="preserve">
+    <value>Does not fit this build</value>
+  </data>
+
+  <data name="Configurator.WarnSocketMismatch" xml:space="preserve">
+    <value>{0} is a {1} processor, but {2} has a {3} socket. Pick a board and a processor that use the same socket.</value>
+    <comment>{0} CPU name, {1} CPU socket, {2} board name, {3} board socket.</comment>
+  </data>
+  <data name="Configurator.WarnSocketMismatch.Short" xml:space="preserve">
+    <value>Socket does not match.</value>
+  </data>
+  <data name="Configurator.WarnRamTypeMismatch" xml:space="preserve">
+    <value>{0} needs {1} — your memory is {2}. DDR4 and DDR5 do not fit the same slots, so swap one of them.</value>
+    <comment>{0} board name, {1} board memory type, {2} selected memory type.</comment>
+  </data>
+  <data name="Configurator.WarnRamTypeMismatch.Short" xml:space="preserve">
+    <value>Memory type does not match.</value>
+  </data>
+  <data name="Configurator.WarnInsufficientPsuWattage" xml:space="preserve">
+    <value>{0} supplies {1}W, but this build draws about {2}W and wants at least {3}W with headroom. Choose a larger power supply.</value>
+    <comment>{0} PSU name, {1} supplied watts, {2} measured draw, {3} required watts.</comment>
+  </data>
+  <data name="Configurator.WarnInsufficientPsuWattage.Short" xml:space="preserve">
+    <value>Not enough power.</value>
+  </data>
+  <data name="Configurator.WarnCaseFormFactorUnsupported" xml:space="preserve">
+    <value>{0} is {1}, and {2} only fits {3}. Choose a larger case or a smaller board.</value>
+    <comment>{0} board name, {1} board form factor, {2} case name, {3} sizes the case fits.</comment>
+  </data>
+  <data name="Configurator.WarnCaseFormFactorUnsupported.Short" xml:space="preserve">
+    <value>Board size does not fit the case.</value>
+  </data>
+  <data name="Configurator.WarnGpuTooLong" xml:space="preserve">
+    <value>{0} is {1}mm long, and {2} takes cards up to {3}mm. It will not fit.</value>
+    <comment>{0} GPU name, {1} card length, {2} case name, {3} maximum length.</comment>
+  </data>
+  <data name="Configurator.WarnGpuTooLong.Short" xml:space="preserve">
+    <value>Card is too long for the case.</value>
+  </data>
+  <data name="Configurator.WarnCoolerTooTall" xml:space="preserve">
+    <value>{0} stands {1}mm tall, and {2} clears {3}mm. The side panel will not close.</value>
+    <comment>{0} cooler name, {1} cooler height, {2} case name, {3} maximum height.</comment>
+  </data>
+  <data name="Configurator.WarnCoolerTooTall.Short" xml:space="preserve">
+    <value>Cooler is too tall for the case.</value>
+  </data>
+  <data name="Configurator.WarnCoolerSocketUnsupported" xml:space="preserve">
+    <value>{0} has no mounting hardware for {1} — it supports {2}. Choose a cooler that fits your processor's socket.</value>
+    <comment>{0} cooler name, {1} CPU socket, {2} sockets the cooler supports.</comment>
+  </data>
+  <data name="Configurator.WarnCoolerSocketUnsupported.Short" xml:space="preserve">
+    <value>Cooler does not fit this socket.</value>
+  </data>
 </root>
