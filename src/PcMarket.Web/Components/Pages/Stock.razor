@@ -1,7 +1,62 @@
 @page "/stock"
 @inject IStringLocalizer<SharedResource> L
+@inject StockArticles Articles
 
-@* Placeholder — the real page is Phase 17. *@
-<PageTitle>@L["Nav.Stock"] — PCMarket</PageTitle>
+@* Phase 17. Renders inside the Phase 12 storefront shell (MainLayout), so the top bar, nav, category
+   sidebar and footer wrap this content; scroll reveals are armed by the layout's scan call. Same
+   skeleton as Contacts, Payment and Service Center: breadcrumb, one statement heading, then the
+   content on the --space-section rhythm. *@
 
-<ComingSoon Title="@L["Nav.Stock"]" Phase="17" />
+<PageTitle>@L["Stock.PageTitle"]</PageTitle>
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">@L["Nav.Home"]</a>
+    <span aria-hidden="true">›</span>
+    <span class="muted">@L["Nav.Stock"]</span>
+</nav>
+
+<section class="home-section stock-intro" data-reveal="block">
+    <h1 class="stock-heading">@L["Stock.Heading"]</h1>
+    <p class="stock-intro__body muted">@L["Stock.Intro"]</p>
+</section>
+
+@* One card per article. The whole card is not a link — the heading and the button are — so the
+   excerpt stays selectable; :focus-within is what keeps the lift in sync when either is tabbed to. *@
+<ul class="stock-list" data-reveal="stagger">
+    @foreach (var article in Articles.All)
+    {
+        var href = $"/stock/{article.Slug}";
+        <li class="stock-card">
+            <a class="stock-card__media" href="@href" tabindex="-1" aria-hidden="true">
+                @if (Articles.ImagePath(article) is { } image)
+                {
+                    <img src="@image" alt="" loading="lazy" decoding="async" />
+                }
+            </a>
+
+            <div class="stock-card__body">
+                <time class="stock-card__date" datetime="@article.PublishedOn.ToString("yyyy-MM-dd")">
+                    @FormatDate(article.PublishedOn)
+                </time>
+
+                <h2 class="stock-card__title">
+                    <a href="@href">@article.Title</a>
+                </h2>
+
+                <p class="stock-card__excerpt">@article.Excerpt</p>
+
+                <a class="btn btn--primary stock-card__more" href="@href">
+                    @L["Stock.ReadMore"]
+                    <span class="visually-hidden">: @article.Title</span>
+                </a>
+            </div>
+        </li>
+    }
+</ul>
+
+@code {
+    /// <summary>Long date in the active UI culture — the chrome follows the switcher even though the
+    /// seeded article copy itself is Russian only.</summary>
+    private static string FormatDate(DateOnly date) =>
+        date.ToString("d MMMM yyyy", CultureInfo.CurrentUICulture);
+}

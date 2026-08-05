@@ -22,6 +22,10 @@ builder.Services.AddScoped<IApiTokenProvider, WebApiTokenProvider>();
 // for the life of the process, and it caches what it finds.
 builder.Services.AddSingleton<HomeImages>();
 
+// Seeded news/promotions feed (Phase 17). Singleton for the same reason: a fixed in-memory set that
+// only reads HomeImages. Becomes a scoped API-backed service if this content ever goes live.
+builder.Services.AddSingleton<StockArticles>();
+
 var apiRoot = builder.Configuration["Api:BaseUrl"] ?? "http://localhost:5055";
 builder.Services.AddPcMarketApiClient(apiRoot);
 

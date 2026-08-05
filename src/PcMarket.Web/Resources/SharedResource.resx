@@ -1061,4 +1061,29 @@
   <data name="ServiceCenter.Warranty14" xml:space="preserve">
     <value>The original serial number is damaged or missing.</value>
   </data>
+
+  <!-- ===== Stock — news &amp; promotions (Phase 17) =====
+       Page chrome only. Article titles and bodies are content, not UI strings, and are seeded in
+       StockArticles.cs (Russian only for now) rather than here. -->
+  <data name="Stock.PageTitle" xml:space="preserve">
+    <value>Stock — PC Market</value>
+  </data>
+  <data name="Stock.Heading" xml:space="preserve">
+    <value>Stock</value>
+  </data>
+  <data name="Stock.Intro" xml:space="preserve">
+    <value>News, promotions and special offers from PC Market. Check back for current terms before placing an order.</value>
+  </data>
+  <data name="Stock.ReadMore" xml:space="preserve">
+    <value>Read more</value>
+  </data>
+  <data name="Stock.BackToList" xml:space="preserve">
+    <value>Back to Stock</value>
+  </data>
+  <data name="Stock.NotFound" xml:space="preserve">
+    <value>Article not found</value>
+  </data>
+  <data name="Stock.NotFoundHint" xml:space="preserve">
+    <value>This promotion may have ended or the link may be out of date.</value>
+  </data>
 </root>

@@ -1020,4 +1020,27 @@
   <data name="ServiceCenter.Warranty14" xml:space="preserve">
     <value>Оригинальный серийный номер повреждён или отсутствует.</value>
   </data>
+
+  <!-- ===== Акции — новости и предложения (Phase 17) ===== -->
+  <data name="Stock.PageTitle" xml:space="preserve">
+    <value>Акции — PC Market</value>
+  </data>
+  <data name="Stock.Heading" xml:space="preserve">
+    <value>Акции</value>
+  </data>
+  <data name="Stock.Intro" xml:space="preserve">
+    <value>Новости, акции и специальные предложения PC Market. Уточняйте актуальные условия перед оформлением заказа.</value>
+  </data>
+  <data name="Stock.ReadMore" xml:space="preserve">
+    <value>Подробнее</value>
+  </data>
+  <data name="Stock.BackToList" xml:space="preserve">
+    <value>Вернуться к акциям</value>
+  </data>
+  <data name="Stock.NotFound" xml:space="preserve">
+    <value>Публикация не найдена</value>
+  </data>
+  <data name="Stock.NotFoundHint" xml:space="preserve">
+    <value>Возможно, акция завершилась или ссылка устарела.</value>
+  </data>
 </root>

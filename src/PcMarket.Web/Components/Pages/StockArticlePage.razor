@@ -1,0 +1,79 @@
+@page "/stock/{Slug}"
+@inject IStringLocalizer<SharedResource> L
+@inject StockArticles Articles
+
+@* Phase 17 detail view. Renders inside the Phase 12 shell like the list page it comes from. An
+   unknown slug renders its own not-found state rather than throwing — same treatment Product.razor
+   gives a missing product, so a stale shared link lands somewhere useful instead of on an error. *@
+
+@if (_article is null)
+{
+    <PageTitle>@L["Stock.NotFound"]</PageTitle>
+
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">@L["Nav.Home"]</a>
+        <span aria-hidden="true">›</span>
+        <a href="/stock">@L["Nav.Stock"]</a>
+    </nav>
+
+    <section class="home-section stock-missing">
+        <h1 class="stock-heading">@L["Stock.NotFound"]</h1>
+        <p class="muted">@L["Stock.NotFoundHint"]</p>
+        <a class="btn btn--primary" href="/stock">@L["Stock.BackToList"]</a>
+    </section>
+}
+else
+{
+    <PageTitle>@_article.Title</PageTitle>
+
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">@L["Nav.Home"]</a>
+        <span aria-hidden="true">›</span>
+        <a href="/stock">@L["Nav.Stock"]</a>
+        <span aria-hidden="true">›</span>
+        <span class="muted stock-article__crumb">@_article.Title</span>
+    </nav>
+
+    <article class="stock-article">
+        <header class="stock-article__head" data-reveal="block">
+            <time class="stock-article__date" datetime="@_article.PublishedOn.ToString("yyyy-MM-dd")">
+                @FormatDate(_article.PublishedOn)
+            </time>
+            <h1 class="stock-article__title">@_article.Title</h1>
+        </header>
+
+        @* Fixed ratio so the banner reserves its space before the image decodes — no shift on load.
+           This one is eager: it is the page's lead art and is above the fold on every viewport. *@
+        <div class="stock-article__banner" data-reveal="block">
+            @if (Articles.ImagePath(_article) is { } image)
+            {
+                <img src="@image" alt="@_article.Title" decoding="async" />
+            }
+        </div>
+
+        <div class="stock-article__body" data-reveal="stagger">
+            @foreach (var paragraph in _article.Body)
+            {
+                <p>@paragraph</p>
+            }
+        </div>
+
+        <a class="stock-article__back" href="/stock">
+            <span aria-hidden="true">‹</span>
+            @L["Stock.BackToList"]
+        </a>
+    </article>
+}
+
+@code {
+    [Parameter] public string? Slug { get; set; }
+
+    private StockArticle? _article;
+
+    // Runs on every parameter change, not just the first: navigating between two articles reuses
+    // this component instance, and resolving in OnInitialized would leave the first one on screen.
+    protected override void OnParametersSet() => _article = Articles.Find(Slug);
+
+    private static string FormatDate(DateOnly date) =>
+        date.ToString("d MMMM yyyy", CultureInfo.CurrentUICulture);
+}

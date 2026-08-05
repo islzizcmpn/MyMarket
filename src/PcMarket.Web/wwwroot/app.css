@@ -1179,6 +1179,148 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
     .svc-centre__map { aspect-ratio: 4 / 3; }
 }
 
+/* ---------- Stock — news & promotions (Phase 17) ----------
+   "Stock" is the reference site's news feed, not inventory. The cards deliberately reuse the
+   product-card construction (ambient glow at z-index 0, vignette over the media, lift on the same
+   four tokens) so a promo card and a product card read as the same object class. Nothing here is a
+   literal colour, so both themes and the reduced-motion block follow automatically. */
+.stock-intro { margin-bottom: var(--space-block); }
+.stock-heading { text-transform: uppercase; letter-spacing: .01em; margin: 0; }
+.stock-intro__body { max-width: 60ch; margin: 22px 0 0; font-size: 1.02rem; line-height: 1.8; }
+
+.stock-list {
+    list-style: none; margin: 0 0 var(--space-section); padding: 0;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gutter);
+}
+.stock-card {
+    position: relative; overflow: hidden; isolation: isolate;
+    display: flex; flex-direction: column;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    /* The return to rest — slower and on the settling curve, exactly as .product-card does it. The
+       :hover rule below overrides with --lift-in / --lift-ease for the rise. */
+    transition:
+        box-shadow var(--lift-out) var(--lift-ease-return),
+        transform var(--lift-out) var(--lift-ease-return),
+        background var(--lift-out) ease,
+        border-color var(--lift-out) ease;
+}
+/* Ambient glow under the media and the body, so it reads as light from behind the banner rather
+   than a wash over it. Centred higher than the product version because the banner is a 16/10 strip
+   at the top of the card, not a square filling half of it. */
+.stock-card::before {
+    content: ""; position: absolute; inset: 0; z-index: 0;
+    pointer-events: none; background: var(--glow-media);
+    opacity: .3; transform: scale(.84) translateY(-8%);
+    transition: opacity var(--lift-out) ease, transform var(--lift-out) var(--lift-ease-return);
+}
+.stock-card:hover,
+.stock-card:focus-within {
+    transform: translateY(var(--lift-distance));
+    background: var(--surface-2);
+    border-color: color-mix(in srgb, var(--brand) 26%, var(--line));
+    box-shadow: var(--shadow-lift);
+    transition-duration: var(--lift-in);
+    transition-timing-function: var(--lift-ease);
+}
+.stock-card:hover::before,
+.stock-card:focus-within::before {
+    opacity: 1; transform: scale(1.08) translateY(-8%);
+    transition-duration: var(--lift-in);
+    transition-timing-function: var(--lift-ease);
+}
+
+.stock-card__media {
+    position: relative; z-index: 1; display: block; aspect-ratio: 16 / 10; overflow: hidden;
+    background: color-mix(in srgb, var(--media-bg) 55%, transparent);
+}
+/* Vignette over the banner so it never meets the card body on a hard flat edge; it eases off on
+   hover, so the art steps forward rather than the shadow simply vanishing. */
+.stock-card__media::after {
+    content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    background: var(--vignette-media); transition: opacity var(--lift-out) ease;
+}
+.stock-card:hover .stock-card__media::after,
+.stock-card:focus-within .stock-card__media::after { opacity: .5; transition-duration: var(--lift-in); }
+.stock-card__media img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform var(--lift-out) var(--lift-ease-return);
+}
+.stock-card:hover .stock-card__media img,
+.stock-card:focus-within .stock-card__media img {
+    transform: scale(1.02);
+    transition-duration: var(--lift-in); transition-timing-function: var(--lift-ease);
+}
+
+.stock-card__body {
+    position: relative; z-index: 1; flex: 1;
+    display: flex; flex-direction: column; gap: 12px; padding: 26px 26px 28px;
+}
+.stock-card__date {
+    font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .14em;
+    color: var(--muted);
+}
+/* The red underline the reference puts beneath every card title. On an inline-block ::after rather
+   than a border, so the rule tracks the text width instead of the card width. */
+.stock-card__title { margin: 0; font-size: 1.08rem; line-height: 1.4; letter-spacing: -.01em; }
+.stock-card__title a { color: var(--ink); transition: color .2s; }
+.stock-card__title a:hover { color: var(--brand); text-decoration: none; }
+.stock-card__title::after {
+    content: ""; display: block; width: 46px; height: 2px; margin-top: 14px;
+    border-radius: 2px; background: var(--grad-accent-hot);
+}
+.stock-card__excerpt { margin: 0; font-size: .94rem; line-height: 1.75; color: var(--muted); }
+/* margin-top:auto pins the button to the card's bottom edge, so uneven excerpt lengths still leave
+   all three buttons on one line. align-self keeps it its own width rather than full-bleed. */
+.stock-card__more { margin-top: auto; align-self: flex-start; }
+
+/* ---------- Article detail ---------- */
+.stock-article { max-width: 76ch; margin: 0 0 var(--space-section); }
+/* The title can be long, and the breadcrumb is a single flex row — cap it rather than let it push
+   the row into a wrap that reads as a second line of navigation. */
+.stock-article__crumb {
+    max-width: 42ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.stock-article__head { margin-bottom: 32px; }
+.stock-article__date {
+    display: block; margin-bottom: 14px;
+    font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .14em;
+    color: var(--brand);
+}
+.stock-article__title {
+    margin: 0; font-size: clamp(1.6rem, 1.1rem + 1.8vw, 2.4rem); line-height: 1.2;
+    letter-spacing: -.02em;
+}
+.stock-article__banner {
+    position: relative; aspect-ratio: 21 / 9; overflow: hidden; margin-bottom: 40px;
+    border-radius: var(--radius); border: 1px solid var(--line);
+    background: var(--media-bg); box-shadow: var(--shadow);
+}
+.stock-article__banner img { width: 100%; height: 100%; object-fit: cover; }
+.stock-article__body p {
+    margin: 0 0 1.5rem; font-size: 1.04rem; line-height: 1.85; color: var(--muted);
+}
+/* Lead paragraph sits at full contrast — the reference opens its articles on a stronger line. */
+.stock-article__body p:first-child { color: var(--ink); font-size: 1.12rem; }
+.stock-article__back {
+    display: inline-flex; align-items: center; gap: 9px; margin-top: 20px;
+    font-weight: 700; font-size: .84rem; text-transform: uppercase; letter-spacing: .12em;
+    color: var(--muted); transition: color .2s, gap .2s;
+}
+.stock-article__back:hover { color: var(--brand); gap: 14px; text-decoration: none; }
+
+.stock-missing { max-width: 56ch; }
+.stock-missing .btn { margin-top: 28px; }
+
+@media (max-width: 1000px) {
+    .stock-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 660px) {
+    .stock-list { grid-template-columns: 1fr; }
+    .stock-article__banner { aspect-ratio: 16 / 9; }
+    .stock-article__crumb { max-width: 18ch; }
+}
+
 /* ---------- Tables / lists ---------- */
 .table { width: 100%; border-collapse: collapse; }
 .table th, .table td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--line); font-size: .92rem; }
@@ -1249,6 +1391,13 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
     .footer-col__list--split { grid-template-columns: 1fr; }
 }
 
+/* Available to assistive tech, absent from the page. Used where a repeated control needs a target
+   its label alone does not give — three identical "Read more" buttons, for instance. */
+.visually-hidden {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
 .center-narrow { max-width: 440px; margin: 48px auto; }
 .spinner { width: 30px; height: 30px; border: 2px solid var(--line); border-top-color: var(--brand); border-radius: 50%; animation: spin 1s linear infinite; margin: 96px auto; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -1296,6 +1445,17 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
     .product-card:focus-within::before { transform: none; }
     .product-card__dots,
     .product-card__add { opacity: 1 !important; transform: none !important; }
+
+    /* Same treatment for the Phase 17 promo cards, which share the product card's construction:
+       drop the movement, keep the colour, glow and shadow that actually carry the hover state. */
+    .stock-card:hover,
+    .stock-card:focus-within { transform: none; }
+    .stock-card:hover .stock-card__media img,
+    .stock-card:focus-within .stock-card__media img { transform: none; }
+    .stock-card::before,
+    .stock-card:hover::before,
+    .stock-card:focus-within::before { transform: scale(.84) translateY(-8%); }
+    .stock-article__back:hover { gap: 9px; }
 
     /* reveal.js refuses to arm under this preference, so these never normally apply. They are the
        safety net for the one case it cannot catch: the preference being switched on after the page

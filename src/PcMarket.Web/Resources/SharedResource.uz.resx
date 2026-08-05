@@ -1020,4 +1020,27 @@
   <data name="ServiceCenter.Warranty14" xml:space="preserve">
     <value>Original seriya raqamining shikastlangani yoki yoʻqligi.</value>
   </data>
+
+  <!-- ===== Aksiyalar — yangiliklar va takliflar (Phase 17) ===== -->
+  <data name="Stock.PageTitle" xml:space="preserve">
+    <value>Aksiyalar — PC Market</value>
+  </data>
+  <data name="Stock.Heading" xml:space="preserve">
+    <value>Aksiyalar</value>
+  </data>
+  <data name="Stock.Intro" xml:space="preserve">
+    <value>PC Market yangiliklari, aksiyalari va maxsus takliflari. Buyurtma berishdan oldin joriy shartlarni aniqlashtiring.</value>
+  </data>
+  <data name="Stock.ReadMore" xml:space="preserve">
+    <value>Batafsil</value>
+  </data>
+  <data name="Stock.BackToList" xml:space="preserve">
+    <value>Aksiyalarga qaytish</value>
+  </data>
+  <data name="Stock.NotFound" xml:space="preserve">
+    <value>Nashr topilmadi</value>
+  </data>
+  <data name="Stock.NotFoundHint" xml:space="preserve">
+    <value>Ehtimol, aksiya tugagan yoki havola eskirgan.</value>
+  </data>
 </root>

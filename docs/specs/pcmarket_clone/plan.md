@@ -1,13 +1,13 @@
 # pcmarket_clone
 
 ## Status
-In Progress — last updated 2026-08-05. **Phases 0–16 and 18 are complete; Phases 17, 19
-and 20 are not started.** Phases 11–16 and 18 were verified against the running app on 2026-08-05:
-the Play font and charcoal retune are live and both themes were re-checked across home, catalog,
-product, cart and checkout; the storefront shell renders on every page; the home page, Payment and
-delivery, Contacts and Service Center are all built out; and Reviews resolves to the Telegram channel
-rather than an in-app page, as specified. One Phase 12 item remains open — see the note under that
-phase. Phases 17, 19 and 20 still serve `ComingSoon` placeholders at their routes.
+In Progress — last updated 2026-08-05. **Phases 0–18 are complete; Phases 19 and 20 are
+not started.** Phases 11–18 were verified against the running app on 2026-08-05: the Play font and
+charcoal retune are live and both themes were re-checked across home, catalog, product, cart and
+checkout; the storefront shell renders on every page; the home page, Payment and delivery, Contacts,
+Service Center and Stock are all built out; and Reviews resolves to the Telegram channel rather than
+an in-app page, as specified. One Phase 12 item remains open — see the note under that phase. Phases
+19 and 20 still serve `ComingSoon` placeholders at their routes.
 
 Layered on top of Phases 11–15, and not a phase of its own: a premium visual redesign of the
 storefront (charcoal/graphite foundation with a deep-red→warm-orange accent, ambient glow and
@@ -303,10 +303,20 @@ See the detailed plan in [mobile_app/plan.md](mobile_app/plan.md).
 > move the pin.
 
 ### Phase 17 — Stock (news & promotions)
-- [ ] Stock list route `/stock` (`Stock.razor`) — a red-underlined "Stock" section tab, breadcrumb Home › Stock, then article cards: banner image, red-underlined title, excerpt, and a right-aligned solid red "READ MORE" button.
-- [ ] Article detail route `/stock/{slug}` (`StockArticle.razor`) rendering one promotion's banner, title, and body.
-- [ ] Seed 2–3 dummy articles so both pages have content (reusing the Phase 6 `CmsBlock` content path if it fits, otherwise a minimal `StockArticle` model).
-- [ ] Card labels, "Read more", and dummy copy localized under `Stock.*` (RU/UZ/EN); cards reuse the existing surface/shadow tokens.
+- [x] Stock list route `/stock` (`Stock.razor`) — a red-underlined "Stock" section tab, breadcrumb Home › Stock, then article cards: banner image, red-underlined title, excerpt, and a right-aligned solid red "READ MORE" button.
+- [x] Article detail route `/stock/{slug}` (`StockArticlePage.razor`) rendering one promotion's banner, title, and body.
+- [x] Seed 2–3 dummy articles so both pages have content (reusing the Phase 6 `CmsBlock` content path if it fits, otherwise a minimal `StockArticle` model).
+- [x] Card labels, "Read more", and dummy copy localized under `Stock.*` (RU/UZ/EN); cards reuse the existing surface/shadow tokens.
+
+> **Three notes.** The component is `StockArticlePage.razor`, not `StockArticle.razor` — that name is
+> taken by the record the feed is built from, and Razor generates a class per component, so the two
+> would collide. The articles are seeded in a `StockArticles` singleton over a static array (shaped
+> like `HomeImages`, resolving banners through it) rather than through `CmsBlock`: that path needs an
+> entity, a migration and an admin surface for what is currently three dummy rows, and the service is
+> the seam to swap when the content goes live. And **article copy is Russian only** — the page chrome
+> is fully localized under `Stock.*` and the dates follow the active culture, but a title and body are
+> content rather than UI strings and do not belong in the resx; a real feed carries a translation per
+> article.
 
 ### Phase 18 — Reviews
 - [x] Reviews nav entry opens the Telegram reviews channel `https://t.me/otzivPCmarket` ("Отзывы PC Market") in a new tab via `target="_blank" rel="noopener"` — **no in-app reviews page**; the home-page "Read all reviews" link from Phase 13 points at the same URL.
@@ -597,3 +607,26 @@ See the detailed plan in [mobile_app/plan.md](mobile_app/plan.md).
   `StoreContact.TelegramReviewsUrl` constant, so the destination lives in exactly one place. Verified
   live: the link resolves 200 as "Отзывы PC Market" and renders with the correct href/target/rel under
   all three locales, with the label still localized (`Отзывы` / `Sharhlar` / `Reviews`).
+- 2026-08-05: Phase 17 complete — the Stock news/promotions section. Two routes replace the
+  `ComingSoon` placeholder: `/stock` (`Stock.razor`) lists the feed and `/stock/{slug}`
+  (`StockArticlePage.razor`) renders one article, both on the Contacts/Payment/Service-Center
+  skeleton. Data is a `StockArticle` record plus a `StockArticles` singleton over a static
+  three-article array, shaped like `HomeImages` and resolving each banner through it, so a missing
+  file degrades to the gradient fallback instead of a broken image; banners reuse existing artwork
+  (`promo-gaming`, `feat-gpu-1`, `promo-setup`) and no new image files were added. The cards
+  deliberately reuse the `.product-card` construction — ambient glow at z-index 0 under the media,
+  vignette over it, lift on the same four tokens — so a promo card and a product card read as the
+  same object class; the glow is centred 8% higher because the banner is a 16/10 strip rather than a
+  square. `margin-top: auto` on the button is what keeps all three CTAs on one line under uneven
+  excerpts. The whole card is *not* a link (the title and button are), so the excerpt stays
+  selectable, and `:focus-within` keeps the lift in sync for keyboard users. Detail-page notes: the
+  lead paragraph sits at full contrast against muted body copy; an unknown slug renders its own
+  not-found state with a way back rather than throwing, matching `Product.razor`; and resolution
+  happens in `OnParametersSet`, not `OnInitialized`, since navigating between two articles reuses the
+  component instance. Added a `.visually-hidden` utility (three identical "Read more" buttons need
+  per-card accessible names) and extended the reduced-motion block to cover the new cards. 7
+  `Stock.*` keys × RU/UZ/EN. Verified in-browser over CDP: all three locales render with **zero**
+  leaked resource keys across both list and detail, 3 cards, all banners loaded, dates localized per
+  culture (28 июля 2026 / 28 iyul 2026 / 28 July 2026), and the unknown-slug path degrades cleanly;
+  dark and light both check out. Deviations recorded under the phase — component naming, the static
+  service instead of `CmsBlock`, and Russian-only article copy.
