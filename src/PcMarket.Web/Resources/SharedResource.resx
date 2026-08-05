@@ -946,4 +946,119 @@
     <value>PC Market showroom on Google Maps</value>
     <comment>Accessible title for the embedded map iframe.</comment>
   </data>
+
+  <!-- ===== Service Center page (Phase 16) ===== -->
+  <data name="ServiceCenter.PageTitle" xml:space="preserve">
+    <value>Service Center — PC Market</value>
+  </data>
+  <data name="ServiceCenter.Heading" xml:space="preserve">
+    <value>Authorized service centers</value>
+  </data>
+  <data name="ServiceCenter.Intro" xml:space="preserve">
+    <value>Warranty and post-warranty repair of equipment purchased from PC Market is handled by our service partners. Bring the device with its receipt and warranty card to either center below.</value>
+  </data>
+  <data name="ServiceCenter.AddressLabel" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="ServiceCenter.LandmarkLabel" xml:space="preserve">
+    <value>Landmark</value>
+  </data>
+  <data name="ServiceCenter.PhoneLabel" xml:space="preserve">
+    <value>Phone number</value>
+  </data>
+  <data name="ServiceCenter.HoursLabel" xml:space="preserve">
+    <value>Opening hours</value>
+  </data>
+  <data name="ServiceCenter.WebsiteLabel" xml:space="preserve">
+    <value>Website</value>
+  </data>
+
+  <data name="ServiceCenter.AvtechName" xml:space="preserve">
+    <value>AVTECH Service Center</value>
+  </data>
+  <data name="ServiceCenter.AvtechAddress" xml:space="preserve">
+    <value>Tashkent city, Yakkasaray district, st. Abdullah Kahar, 49A</value>
+  </data>
+  <data name="ServiceCenter.AvtechHours" xml:space="preserve">
+    <value>Monday–Friday 9:00–18:00</value>
+  </data>
+  <data name="ServiceCenter.AvtechDaysOff" xml:space="preserve">
+    <value>Saturday–Sunday: closed</value>
+  </data>
+  <data name="ServiceCenter.AvtechMapTitle" xml:space="preserve">
+    <value>AVTECH Service Center on Google Maps</value>
+    <comment>Accessible title for the embedded map iframe.</comment>
+  </data>
+
+  <data name="ServiceCenter.NgName" xml:space="preserve">
+    <value>LLC "NG Service"</value>
+  </data>
+  <data name="ServiceCenter.NgKicker" xml:space="preserve">
+    <value>Equipment repair services</value>
+  </data>
+  <data name="ServiceCenter.NgAddress" xml:space="preserve">
+    <value>100171, Uzbekistan, Tashkent, Yashnabad district, Korasuv Street (former Lisunov), Bldg. 2</value>
+  </data>
+  <data name="ServiceCenter.NgLandmark" xml:space="preserve">
+    <value>Former Aviator Culture Center</value>
+  </data>
+  <data name="ServiceCenter.NgHours" xml:space="preserve">
+    <value>9:00–18:00</value>
+  </data>
+  <data name="ServiceCenter.NgDaysOff" xml:space="preserve">
+    <value>Days off: Saturday–Sunday</value>
+  </data>
+  <data name="ServiceCenter.NgCashDeskNote" xml:space="preserve">
+    <value>The cash desk and equipment warehouse close at 17:30</value>
+  </data>
+  <data name="ServiceCenter.NgMapTitle" xml:space="preserve">
+    <value>LLC "NG Service" on Google Maps</value>
+    <comment>Accessible title for the embedded map iframe.</comment>
+  </data>
+
+  <data name="ServiceCenter.WarrantyHeading" xml:space="preserve">
+    <value>Warranty obligations do not apply in the following cases:</value>
+  </data>
+  <data name="ServiceCenter.Warranty1" xml:space="preserve">
+    <value>Physical, mechanical or thermal damage (burnout) to the product.</value>
+  </data>
+  <data name="ServiceCenter.Warranty2" xml:space="preserve">
+    <value>Use of the product for purposes not provided for in the instructions.</value>
+  </data>
+  <data name="ServiceCenter.Warranty3" xml:space="preserve">
+    <value>Damage caused by non-compliance with the rules of installation, assembly, configuration or operation.</value>
+  </data>
+  <data name="ServiceCenter.Warranty4" xml:space="preserve">
+    <value>Violation of, or failure to carry out, the required preventive work.</value>
+  </data>
+  <data name="ServiceCenter.Warranty5" xml:space="preserve">
+    <value>Intentional or erroneous actions by the consumer, or careless handling of the product.</value>
+  </data>
+  <data name="ServiceCenter.Warranty6" xml:space="preserve">
+    <value>External circumstances: natural disasters, fire, lightning strikes, power surges.</value>
+  </data>
+  <data name="ServiceCenter.Warranty7" xml:space="preserve">
+    <value>Foreign objects found inside the product: liquids, insects, rodents.</value>
+  </data>
+  <data name="ServiceCenter.Warranty8" xml:space="preserve">
+    <value>Modification of the product, changes to its design, or independent opening and repair.</value>
+  </data>
+  <data name="ServiceCenter.Warranty9" xml:space="preserve">
+    <value>Damage caused by improper transportation and storage.</value>
+  </data>
+  <data name="ServiceCenter.Warranty10" xml:space="preserve">
+    <value>Use of non-standard (non-original) consumables or components.</value>
+  </data>
+  <data name="ServiceCenter.Warranty11" xml:space="preserve">
+    <value>Exceeding the permissible supply voltage, or use of power sources that do not comply with the specification.</value>
+  </data>
+  <data name="ServiceCenter.Warranty12" xml:space="preserve">
+    <value>Use of unlicensed software or virus programs.</value>
+  </data>
+  <data name="ServiceCenter.Warranty13" xml:space="preserve">
+    <value>Damage to, or absence of, the warranty mark (seal).</value>
+  </data>
+  <data name="ServiceCenter.Warranty14" xml:space="preserve">
+    <value>The original serial number is damaged or missing.</value>
+  </data>
 </root>

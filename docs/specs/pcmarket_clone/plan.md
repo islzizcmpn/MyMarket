@@ -1,13 +1,13 @@
 # pcmarket_clone
 
 ## Status
-In Progress — last updated 2026-08-05. **Phases 0–15 and 18 are complete; Phases 16, 17, 19 and 20 are
-not started.** Phases 11–15 and 18 were verified against the running app on 2026-08-05: the Play font and
-charcoal retune are live and both themes were re-checked across home, catalog, product, cart and checkout;
-the storefront shell renders on every page; the home page, Payment and delivery, and Contacts are all built
-out; and Reviews resolves to the Telegram channel rather than an in-app page, as specified. One Phase 12
-item remains open — see the note under that phase. Phases 16, 17, 19 and 20 still serve `ComingSoon`
-placeholders at their routes.
+In Progress — last updated 2026-08-05. **Phases 0–16 and 18 are complete; Phases 17, 19
+and 20 are not started.** Phases 11–16 and 18 were verified against the running app on 2026-08-05:
+the Play font and charcoal retune are live and both themes were re-checked across home, catalog,
+product, cart and checkout; the storefront shell renders on every page; the home page, Payment and
+delivery, Contacts and Service Center are all built out; and Reviews resolves to the Telegram channel
+rather than an in-app page, as specified. One Phase 12 item remains open — see the note under that
+phase. Phases 17, 19 and 20 still serve `ComingSoon` placeholders at their routes.
 
 Layered on top of Phases 11–15, and not a phase of its own: a premium visual redesign of the
 storefront (charcoal/graphite foundation with a deep-red→warm-orange accent, ambient glow and
@@ -289,12 +289,18 @@ See the detailed plan in [mobile_app/plan.md](mobile_app/plan.md).
 > `info@example.com` on the IANA-reserved documentation domain, so it can never resolve.
 
 ### Phase 16 — Service Center page
-- [ ] Route `/service-center` (`ServiceCenter.razor`) with breadcrumb Home › Service Center and a two-column service-partner layout.
-- [ ] AVTECH column, using muted "Address: / Phone number: / Opening hours:" labels above white values: "Tashkent city, Yakkasaray district, st. Abdullah Kahar, 49A", placeholder phone, Mon–Fri 9:00–18:00 / Sat–Sun Closed.
-- [ ] LLC "NG Service" column: "100171, Uzbekistan, Tashkent, Yashnabad district, Korasuv Street (former Lisunov), Bldg. 2", landmark line, working hours 9:00–18:00, days off Saturday–Sunday, the "cash desk and equipment warehouse close at 17:30" note, placeholder phone, and a placeholder service-center website.
-- [ ] Shared "Warranty obligations do not apply in the following cases:" list — all 14 exclusion bullets from the reference (physical/thermal damage, misuse, bad installation, missed preventive work, external circumstances, foreign objects, unauthorized repair, transport damage, non-original consumables, out-of-spec voltage, unlicensed software/viruses, damaged or absent warranty seal, missing serial number).
-- [ ] **Two** embedded Google Map `<iframe>`s (no API key), one per service center, placed under their respective columns.
-- [ ] Everything localized under `ServiceCenter.*` (RU/UZ/EN) and themed from `app.css`.
+- [x] Route `/service-center` (`ServiceCenter.razor`) with breadcrumb Home › Service Center and a two-column service-partner layout.
+- [x] AVTECH column, using muted "Address: / Phone number: / Opening hours:" labels above white values: "Tashkent city, Yakkasaray district, st. Abdullah Kahar, 49A", placeholder phone, Mon–Fri 9:00–18:00 / Sat–Sun Closed.
+- [x] LLC "NG Service" column: "100171, Uzbekistan, Tashkent, Yashnabad district, Korasuv Street (former Lisunov), Bldg. 2", landmark line, working hours 9:00–18:00, days off Saturday–Sunday, the "cash desk and equipment warehouse close at 17:30" note, placeholder phone, and a placeholder service-center website.
+- [x] Shared "Warranty obligations do not apply in the following cases:" list — all 14 exclusion bullets from the reference (physical/thermal damage, misuse, bad installation, missed preventive work, external circumstances, foreign objects, unauthorized repair, transport damage, non-original consumables, out-of-spec voltage, unlicensed software/viruses, damaged or absent warranty seal, missing serial number).
+- [x] **Two** embedded Google Map `<iframe>`s (no API key), one per service center, placed under their respective columns.
+- [x] Everything localized under `ServiceCenter.*` (RU/UZ/EN) and themed from `app.css`.
+
+> **Deviation:** no real partner website was supplied, so the NG Service site renders as
+> `service.example.com` on the IANA-reserved documentation domain — the same choice the Phase 15
+> mail address made, so it can never resolve. The two map queries are deliberately *not* localized:
+> they are Google Maps search terms held as constants in the page, since a translated address would
+> move the pin.
 
 ### Phase 17 — Stock (news & promotions)
 - [ ] Stock list route `/stock` (`Stock.razor`) — a red-underlined "Stock" section tab, breadcrumb Home › Stock, then article cards: banner image, red-underlined title, excerpt, and a right-aligned solid red "READ MORE" button.
@@ -567,3 +573,27 @@ See the detailed plan in [mobile_app/plan.md](mobile_app/plan.md).
   containers not running — `AddHangfire(…UsePostgreSqlStorage(…))` builds its storage during host startup and
   throws if Postgres is unreachable. Still not done: a live run against a real BotFather token over a public
   HTTPS webhook.
+- 2026-08-05: Phase 16 complete — the Service Center page. `ServiceCenter.razor` replaces the
+  `ComingSoon` placeholder at `/service-center`, built on the same skeleton as Contacts and Payment
+  (breadcrumb, one statement heading, `--space-section` rhythm, `data-reveal` scroll reveals from the
+  layout's scan). The two partners render from a private `Centre` record projected over the resx, so
+  the markup is one loop rather than two hand-written columns; the grid is `align-items: start`, which
+  is what lets the shorter AVTECH card keep its own height instead of growing a dead band under its
+  map. Each card carries a `--grad-accent-hot` edge (a pseudo-element, since `border-image` cannot
+  follow a `border-radius`) and a half-strength card lift — `calc(var(--lift-distance) / 2)`, because a
+  full 16px rise on a wide text panel reads as the page jumping rather than as a card lifting. Both
+  maps are keyless `https://www.google.com/maps?q=…&output=embed` iframes with `hl` following the UI
+  culture, wrapped in fixed-ratio boxes so neither shifts the page on load. Three icons added to
+  `ShellIcon` (`pin`, `globe`, `shield`). 36 `ServiceCenter.*` keys × RU/UZ/EN, no literal copy in the
+  `.razor`. Verified in-browser over CDP: all three locales render with **zero** leaked resource keys,
+  14 warranty bullets, and both map pins correct (the NG pin lands on Дворец Авиастроителей, matching
+  the landmark line); dark and light both check out. Deviation recorded under the phase — the partner
+  website is `service.example.com`, and the map queries stay untranslated on purpose.
+- 2026-08-05: Phase 18 tightened. The phase was already complete — the Reviews nav entry has been an
+  external anchor to `https://t.me/otzivPCmarket` with no in-app page since it shipped — so this pass
+  only hardened it: `rel` is now `noopener noreferrer` (the destination is third-party and has no need
+  for our URL) on both the nav entry and the home-page "Read all reviews" link, and
+  `TestimonialsCarousel` dropped its private copy of the channel URL in favour of the existing
+  `StoreContact.TelegramReviewsUrl` constant, so the destination lives in exactly one place. Verified
+  live: the link resolves 200 as "Отзывы PC Market" and renders with the correct href/target/rel under
+  all three locales, with the label still localized (`Отзывы` / `Sharhlar` / `Reviews`).

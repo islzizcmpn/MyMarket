@@ -1082,6 +1082,103 @@ main { min-height: 60vh; padding: 56px 0 var(--space-section); }
     .contacts-map__frame { aspect-ratio: 4 / 3; }
 }
 
+/* ---------- Service Center page (Phase 16) ----------
+   Same rule as the two pages before it: no value here is a literal colour. The panels reuse
+   --surface / --line / --shadow and the Layer 2 lift timings, so the light theme and the reduced-
+   motion block both apply without a second set of rules. */
+.svc-intro { margin-bottom: var(--space-block); }
+.svc-heading { text-transform: uppercase; letter-spacing: .01em; max-width: 22ch; margin: 0; }
+.svc-intro__body { max-width: 64ch; margin: 22px 0 0; font-size: 1.02rem; line-height: 1.8; }
+
+/* Two partners side by side. align-items: start keeps the shorter card its own height instead of
+   stretching it to match the taller one, so neither card grows a dead band under its map. */
+.svc-centres {
+    list-style: none; margin: 0 0 var(--space-section); padding: 0;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gutter);
+    align-items: start;
+}
+.svc-centre {
+    position: relative; overflow: hidden;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 40px 40px 36px; box-shadow: var(--shadow);
+    transition:
+        transform var(--lift-out) var(--lift-ease-return),
+        box-shadow var(--lift-out) var(--lift-ease-return),
+        border-color var(--lift-out) ease;
+}
+/* Accent edge as a pseudo-element rather than border-image, which cannot follow a border-radius —
+   the same construction as .pay-notice. */
+.svc-centre::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--grad-accent-hot);
+}
+/* A card-sized version of the product lift: half the distance, since these are wide panels of text
+   rather than product tiles and a full 16px rise would read as the page jumping. */
+.svc-centre:hover,
+.svc-centre:focus-within {
+    transform: translateY(calc(var(--lift-distance) / 2));
+    box-shadow: var(--shadow-lift);
+    border-color: color-mix(in srgb, var(--brand) 32%, var(--line));
+    transition-duration: var(--lift-in); transition-timing-function: var(--lift-ease);
+}
+
+.svc-centre__head { padding-bottom: 22px; margin-bottom: 26px; border-bottom: 1px solid var(--line); }
+.svc-centre__name {
+    margin: 0; font-size: clamp(1.15rem, .95rem + .6vw, 1.5rem);
+    text-transform: uppercase; letter-spacing: .02em; line-height: 1.25;
+}
+.svc-centre__kicker {
+    margin: 10px 0 0; font-size: .74rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .16em; color: var(--brand);
+}
+
+/* Muted label above a full-contrast value — the reference's own hierarchy. */
+.svc-facts { margin: 0; display: grid; gap: 22px; }
+.svc-fact { margin: 0; }
+.svc-fact__label {
+    display: flex; align-items: center; gap: 9px; margin: 0 0 7px;
+    font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .14em;
+    color: var(--muted);
+}
+.svc-fact__icon { display: inline-flex; color: var(--brand); }
+.svc-fact__icon svg { width: 15px; height: 15px; }
+.svc-fact__value { margin: 0; font-size: .98rem; line-height: 1.7; color: var(--ink); }
+.svc-fact__link { color: var(--ink); font-weight: 700; }
+.svc-fact__link:hover { color: var(--brand); text-decoration: none; }
+/* Secondary lines inside a value — days off, the 17:30 cash-desk note. */
+.svc-fact__note { display: block; margin-top: 4px; font-size: .9rem; color: var(--muted); }
+.svc-fact__note--accent { color: var(--brand); font-weight: 700; }
+
+.svc-centre__map {
+    position: relative; aspect-ratio: 16 / 10; overflow: hidden; margin-top: 32px;
+    border-radius: 12px; border: 1px solid var(--line); background: var(--media-bg);
+}
+.svc-centre__map iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* The exclusions run two-up on wide screens: 14 items in one column is a scroll, not a list. */
+.svc-warranty__list {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 40px;
+}
+.svc-warranty__list li {
+    position: relative; padding-left: 34px;
+    font-size: .98rem; line-height: 1.75; color: var(--muted);
+}
+/* Same gradient dash the payment terms use, so the two pages' prose reads as one system. */
+.svc-warranty__list li::before {
+    content: ""; position: absolute; left: 0; top: .78em; width: 18px; height: 2px;
+    border-radius: 2px; background: var(--grad-accent-hot);
+}
+
+@media (max-width: 1000px) {
+    .svc-centres { grid-template-columns: 1fr; }
+    .svc-warranty__list { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+    .svc-centre { padding: 30px 24px 26px; }
+    .svc-centre__map { aspect-ratio: 4 / 3; }
+}
+
 /* ---------- Tables / lists ---------- */
 .table { width: 100%; border-collapse: collapse; }
 .table th, .table td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--line); font-size: .92rem; }

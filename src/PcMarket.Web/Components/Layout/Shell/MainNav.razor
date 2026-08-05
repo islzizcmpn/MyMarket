@@ -15,8 +15,11 @@
             @L["Nav.Stock"]
         </NavLink>
 
-        @* Reviews live in the Telegram channel — there is no in-app reviews page (Phase 18). *@
-        <a class="mainnav__link" href="@StoreContact.TelegramReviewsUrl" target="_blank" rel="noopener">
+        @* Reviews live in the Telegram channel — there is no in-app reviews page (Phase 18). It is a
+           plain anchor, so it never takes the router's active state. rel carries noreferrer as well
+           as noopener: the destination is a third-party site and has no need for our URL. *@
+        <a class="mainnav__link" href="@StoreContact.TelegramReviewsUrl"
+           target="_blank" rel="noopener noreferrer">
             @L["Nav.Reviews"]
         </a>
 

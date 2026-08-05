@@ -907,4 +907,117 @@
   <data name="Contacts.MapTitle" xml:space="preserve">
     <value>PC Market shourumi Google Xaritalarda</value>
   </data>
+
+  <!-- ===== Servis markazi (Phase 16) ===== -->
+  <data name="ServiceCenter.PageTitle" xml:space="preserve">
+    <value>Servis markazi — PC Market</value>
+  </data>
+  <data name="ServiceCenter.Heading" xml:space="preserve">
+    <value>Avtorizatsiyalangan servis markazlari</value>
+  </data>
+  <data name="ServiceCenter.Intro" xml:space="preserve">
+    <value>PC Marketdan sotib olingan texnikaning kafolatli va kafolatdan keyingi taʼmiri servis hamkorlarimiz tomonidan amalga oshiriladi. Qurilmani chek va kafolat taloni bilan quyidagi markazlardan biriga olib keling.</value>
+  </data>
+  <data name="ServiceCenter.AddressLabel" xml:space="preserve">
+    <value>Manzil</value>
+  </data>
+  <data name="ServiceCenter.LandmarkLabel" xml:space="preserve">
+    <value>Moʻljal</value>
+  </data>
+  <data name="ServiceCenter.PhoneLabel" xml:space="preserve">
+    <value>Telefon raqami</value>
+  </data>
+  <data name="ServiceCenter.HoursLabel" xml:space="preserve">
+    <value>Ish vaqti</value>
+  </data>
+  <data name="ServiceCenter.WebsiteLabel" xml:space="preserve">
+    <value>Veb-sayt</value>
+  </data>
+
+  <data name="ServiceCenter.AvtechName" xml:space="preserve">
+    <value>AVTECH servis markazi</value>
+  </data>
+  <data name="ServiceCenter.AvtechAddress" xml:space="preserve">
+    <value>Toshkent shahri, Yakkasaroy tumani, Abdulla Qahhor koʻchasi, 49A</value>
+  </data>
+  <data name="ServiceCenter.AvtechHours" xml:space="preserve">
+    <value>Dushanba–juma 9:00–18:00</value>
+  </data>
+  <data name="ServiceCenter.AvtechDaysOff" xml:space="preserve">
+    <value>Shanba–yakshanba: dam olish kuni</value>
+  </data>
+  <data name="ServiceCenter.AvtechMapTitle" xml:space="preserve">
+    <value>AVTECH servis markazi Google Xaritalarda</value>
+  </data>
+
+  <data name="ServiceCenter.NgName" xml:space="preserve">
+    <value>«NG Service» MChJ</value>
+  </data>
+  <data name="ServiceCenter.NgKicker" xml:space="preserve">
+    <value>Uskunalarni taʼmirlash xizmatlari</value>
+  </data>
+  <data name="ServiceCenter.NgAddress" xml:space="preserve">
+    <value>100171, Oʻzbekiston, Toshkent, Yashnobod tumani, Qorasuv koʻchasi (sobiq Lisunov), 2-uy</value>
+  </data>
+  <data name="ServiceCenter.NgLandmark" xml:space="preserve">
+    <value>Sobiq «Aviator» madaniyat markazi</value>
+  </data>
+  <data name="ServiceCenter.NgHours" xml:space="preserve">
+    <value>9:00–18:00</value>
+  </data>
+  <data name="ServiceCenter.NgDaysOff" xml:space="preserve">
+    <value>Dam olish kunlari: shanba–yakshanba</value>
+  </data>
+  <data name="ServiceCenter.NgCashDeskNote" xml:space="preserve">
+    <value>Kassa va uskunalar ombori soat 17:30 da yopiladi</value>
+  </data>
+  <data name="ServiceCenter.NgMapTitle" xml:space="preserve">
+    <value>«NG Service» MChJ Google Xaritalarda</value>
+  </data>
+
+  <data name="ServiceCenter.WarrantyHeading" xml:space="preserve">
+    <value>Kafolat majburiyatlari quyidagi hollarda amal qilmaydi:</value>
+  </data>
+  <data name="ServiceCenter.Warranty1" xml:space="preserve">
+    <value>Mahsulotning jismoniy, mexanik yoki termik shikastlanishi (kuyishi).</value>
+  </data>
+  <data name="ServiceCenter.Warranty2" xml:space="preserve">
+    <value>Mahsulotni yoʻriqnomada koʻzda tutilmagan maqsadlarda ishlatish.</value>
+  </data>
+  <data name="ServiceCenter.Warranty3" xml:space="preserve">
+    <value>Oʻrnatish, yigʻish, sozlash yoki foydalanish qoidalariga rioya qilmaslik natijasidagi shikastlanish.</value>
+  </data>
+  <data name="ServiceCenter.Warranty4" xml:space="preserve">
+    <value>Zaruriy profilaktika ishlarining buzilishi yoki bajarilmasligi.</value>
+  </data>
+  <data name="ServiceCenter.Warranty5" xml:space="preserve">
+    <value>Isteʼmolchining ataylab yoki xato harakatlari, mahsulotga beparvo munosabatda boʻlish.</value>
+  </data>
+  <data name="ServiceCenter.Warranty6" xml:space="preserve">
+    <value>Tashqi holatlar: tabiiy ofatlar, yongʻin, chaqmoq urishi, kuchlanish sakrashlari.</value>
+  </data>
+  <data name="ServiceCenter.Warranty7" xml:space="preserve">
+    <value>Mahsulot ichidagi begona jismlar: suyuqliklar, hasharotlar, kemiruvchilar.</value>
+  </data>
+  <data name="ServiceCenter.Warranty8" xml:space="preserve">
+    <value>Mahsulotni oʻzgartirish, konstruksiyasini oʻzgartirish, mustaqil ochish yoki taʼmirlash.</value>
+  </data>
+  <data name="ServiceCenter.Warranty9" xml:space="preserve">
+    <value>Notoʻgʻri tashish va saqlash natijasida yuzaga kelgan shikastlanish.</value>
+  </data>
+  <data name="ServiceCenter.Warranty10" xml:space="preserve">
+    <value>Nostandart (original boʻlmagan) sarf materiallari yoki butlovchi qismlardan foydalanish.</value>
+  </data>
+  <data name="ServiceCenter.Warranty11" xml:space="preserve">
+    <value>Ruxsat etilgan taʼminot kuchlanishidan oshib ketish yoki spetsifikatsiyaga mos kelmaydigan quvvat manbalaridan foydalanish.</value>
+  </data>
+  <data name="ServiceCenter.Warranty12" xml:space="preserve">
+    <value>Litsenziyasiz dasturiy taʼminot yoki virusli dasturlardan foydalanish.</value>
+  </data>
+  <data name="ServiceCenter.Warranty13" xml:space="preserve">
+    <value>Kafolat belgisining (plombasining) shikastlanishi yoki yoʻqligi.</value>
+  </data>
+  <data name="ServiceCenter.Warranty14" xml:space="preserve">
+    <value>Original seriya raqamining shikastlangani yoki yoʻqligi.</value>
+  </data>
 </root>

@@ -1,7 +1,193 @@
 @page "/service-center"
+@using System.Globalization
 @inject IStringLocalizer<SharedResource> L
 
-@* Placeholder — the real page is Phase 16. *@
-<PageTitle>@L["Nav.ServiceCenter"] — PCMarket</PageTitle>
+@* Phase 16. Renders inside the Phase 12 storefront shell (MainLayout), so the top bar, nav, category
+   sidebar and footer wrap this content; scroll reveals are armed by the layout's scan call. Built to
+   the same skeleton as Contacts and Payment: breadcrumb, one statement heading, then measure-capped
+   blocks separated by the --space-section rhythm. *@
 
-<ComingSoon Title="@L["Nav.ServiceCenter"]" Phase="16" />
+<PageTitle>@L["ServiceCenter.PageTitle"]</PageTitle>
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">@L["Nav.Home"]</a>
+    <span aria-hidden="true">›</span>
+    <span class="muted">@L["Nav.ServiceCenter"]</span>
+</nav>
+
+<section class="home-section svc-intro" data-reveal="block">
+    <h1 class="svc-heading">@L["ServiceCenter.Heading"]</h1>
+    <p class="svc-intro__body muted">@L["ServiceCenter.Intro"]</p>
+</section>
+
+@* The two partners sit side by side, each carrying its own detail list and its own map. One <li> per
+   centre so the pair reads as a set rather than as two unrelated panels. *@
+<ul class="svc-centres" data-reveal="stagger">
+    @foreach (var centre in Centres)
+    {
+        <li class="svc-centre">
+            <div class="svc-centre__head">
+                <h2 class="svc-centre__name">@centre.Name</h2>
+                @if (centre.Kicker is { Length: > 0 } kicker)
+                {
+                    <p class="svc-centre__kicker">@kicker</p>
+                }
+            </div>
+
+            <dl class="svc-facts">
+                <div class="svc-fact">
+                    <dt class="svc-fact__label">
+                        <span class="svc-fact__icon" aria-hidden="true"><ShellIcon Name="pin" Class="icon--sm" /></span>
+                        @L["ServiceCenter.AddressLabel"]
+                    </dt>
+                    <dd class="svc-fact__value">@centre.Address</dd>
+                </div>
+
+                @if (centre.Landmark is { Length: > 0 } landmark)
+                {
+                    <div class="svc-fact">
+                        <dt class="svc-fact__label">
+                            <span class="svc-fact__icon" aria-hidden="true"><ShellIcon Name="pin" Class="icon--sm" /></span>
+                            @L["ServiceCenter.LandmarkLabel"]
+                        </dt>
+                        <dd class="svc-fact__value">@landmark</dd>
+                    </div>
+                }
+
+                <div class="svc-fact">
+                    <dt class="svc-fact__label">
+                        <span class="svc-fact__icon" aria-hidden="true"><ShellIcon Name="phone" Class="icon--sm" /></span>
+                        @L["ServiceCenter.PhoneLabel"]
+                    </dt>
+                    <dd class="svc-fact__value">
+                        <a class="svc-fact__link" href="@StoreContact.PhoneHref">@StoreContact.Phone</a>
+                    </dd>
+                </div>
+
+                <div class="svc-fact">
+                    <dt class="svc-fact__label">
+                        <span class="svc-fact__icon" aria-hidden="true"><ShellIcon Name="clock" Class="icon--sm" /></span>
+                        @L["ServiceCenter.HoursLabel"]
+                    </dt>
+                    <dd class="svc-fact__value">
+                        @centre.Hours
+                        <span class="svc-fact__note">@centre.DaysOff</span>
+                        @if (centre.HoursNote is { Length: > 0 } note)
+                        {
+                            <span class="svc-fact__note svc-fact__note--accent">@note</span>
+                        }
+                    </dd>
+                </div>
+
+                @if (centre.Website is { Length: > 0 } website)
+                {
+                    <div class="svc-fact">
+                        <dt class="svc-fact__label">
+                            <span class="svc-fact__icon" aria-hidden="true"><ShellIcon Name="globe" Class="icon--sm" /></span>
+                            @L["ServiceCenter.WebsiteLabel"]
+                        </dt>
+                        <dd class="svc-fact__value">
+                            <a class="svc-fact__link" href="@("https://" + website)" target="_blank" rel="noopener noreferrer">@website</a>
+                        </dd>
+                    </div>
+                }
+            </dl>
+
+            @* Plain maps query with output=embed — the keyless embed, same as the Contacts page. The
+               /maps/embed/v1/ endpoint would need an API key this app has no reason to carry for a
+               static pin. The wrapper holds a fixed ratio so the iframe never reflows the page. *@
+            <div class="svc-centre__map">
+                <iframe src="@MapEmbedUrl(centre.MapQuery)"
+                        title="@centre.MapTitle"
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        allowfullscreen></iframe>
+            </div>
+        </li>
+    }
+</ul>
+
+@* Shared across both centres, so it sits below the pair rather than inside either one. *@
+<section class="home-section svc-warranty">
+    <h2 class="home-section__title" data-reveal="block">@L["ServiceCenter.WarrantyHeading"]</h2>
+
+    <ul class="svc-warranty__list" data-reveal="stagger">
+        @foreach (var key in WarrantyKeys)
+        {
+            <li>@L[key]</li>
+        }
+    </ul>
+</section>
+
+@code {
+    /// <summary>
+    /// One service partner. Everything user-visible is passed in already localized; only
+    /// <see cref="MapQuery"/> stays untranslated, since it is a Google Maps search term and a
+    /// translated address would move the pin.
+    /// </summary>
+    private sealed record Centre(
+        string Name,
+        string? Kicker,
+        string Address,
+        string? Landmark,
+        string Hours,
+        string DaysOff,
+        string? HoursNote,
+        string? Website,
+        string MapQuery,
+        string MapTitle);
+
+    /// <summary>
+    /// Placeholder service-centre site. Deliberately on the IANA-reserved <c>example.com</c>
+    /// documentation domain — the same choice as <see cref="StoreContact.Email"/> — so it can never
+    /// resolve to a real site. Swap for the partner's real address when there is one.
+    /// </summary>
+    private const string PlaceholderWebsite = "service.example.com";
+
+    /// <summary>Untranslated map search terms. Kept beside the records rather than in the resx so a
+    /// translation can never relocate the pin.</summary>
+    private const string AvtechMapQuery =
+        "Tashkent, Yakkasaray district, Abdullah Kahar street 49A";
+
+    private const string NgServiceMapQuery =
+        "Tashkent, Yashnabad district, Korasuv street 2, 100171";
+
+    private List<Centre> Centres =>
+    [
+        new(
+            Name: L["ServiceCenter.AvtechName"],
+            Kicker: null,
+            Address: L["ServiceCenter.AvtechAddress"],
+            Landmark: null,
+            Hours: L["ServiceCenter.AvtechHours"],
+            DaysOff: L["ServiceCenter.AvtechDaysOff"],
+            HoursNote: null,
+            Website: null,
+            MapQuery: AvtechMapQuery,
+            MapTitle: L["ServiceCenter.AvtechMapTitle"]),
+        new(
+            Name: L["ServiceCenter.NgName"],
+            Kicker: L["ServiceCenter.NgKicker"],
+            Address: L["ServiceCenter.NgAddress"],
+            Landmark: L["ServiceCenter.NgLandmark"],
+            Hours: L["ServiceCenter.NgHours"],
+            DaysOff: L["ServiceCenter.NgDaysOff"],
+            HoursNote: L["ServiceCenter.NgCashDeskNote"],
+            Website: PlaceholderWebsite,
+            MapQuery: NgServiceMapQuery,
+            MapTitle: L["ServiceCenter.NgMapTitle"])
+    ];
+
+    /// <summary>The 14 warranty exclusions, in reference order.</summary>
+    private static readonly string[] WarrantyKeys =
+        [.. Enumerable.Range(1, 14).Select(i => $"ServiceCenter.Warranty{i}")];
+
+    /// <summary>
+    /// Keyless Google Maps embed. <c>hl</c> follows the active UI culture so the map's own labels
+    /// match the rest of the page rather than defaulting to the viewer's Google setting.
+    /// </summary>
+    private static string MapEmbedUrl(string query) =>
+        "https://www.google.com/maps?q=" + Uri.EscapeDataString(query)
+        + "&hl=" + CultureInfo.CurrentUICulture.TwoLetterISOLanguageName
+        + "&z=16&output=embed";
+}

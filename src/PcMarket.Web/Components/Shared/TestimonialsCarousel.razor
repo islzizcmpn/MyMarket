@@ -29,14 +29,14 @@
         </div>
 
         @* Reviews live in the Telegram channel — see Phase 18. *@
-        <a class="testimonial-foot__all" href="@ReviewsChannelUrl" target="_blank" rel="noopener">
+        <a class="testimonial-foot__all" href="@StoreContact.TelegramReviewsUrl"
+           target="_blank" rel="noopener noreferrer">
             @L["Home.ReadAllReviews"]
         </a>
     </div>
 </section>
 
 @code {
-    private const string ReviewsChannelUrl = "https://t.me/otzivPCmarket";
     private const int Count = 6;
     private const int PageSize = 3;
 

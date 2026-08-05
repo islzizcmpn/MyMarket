@@ -907,4 +907,117 @@
   <data name="Contacts.MapTitle" xml:space="preserve">
     <value>Шоурум PC Market на Google Картах</value>
   </data>
+
+  <!-- ===== Сервисный центр (Phase 16) ===== -->
+  <data name="ServiceCenter.PageTitle" xml:space="preserve">
+    <value>Сервисный центр — PC Market</value>
+  </data>
+  <data name="ServiceCenter.Heading" xml:space="preserve">
+    <value>Авторизованные сервисные центры</value>
+  </data>
+  <data name="ServiceCenter.Intro" xml:space="preserve">
+    <value>Гарантийный и постгарантийный ремонт техники, купленной в PC Market, выполняют наши сервисные партнёры. Привезите устройство с чеком и гарантийным талоном в любой из центров ниже.</value>
+  </data>
+  <data name="ServiceCenter.AddressLabel" xml:space="preserve">
+    <value>Адрес</value>
+  </data>
+  <data name="ServiceCenter.LandmarkLabel" xml:space="preserve">
+    <value>Ориентир</value>
+  </data>
+  <data name="ServiceCenter.PhoneLabel" xml:space="preserve">
+    <value>Номер телефона</value>
+  </data>
+  <data name="ServiceCenter.HoursLabel" xml:space="preserve">
+    <value>Часы работы</value>
+  </data>
+  <data name="ServiceCenter.WebsiteLabel" xml:space="preserve">
+    <value>Сайт</value>
+  </data>
+
+  <data name="ServiceCenter.AvtechName" xml:space="preserve">
+    <value>Сервисный центр AVTECH</value>
+  </data>
+  <data name="ServiceCenter.AvtechAddress" xml:space="preserve">
+    <value>город Ташкент, Яккасарайский район, ул. Абдуллы Каххара, 49А</value>
+  </data>
+  <data name="ServiceCenter.AvtechHours" xml:space="preserve">
+    <value>Понедельник–пятница 9:00–18:00</value>
+  </data>
+  <data name="ServiceCenter.AvtechDaysOff" xml:space="preserve">
+    <value>Суббота–воскресенье: выходной</value>
+  </data>
+  <data name="ServiceCenter.AvtechMapTitle" xml:space="preserve">
+    <value>Сервисный центр AVTECH на Google Картах</value>
+  </data>
+
+  <data name="ServiceCenter.NgName" xml:space="preserve">
+    <value>ООО «NG Service»</value>
+  </data>
+  <data name="ServiceCenter.NgKicker" xml:space="preserve">
+    <value>Услуги по ремонту оборудования</value>
+  </data>
+  <data name="ServiceCenter.NgAddress" xml:space="preserve">
+    <value>100171, Узбекистан, Ташкент, Яшнабадский район, улица Корасув (бывшая Лисунова), дом 2</value>
+  </data>
+  <data name="ServiceCenter.NgLandmark" xml:space="preserve">
+    <value>Бывший Дворец культуры «Авиатор»</value>
+  </data>
+  <data name="ServiceCenter.NgHours" xml:space="preserve">
+    <value>9:00–18:00</value>
+  </data>
+  <data name="ServiceCenter.NgDaysOff" xml:space="preserve">
+    <value>Выходные: суббота–воскресенье</value>
+  </data>
+  <data name="ServiceCenter.NgCashDeskNote" xml:space="preserve">
+    <value>Касса и склад оборудования закрываются в 17:30</value>
+  </data>
+  <data name="ServiceCenter.NgMapTitle" xml:space="preserve">
+    <value>ООО «NG Service» на Google Картах</value>
+  </data>
+
+  <data name="ServiceCenter.WarrantyHeading" xml:space="preserve">
+    <value>Гарантийные обязательства не распространяются на следующие случаи:</value>
+  </data>
+  <data name="ServiceCenter.Warranty1" xml:space="preserve">
+    <value>Физические, механические или термические повреждения изделия (прогорание).</value>
+  </data>
+  <data name="ServiceCenter.Warranty2" xml:space="preserve">
+    <value>Использование изделия в целях, не предусмотренных инструкцией.</value>
+  </data>
+  <data name="ServiceCenter.Warranty3" xml:space="preserve">
+    <value>Повреждения из-за несоблюдения правил установки, сборки, настройки или эксплуатации.</value>
+  </data>
+  <data name="ServiceCenter.Warranty4" xml:space="preserve">
+    <value>Нарушение или невыполнение необходимых профилактических работ.</value>
+  </data>
+  <data name="ServiceCenter.Warranty5" xml:space="preserve">
+    <value>Умышленные или ошибочные действия потребителя, небрежное обращение с изделием.</value>
+  </data>
+  <data name="ServiceCenter.Warranty6" xml:space="preserve">
+    <value>Внешние обстоятельства: стихийные бедствия, пожар, удар молнии, скачки напряжения.</value>
+  </data>
+  <data name="ServiceCenter.Warranty7" xml:space="preserve">
+    <value>Посторонние предметы внутри изделия: жидкости, насекомые, грызуны.</value>
+  </data>
+  <data name="ServiceCenter.Warranty8" xml:space="preserve">
+    <value>Модификация изделия, изменение конструкции, самостоятельное вскрытие или ремонт.</value>
+  </data>
+  <data name="ServiceCenter.Warranty9" xml:space="preserve">
+    <value>Повреждения, вызванные неправильной транспортировкой и хранением.</value>
+  </data>
+  <data name="ServiceCenter.Warranty10" xml:space="preserve">
+    <value>Использование нестандартных (неоригинальных) расходных материалов или комплектующих.</value>
+  </data>
+  <data name="ServiceCenter.Warranty11" xml:space="preserve">
+    <value>Превышение допустимого напряжения питания или использование источников питания, не соответствующих спецификации.</value>
+  </data>
+  <data name="ServiceCenter.Warranty12" xml:space="preserve">
+    <value>Использование нелицензионного программного обеспечения или вирусных программ.</value>
+  </data>
+  <data name="ServiceCenter.Warranty13" xml:space="preserve">
+    <value>Повреждение или отсутствие гарантийной отметки (пломбы).</value>
+  </data>
+  <data name="ServiceCenter.Warranty14" xml:space="preserve">
+    <value>Оригинальный серийный номер повреждён или отсутствует.</value>
+  </data>
 </root>
