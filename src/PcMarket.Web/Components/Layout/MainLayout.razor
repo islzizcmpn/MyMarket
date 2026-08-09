@@ -6,6 +6,7 @@
 @inject StoreCart StoreCart
 @inject CatalogApiClient Catalog
 @inject NavigationManager Nav
+@inject IJSRuntime JS
 @inject IStringLocalizer<SharedResource> L
 
 @* Storefront shell (Phase 12). The category tree is fetched once here and handed to both the sidebar
@@ -24,6 +25,11 @@
         </div>
 
         <nav class="header-actions">
+            <button type="button" class="header-link theme-toggle" @onclick="ToggleTheme"
+                    title="Switch between dark and light theme" aria-label="Switch between dark and light theme">
+                <span class="theme-toggle__sun" aria-hidden="true">☀️</span>
+                <span class="theme-toggle__moon" aria-hidden="true">🌙</span>
+            </button>
             <LanguageSwitcher />
             <a class="header-link" href="/cart">
                 🛒 @L["Header.Cart"] @if (Cart.Count > 0) { <span class="cart-badge">@Cart.Count</span> }
@@ -121,6 +127,20 @@
     {
         var q = _query.Trim();
         Nav.NavigateTo(string.IsNullOrEmpty(q) ? "/catalog" : $"/search?q={Uri.EscapeDataString(q)}");
+    }
+
+    /// <summary>Flips the theme in the browser. The icon follows the data-theme attribute via CSS, so
+    /// nothing here needs to be mirrored into component state.</summary>
+    private async Task ToggleTheme()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("pcmarketTheme.toggle");
+        }
+        catch
+        {
+            // JS interop unavailable (circuit tearing down) — the theme simply stays as it is.
+        }
     }
 
     private void OnStateChanged() => InvokeAsync(StateHasChanged);

@@ -8,6 +8,35 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
+    @* Applies the stored theme before the first paint. Must stay inline and ahead of the stylesheet:
+       an external file — or waiting for the Blazor circuit — would flash the wrong theme. *@
+    <script>
+        (function () {
+            var KEY = 'pcmarket.theme';
+
+            function current() {
+                return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+            }
+
+            function apply(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                try { localStorage.setItem(KEY, theme); } catch (e) { /* storage blocked */ }
+            }
+
+            var stored;
+            try { stored = localStorage.getItem(KEY); } catch (e) { /* storage blocked */ }
+            apply(stored === 'light' ? 'light' : 'dark');
+
+            window.pcmarketTheme = {
+                current: current,
+                toggle: function () {
+                    var next = current() === 'dark' ? 'light' : 'dark';
+                    apply(next);
+                    return next;
+                }
+            };
+        })();
+    </script>
     <ResourcePreloader />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
