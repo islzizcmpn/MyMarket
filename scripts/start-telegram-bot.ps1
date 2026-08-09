@@ -256,9 +256,45 @@ function Test-TunnelReachable([string]$url, [string]$path, [int]$timeoutSec = 30
     Write-Warn "Could not reach $url$path from this machine ($lastError). This is often just local DNS lagging behind a brand-new tunnel hostname; Telegram resolves it independently. Continuing - webhook-info at the end reports what Telegram actually sees."
 }
 
+# Telegram rejects set-webhook outright when the hostname does not resolve for *it*:
+#     Bad Request: bad webhook: Failed to resolve host: Name or service not known
+# The edge-connection check above cannot catch that - cloudflared can be happily connected while the
+# public DNS record for the new hostname is still seconds behind. Test-TunnelReachable cannot catch it
+# either on a network whose own resolver refuses these names (a router filtering trycloudflare.com
+# answers NXDOMAIN forever, so that probe warns on every run and its warning carries no information).
+# Asking a public resolver directly is the closest proxy available for "can Telegram resolve this yet",
+# and unlike the local probe it is worth blocking on: registering before it comes back is the failure.
+function Wait-PublicDns([string]$url, [int]$timeoutSec = 90) {
+    $hostName = ([uri]$url).Host
+    Write-Step "Waiting for '$hostName' to resolve on public DNS"
+
+    # Two independent resolvers, so one being slow to pick up the record does not stall the run.
+    $resolvers = @("1.1.1.1", "8.8.8.8")
+    $deadline = (Get-Date).AddSeconds($timeoutSec)
+    while ((Get-Date) -lt $deadline) {
+        foreach ($resolver in $resolvers) {
+            try {
+                $answers = Resolve-DnsName -Name $hostName -Server $resolver -Type A -ErrorAction Stop |
+                    Where-Object { $_.IPAddress }
+                if ($answers) {
+                    Write-Ok "Resolves via $resolver ($(($answers | Select-Object -First 2 -ExpandProperty IPAddress) -join ', '))"
+                    return
+                }
+            }
+            catch {
+                # NXDOMAIN while the record is still propagating - keep waiting.
+            }
+        }
+        Start-Sleep -Seconds 3
+    }
+
+    Write-Warn "'$hostName' still does not resolve on public DNS after $timeoutSec s. Telegram will likely reject the webhook with 'Failed to resolve host'. Continuing anyway - the registration step retries."
+}
+
 $apiUrl = Wait-TunnelUrl "tunnel" "pcmarket-tunnel"
 Write-Ok "API tunnel:        $apiUrl"
 Assert-TunnelConnected "tunnel" "pcmarket-tunnel" (Get-ContainerSince "pcmarket-tunnel")
+Wait-PublicDns $apiUrl
 Test-TunnelReachable $apiUrl "/health"
 
 $storefrontUrl = $null
@@ -298,8 +334,40 @@ $login = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api/v1/auth/login" -Metho
     -ContentType "application/json" -Headers @{ Host = "api.localhost" } -Body $loginBody
 $token = $login.accessToken
 
-$setResult = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api/v1/bot/telegram/set-webhook" -Method Post `
-    -Headers @{ Host = "api.localhost"; Authorization = "Bearer $token" }
+# Even with the public-DNS gate passed, Telegram's own resolvers can still be a beat behind and answer
+# "Failed to resolve host" for a hostname minted a minute ago. That is transient and clears on its own,
+# so a bare first-attempt failure should not sink a run that is otherwise correct - retry a few times
+# before giving up, and surface the API's actual message if it never takes.
+$setResult = $null
+$attempts = 5
+for ($i = 1; $i -le $attempts; $i++) {
+    try {
+        $setResult = Invoke-RestMethod -Uri "http://127.0.0.1:8080/api/v1/bot/telegram/set-webhook" -Method Post `
+            -Headers @{ Host = "api.localhost"; Authorization = "Bearer $token" }
+        break
+    }
+    catch {
+        # Invoke-RestMethod throws on a 4xx/5xx and discards the body, which is where the API puts
+        # Telegram's own wording - read it off the response stream before it is lost.
+        $detail = $_.Exception.Message
+        $response = $_.Exception.Response
+        if ($response) {
+            try {
+                $reader = New-Object System.IO.StreamReader($response.GetResponseStream())
+                $body = $reader.ReadToEnd()
+                $reader.Close()
+                if ($body) { $detail = $body }
+            }
+            catch { }
+        }
+
+        if ($i -eq $attempts) {
+            throw "set-webhook failed after $attempts attempts. Last response: $detail"
+        }
+        Write-Warn "set-webhook attempt $i/$attempts failed, retrying in 10s. Response: $detail"
+        Start-Sleep -Seconds 10
+    }
+}
 Write-Ok "Webhook registered: $($setResult.webhookUrl)"
 
 Start-Sleep -Seconds 2
