@@ -63,6 +63,16 @@ public sealed class AdminApiClient(HttpClient http, IApiTokenProvider tokens) : 
     public Task<AdminCustomerDto?> LookupCustomerAsync(string phone, CancellationToken ct = default) =>
         GetOrDefaultAsync<AdminCustomerDto>($"admin/customers/lookup?phone={Uri.EscapeDataString(phone)}", ct);
 
+    // Customers
+    public Task<PagedResult<AdminCustomerListItemDto>> ListCustomersAsync(string? search, int page, int pageSize, CancellationToken ct = default)
+    {
+        var query = $"admin/customers?page={page}&pageSize={pageSize}";
+        if (!string.IsNullOrWhiteSpace(search)) query += $"&search={Uri.EscapeDataString(search)}";
+        return GetAsync<PagedResult<AdminCustomerListItemDto>>(query, ct);
+    }
+    public Task<AdminCustomerDetailDto?> GetCustomerAsync(Guid id, CancellationToken ct = default) =>
+        GetOrDefaultAsync<AdminCustomerDetailDto>($"admin/customers/{id}", ct);
+
     // Content — banners
     public Task<IReadOnlyList<AdminBannerDto>> ListBannersAsync(CancellationToken ct = default) =>
         GetAsync<IReadOnlyList<AdminBannerDto>>("admin/banners", ct);

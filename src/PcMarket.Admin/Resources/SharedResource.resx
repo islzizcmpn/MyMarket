@@ -171,6 +171,84 @@
   <data name="Nav.Orders" xml:space="preserve">
     <value>Orders</value>
   </data>
+  <data name="Nav.Customers" xml:space="preserve">
+    <value>Clients</value>
+  </data>
+  <data name="Common.Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Role.Admin" xml:space="preserve">
+    <value>ADMIN</value>
+  </data>
+  <data name="Role.Manager" xml:space="preserve">
+    <value>MANAGER</value>
+  </data>
+  <data name="Customers.PageTitle" xml:space="preserve">
+    <value>Clients</value>
+  </data>
+  <data name="Customers.SearchPlaceholder" xml:space="preserve">
+    <value>Phone, name or email…</value>
+  </data>
+  <data name="Customers.Empty" xml:space="preserve">
+    <value>No clients found.</value>
+  </data>
+  <data name="Customers.Contact" xml:space="preserve">
+    <value>Contact</value>
+  </data>
+  <data name="Customers.Orders" xml:space="preserve">
+    <value>Orders</value>
+  </data>
+  <data name="Customers.Spent" xml:space="preserve">
+    <value>Spent</value>
+  </data>
+  <data name="Customers.Registered" xml:space="preserve">
+    <value>Registered</value>
+  </data>
+  <data name="Customers.Telegram" xml:space="preserve">
+    <value>Telegram</value>
+  </data>
+  <data name="Customers.SpentNote" xml:space="preserve">
+    <value>Cancelled and refunded orders are excluded.</value>
+  </data>
+  <data name="CustomerDetail.PageTitle" xml:space="preserve">
+    <value>Client</value>
+  </data>
+  <data name="CustomerDetail.NotFound" xml:space="preserve">
+    <value>Client not found.</value>
+  </data>
+  <data name="CustomerDetail.Account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="CustomerDetail.StaffNote" xml:space="preserve">
+    <value>This is a staff account, not a customer.</value>
+  </data>
+  <data name="CustomerDetail.Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="CustomerDetail.Totals" xml:space="preserve">
+    <value>Totals</value>
+  </data>
+  <data name="CustomerDetail.Orders" xml:space="preserve">
+    <value>Orders</value>
+  </data>
+  <data name="CustomerDetail.NoOrders" xml:space="preserve">
+    <value>No orders yet.</value>
+  </data>
+  <data name="CustomerDetail.Locations" xml:space="preserve">
+    <value>Shared locations</value>
+  </data>
+  <data name="CustomerDetail.NoLocations" xml:space="preserve">
+    <value>No locations shared yet.</value>
+  </data>
+  <data name="CustomerDetail.Addresses" xml:space="preserve">
+    <value>Saved addresses</value>
+  </data>
+  <data name="CustomerDetail.NoAddresses" xml:space="preserve">
+    <value>No saved addresses.</value>
+  </data>
+  <data name="CustomerDetail.DefaultAddress" xml:space="preserve">
+    <value>Default</value>
+  </data>
   <data name="Nav.Import" xml:space="preserve">
     <value>Import</value>
   </data>

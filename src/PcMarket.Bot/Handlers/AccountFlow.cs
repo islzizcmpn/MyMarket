@@ -230,9 +230,21 @@ public sealed class AccountFlow(
             logger.LogWarning(ex, "Merging the Telegram guest cart into user {UserId} failed.", userId);
         }
 
+        // Both routes in raise the share-contact reply keyboard, and this is where they converge — so this
+        // is where it comes down. It takes two messages, and not by choice: Telegram only drops a reply
+        // keyboard when a message carries ReplyKeyboardRemove, and it decides at send time that such a
+        // message can never hold inline buttons — editing them in afterwards is refused outright with
+        // "message can't be edited". So the confirmation clears the keyboard, and the menu follows in a
+        // message of its own, identical to the one /menu sends.
         await responder.SendAsync(
             context.ChatId,
             BotPhrases.Format(context.Culture, Phrase.LinkedSuccess, BotText.Escape(phone)),
+            new ReplyKeyboardRemove(),
+            cancellationToken);
+
+        await responder.SendAsync(
+            context.ChatId,
+            BotText.MainMenu(context.Culture, phone),
             BotKeyboards.MainMenu(context.Culture, true),
             cancellationToken);
     }

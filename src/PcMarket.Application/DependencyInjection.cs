@@ -28,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<NotificationDeliveryService>();
         services.AddScoped<AdminCatalogService>();
         services.AddScoped<AdminOrderService>();
+        services.AddScoped<AdminCustomerService>();
         services.AddScoped<AdminDashboardService>();
         services.AddScoped<AdminAuditService>();
         services.AddScoped<AdminContentService>();

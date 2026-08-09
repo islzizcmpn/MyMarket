@@ -17,7 +17,7 @@ without `Enabled=true` and a token the webhook returns 404 and every outbound se
 | `Telegram:Enabled` | `TELEGRAM_ENABLED` | Master switch |
 | `Telegram:BotToken` | `TELEGRAM_BOT_TOKEN` | From @BotFather. Secret |
 | `Telegram:WebhookSecretToken` | `TELEGRAM_WEBHOOK_SECRET` | Secret. Required — the webhook rejects **every** update while it is unset |
-| `Telegram:AdminChatId` | `TELEGRAM_ADMIN_CHAT_ID` | Chat receiving new-order alerts. Unset = no alerts |
+| `Telegram:AdminChatId` | `TELEGRAM_ADMIN_CHAT_ID` | Chat receiving new-order alerts — a manager group is the recommended target ("Sending new-order alerts to a manager group"). Unset = no alerts |
 | `Telegram:PublicApiUrl` | `PUBLIC_API_URL` | Public base URL; the webhook is registered at `{PublicApiUrl}/api/v1/bot/telegram/webhook` |
 | `Telegram:StorefrontUrl` | `PUBLIC_STOREFRONT_URL` | Used for "open in store" deep links |
 | `Telegram:PageSize` | — | Products per catalog page (default 6) |
@@ -203,8 +203,34 @@ does not retry the same update.
 ## Commands
 
 `/start` `/menu` `/help` `/catalog` `/search <query>` `/cart` `/orders` `/language` `/link` `/unlink`
+`/chatid`
 
 Most navigation is inline keyboards rather than commands.
+
+## Sending new-order alerts to a manager group
+
+`Telegram:AdminChatId` takes one chat, and a **private group** is the better thing to point it at than
+any one manager's DM: staff are added and removed by group membership, with no redeploy and no config
+change, and nobody's phone is the single place an order can land.
+
+1. Create a private group and add the bot to it.
+2. Send `/chatid` in the group. The bot answers with the group's id — negative, e.g. `-1001234567890`.
+   (The id cannot be read off an invite link, and `getUpdates` is unavailable while a webhook is
+   registered, so the chat has to be asked directly.)
+3. Put it in `TELEGRAM_ADMIN_CHAT_ID` and restart the API: `docker compose up -d --no-deps api`.
+4. Place a test order and confirm the alert lands.
+
+Each manager must still `/link` their own account in a **private** chat with the bot and hold the Admin
+or Manager role. Group membership decides who *sees* alerts; the linked account decides who may act on
+them, so forwarding an alert grants the recipient nothing.
+
+Privacy mode (on by default) means the bot receives only commands and replies in the group, never the
+staff chatter around them. Button presses are delivered regardless, so the alert's action buttons work
+without granting the bot admin rights or turning privacy off.
+
+One sharp edge: a **basic group becomes a supergroup** the moment someone enables history-for-new-members,
+sets a public link, or adds enough people — and the id changes (`-123…` becomes `-100123…`). Alerts stop
+silently. Re-run `/chatid` and update `.env`.
 
 ## Languages
 
@@ -277,7 +303,8 @@ keyboard it sent earlier.
 | A new column is missing / EF throws `column ... does not exist` | The image is current but the migration never ran: check `DB_MIGRATE_ON_STARTUP` and `select "MigrationId" from "__EFMigrationsHistory" order by 1 desc limit 3;` |
 | Bot answers but forgets context mid-checkout | Redis unavailable or the 30-minute state TTL expired |
 | Orders placed, no admin alert | `AdminChatId` unset, or the bot has never been messaged by that chat — Telegram forbids opening a conversation first |
-| Alerts stopped after moving to a group | Group ids are negative and change when a group is upgraded to a supergroup; re-read the id |
+| Alerts stopped after moving to a group | Group ids are negative and change when a group is upgraded to a supergroup; re-read the id with `/chatid` in the group |
+| Alerts land in the group but a manager's buttons say "You need a linked manager account" | Group membership only decides who sees alerts. That manager must `/link` in a **private** chat with the bot and hold the Admin or Manager role |
 
 Pending updates queue at Telegram while the API is down and are delivered on reconnect, so a restart
 loses nothing.

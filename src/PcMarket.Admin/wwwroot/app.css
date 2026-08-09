@@ -79,6 +79,8 @@ input, select, textarea, button { font-family: inherit; }
 .status--paid, .status--delivered { background: rgba(53,196,138,.15); color: var(--ok); }
 .status--awaitingpayment, .status--processing, .status--shipped { background: rgba(245,182,66,.15); color: var(--warn); }
 .status--cancelled, .status--refunded { background: rgba(243,104,104,.15); color: var(--danger); }
+/* Staff badge on the customer list — deliberately loud, so an internal account is never mistaken for a buyer. */
+.status--staff { background: rgba(124,131,253,.18); color: #a8adff; border: 1px solid rgba(124,131,253,.4); }
 
 .alert { border-radius: 9px; padding: 11px 13px; font-size: .86rem; margin-bottom: 12px; }
 .alert--error { background: rgba(243,104,104,.12); color: #ffb4b4; border: 1px solid rgba(243,104,104,.35); }

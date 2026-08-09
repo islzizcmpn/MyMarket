@@ -92,6 +92,33 @@ public sealed class BotResponder(TelegramClientAccessor accessor, ILogger<BotRes
         }
     }
 
+    /// <summary>Takes a custom reply keyboard down without leaving anything in the chat. Telegram only drops
+    /// one when a message carries <see cref="ReplyKeyboardRemove"/>, so a throwaway message does it and is
+    /// deleted straight after — the removal outlives the message that asked for it.</summary>
+    public async Task ClearReplyKeyboardAsync(long chatId, CancellationToken cancellationToken = default)
+    {
+        if (!accessor.IsConfigured)
+        {
+            return;
+        }
+
+        try
+        {
+            var message = await accessor.Client.SendMessage(
+                chatId,
+                "🧹",
+                replyMarkup: new ReplyKeyboardRemove(),
+                cancellationToken: cancellationToken);
+
+            await accessor.Client.DeleteMessage(chatId, message.MessageId, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            // Cosmetic: a keyboard that outlives its step is untidy, never a reason to fail the update.
+            logger.LogDebug(ex, "Clearing the reply keyboard in chat {ChatId} failed.", chatId);
+        }
+    }
+
     /// <summary>Acknowledges a button press, optionally with a toast. Telegram spins the button until this
     /// is called, so it runs for every callback — including ones that end in an error.</summary>
     public async Task AcknowledgeAsync(BotContext context, string? toast = null, CancellationToken cancellationToken = default)

@@ -163,6 +163,84 @@
   <data name="Nav.Orders" xml:space="preserve">
     <value>Buyurtmalar</value>
   </data>
+  <data name="Nav.Customers" xml:space="preserve">
+    <value>Mijozlar</value>
+  </data>
+  <data name="Common.Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Role.Admin" xml:space="preserve">
+    <value>ADMIN</value>
+  </data>
+  <data name="Role.Manager" xml:space="preserve">
+    <value>MENEJER</value>
+  </data>
+  <data name="Customers.PageTitle" xml:space="preserve">
+    <value>Mijozlar</value>
+  </data>
+  <data name="Customers.SearchPlaceholder" xml:space="preserve">
+    <value>Telefon, ism yoki email…</value>
+  </data>
+  <data name="Customers.Empty" xml:space="preserve">
+    <value>Mijozlar topilmadi.</value>
+  </data>
+  <data name="Customers.Contact" xml:space="preserve">
+    <value>Aloqa</value>
+  </data>
+  <data name="Customers.Orders" xml:space="preserve">
+    <value>Buyurtmalar</value>
+  </data>
+  <data name="Customers.Spent" xml:space="preserve">
+    <value>Xarid summasi</value>
+  </data>
+  <data name="Customers.Registered" xml:space="preserve">
+    <value>Ro‘yxatdan o‘tgan</value>
+  </data>
+  <data name="Customers.Telegram" xml:space="preserve">
+    <value>Telegram</value>
+  </data>
+  <data name="Customers.SpentNote" xml:space="preserve">
+    <value>Bekor qilingan va qaytarilgan buyurtmalar hisobga olinmaydi.</value>
+  </data>
+  <data name="CustomerDetail.PageTitle" xml:space="preserve">
+    <value>Mijoz</value>
+  </data>
+  <data name="CustomerDetail.NotFound" xml:space="preserve">
+    <value>Mijoz topilmadi.</value>
+  </data>
+  <data name="CustomerDetail.Account" xml:space="preserve">
+    <value>Hisob</value>
+  </data>
+  <data name="CustomerDetail.StaffNote" xml:space="preserve">
+    <value>Bu mijoz emas, xodim hisobi.</value>
+  </data>
+  <data name="CustomerDetail.Language" xml:space="preserve">
+    <value>Til</value>
+  </data>
+  <data name="CustomerDetail.Totals" xml:space="preserve">
+    <value>Jami</value>
+  </data>
+  <data name="CustomerDetail.Orders" xml:space="preserve">
+    <value>Buyurtmalar</value>
+  </data>
+  <data name="CustomerDetail.NoOrders" xml:space="preserve">
+    <value>Hozircha buyurtma yo‘q.</value>
+  </data>
+  <data name="CustomerDetail.Locations" xml:space="preserve">
+    <value>Yuborilgan joylashuvlar</value>
+  </data>
+  <data name="CustomerDetail.NoLocations" xml:space="preserve">
+    <value>Hozircha joylashuv yuborilmagan.</value>
+  </data>
+  <data name="CustomerDetail.Addresses" xml:space="preserve">
+    <value>Saqlangan manzillar</value>
+  </data>
+  <data name="CustomerDetail.NoAddresses" xml:space="preserve">
+    <value>Saqlangan manzillar yo‘q.</value>
+  </data>
+  <data name="CustomerDetail.DefaultAddress" xml:space="preserve">
+    <value>Asosiy</value>
+  </data>
   <data name="Nav.Import" xml:space="preserve">
     <value>Import</value>
   </data>

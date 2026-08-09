@@ -102,6 +102,7 @@ public enum Phrase
     AdminOrderNotFound,
     AdminDenied,
     AdminStatusToast,
+    ChatId,
 
     GenericError,
 
@@ -495,6 +496,13 @@ public static class BotPhrases
             "Buning uchun bog‘langan menejer hisobi kerak.",
             "You need a linked manager account to do that."),
         [Phrase.AdminStatusToast] = new("Статус → {0}", "Holati → {0}", "Status → {0}"),
+        [Phrase.ChatId] = new(
+            "ID этого чата: <code>{0}</code>\n\nУкажите его в <code>TELEGRAM_ADMIN_CHAT_ID</code>, чтобы сюда " +
+            "приходили новые заказы.",
+            "Ushbu chat ID: <code>{0}</code>\n\nYangi buyurtmalar shu yerga tushishi uchun uni " +
+            "<code>TELEGRAM_ADMIN_CHAT_ID</code> ga yozing.",
+            "This chat's id is <code>{0}</code>\n\nPut it in <code>TELEGRAM_ADMIN_CHAT_ID</code> to receive new " +
+            "orders here."),
 
         [Phrase.GenericError] = new(
             "На нашей стороне что-то пошло не так. Попробуйте ещё раз.",

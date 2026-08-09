@@ -58,10 +58,17 @@ public static class AdminEndpoints
         group.MapPost("/orders/{id:guid}/refund", (Guid id, AdminOrderService svc, ICurrentUser user, CancellationToken ct) =>
             svc.RefundAsync(id, Actor(user), ct));
 
-        // Customer lookup
+        // Customers
+        group.MapGet("/customers", (string? search, int? page, int? pageSize, AdminCustomerService svc, CancellationToken ct) =>
+            svc.ListAsync(search, page ?? 1, pageSize ?? 20, ct));
         group.MapGet("/customers/lookup", async (string phone, AdminOrderService svc, CancellationToken ct) =>
         {
             var customer = await svc.LookupCustomerAsync(phone, ct);
+            return customer is null ? Results.NotFound() : Results.Ok(customer);
+        });
+        group.MapGet("/customers/{id:guid}", async (Guid id, AdminCustomerService svc, CancellationToken ct) =>
+        {
+            var customer = await svc.GetAsync(id, ct);
             return customer is null ? Results.NotFound() : Results.Ok(customer);
         });
 

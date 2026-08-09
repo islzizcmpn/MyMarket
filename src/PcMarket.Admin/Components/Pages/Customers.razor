@@ -1,0 +1,90 @@
+@page "/customers"
+@inherits AdminPageBase
+
+<PageTitle>@L["Customers.PageTitle"]</PageTitle>
+<div class="topbar">
+    <h1>@L["Nav.Customers"]</h1>
+    <div class="page-actions">
+        <input placeholder="@L["Customers.SearchPlaceholder"]" @bind="_search" @bind:event="oninput" @onkeydown="OnKey" />
+    </div>
+</div>
+
+@if (_loading) { <div class="spinner"></div> }
+else if (_result is null || _result.Items.Count == 0) { <div class="card pad"><p class="muted">@L["Customers.Empty"]</p></div> }
+else
+{
+    <div class="card">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>@L["Common.Phone"]</th>
+                    <th>@L["Common.Name"]</th>
+                    <th>@L["Customers.Contact"]</th>
+                    <th>@L["Customers.Orders"]</th>
+                    <th>@L["Customers.Spent"]</th>
+                    <th>@L["Customers.Registered"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in _result.Items)
+                {
+                    <tr>
+                        <td>
+                            <a href="@($"/customers/{c.Id}")">@(c.Phone ?? "—")</a>
+                            @foreach (var role in StaffRoles(c))
+                            {
+                                <span class="status status--staff" style="margin-left:6px;">@L[$"Role.{role}"]</span>
+                            }
+                        </td>
+                        <td>@(string.IsNullOrWhiteSpace(c.FullName) ? "—" : c.FullName)</td>
+                        <td>
+                            @(string.IsNullOrWhiteSpace(c.Email) ? "" : c.Email)
+                            @if (c.TelegramLinked) { <span class="muted" style="margin-left:6px;">@L["Customers.Telegram"]</span> }
+                            @if (string.IsNullOrWhiteSpace(c.Email) && !c.TelegramLinked) { <span class="muted">—</span> }
+                        </td>
+                        <td>@c.OrderCount</td>
+                        <td>@Format.Money(L, c.TotalSpent)</td>
+                        <td class="muted">@c.CreatedAt.LocalDateTime.ToString("d")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (_result.TotalPages > 1)
+    {
+        <div class="page-actions" style="justify-content:center; margin-top:16px;">
+            <button class="btn btn--ghost btn--sm" disabled="@(_page <= 1)" @onclick="() => Go(_page - 1)">@L["Common.Prev"]</button>
+            <span class="muted">@L["Common.PageOf", _page, _result.TotalPages]</span>
+            <button class="btn btn--ghost btn--sm" disabled="@(_page >= _result.TotalPages)" @onclick="() => Go(_page + 1)">@L["Common.Next"]</button>
+        </div>
+    }
+}
+
+@code {
+    private PagedResult<AdminCustomerListItemDto>? _result;
+    private bool _loading = true;
+    private string _search = "";
+    private int _page = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await EnsureAuthedAsync()) return;
+        await LoadAsync();
+    }
+
+    private async Task OnKey(KeyboardEventArgs e) { if (e.Key == "Enter") await Reload(); }
+    private async Task Reload() { _page = 1; await LoadAsync(); }
+    private async Task Go(int page) { _page = page; await LoadAsync(); }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try { _result = await Api.ListCustomersAsync(_search, _page, 20); } catch { _result = null; }
+        _loading = false;
+    }
+
+    /// <summary>Staff are listed alongside customers rather than filtered out, so their rows carry a badge —
+    /// an order from a manager's own account should never read as an ordinary sale.</summary>
+    private static IEnumerable<string> StaffRoles(AdminCustomerListItemDto customer) =>
+        customer.Roles.Where(r => r is "Admin" or "Manager");
+}

@@ -46,7 +46,17 @@ public sealed class TelegramUpdateHandler(
             if (update.CallbackQuery is { } callbackQuery)
             {
                 await responder.AcknowledgeAsync(context, toast: null, cancellationToken);
-                await HandleCallbackAsync(context, CallbackData.Parse(callbackQuery.Data), cancellationToken);
+
+                var data = CallbackData.Parse(callbackQuery.Data);
+
+                // Checkout and Link are the two buttons that *raise* a reply keyboard; clearing for them
+                // would take down the one they are about to put up.
+                if (data.Command is not (BotCommands.Checkout or BotCommands.Link))
+                {
+                    await LeavePromptKeyboardAsync(context, cancellationToken);
+                }
+
+                await HandleCallbackAsync(context, data, cancellationToken);
             }
             else if (update.Message is { } message)
             {
@@ -107,6 +117,12 @@ public sealed class TelegramUpdateHandler(
             {
                 await orders.SetLocationAsync(context, location.Latitude, location.Longitude, cancellationToken);
             }
+            else
+            {
+                // A pin with no checkout behind it means the button outlived its step — most often because the
+                // conversation aged out of Redis while the keyboard stayed on screen. Take it down now.
+                await responder.ClearReplyKeyboardAsync(context.ChatId, cancellationToken);
+            }
 
             return;
         }
@@ -119,7 +135,17 @@ public sealed class TelegramUpdateHandler(
 
         if (text.StartsWith('/'))
         {
-            await HandleCommandAsync(context, text, cancellationToken);
+            // Commands may arrive as "/start@BotName" in groups.
+            var command = text.Split(' ', 2)[0].Split('@')[0].ToLowerInvariant();
+            var argument = text.Split(' ', 2) is [_, var rest] ? rest.Trim() : string.Empty;
+
+            // /link is the one command that raises a reply keyboard of its own.
+            if (command != "/link")
+            {
+                await LeavePromptKeyboardAsync(context, cancellationToken);
+            }
+
+            await HandleCommandAsync(context, command, argument, cancellationToken);
             return;
         }
 
@@ -147,13 +173,27 @@ public sealed class TelegramUpdateHandler(
         }
     }
 
-    private Task HandleCommandAsync(BotContext context, string text, CancellationToken cancellationToken)
+    /// <summary>Takes a share-contact or share-location keyboard down when the customer leaves the step that
+    /// raised it by another door. Only these two stages hold one: by the time checkout reaches
+    /// <see cref="BotStage.AwaitingHouse"/>, or linking reaches <see cref="BotStage.AwaitingOtp"/>, the
+    /// message that moved them on has already removed it.
+    ///
+    /// Telegram keeps a reply keyboard up until it is told otherwise — <c>OneTimeKeyboard</c> only collapses
+    /// it — so without this the button follows the customer around the bot long after the step is over.</summary>
+    private async Task LeavePromptKeyboardAsync(BotContext context, CancellationToken cancellationToken)
     {
-        // Commands may arrive as "/start@BotName" in groups.
-        var command = text.Split(' ', 2)[0].Split('@')[0].ToLowerInvariant();
-        var argument = text.Split(' ', 2) is [_, var rest] ? rest.Trim() : string.Empty;
+        var state = await conversations.GetAsync(context.TelegramUserId, cancellationToken);
+        if (state.Stage is not (BotStage.AwaitingPhone or BotStage.AwaitingLocation))
+        {
+            return;
+        }
 
-        return command switch
+        await conversations.SetAsync(context.TelegramUserId, state with { Stage = BotStage.None }, cancellationToken);
+        await responder.ClearReplyKeyboardAsync(context.ChatId, cancellationToken);
+    }
+
+    private Task HandleCommandAsync(BotContext context, string command, string argument, CancellationToken cancellationToken) =>
+        command switch
         {
             "/start" => account.StartAsync(context, cancellationToken),
             "/menu" => account.ShowMenuAsync(context, cancellationToken),
@@ -167,9 +207,16 @@ public sealed class TelegramUpdateHandler(
             "/language" => language.ShowPanelAsync(context, cancellationToken),
             "/link" => account.BeginLinkAsync(context, cancellationToken),
             "/unlink" => account.UnlinkAsync(context, cancellationToken),
+            // Setup aid: a chat's id cannot be looked up from an invite link, and getUpdates is unavailable
+            // while a webhook is registered, so the chat has to say its own id. Not a secret — knowing it
+            // grants nothing, since admin actions are gated on the caller's linked roles.
+            "/chatid" => responder.SendAsync(
+                context.ChatId,
+                BotPhrases.Format(context.Culture, Phrase.ChatId, context.ChatId),
+                keyboard: null,
+                cancellationToken),
             _ => account.ShowHelpAsync(context, cancellationToken)
         };
-    }
 
     private Task HandleCallbackAsync(BotContext context, CallbackData data, CancellationToken cancellationToken) =>
         data.Command switch

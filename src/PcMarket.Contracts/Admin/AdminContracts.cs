@@ -58,6 +58,32 @@ public sealed record AdminCustomerDto(Guid Id, string? Phone, string? FullName, 
 
 public sealed record AdminOrderDetailDto(OrderDto Order, AdminCustomerDto? Customer);
 
+// ---- Customers ----
+
+/// <summary>One row of the back-office customer list. <paramref name="Roles"/> is empty for an ordinary
+/// customer and carries Admin/Manager for staff, who are listed alongside them rather than hidden — a
+/// manager placing test orders should be visibly a manager, not an anonymous buyer.</summary>
+public sealed record AdminCustomerListItemDto(
+    Guid Id, string? Phone, string? FullName, string? Email,
+    IReadOnlyList<string> Roles, bool TelegramLinked, string? Language,
+    int OrderCount, decimal TotalSpent, DateTimeOffset CreatedAt);
+
+/// <summary>A delivery address the customer saved to their account, as opposed to the one-off address
+/// captured on an order.</summary>
+public sealed record AdminCustomerAddressDto(
+    string Region, string City, string Street, string? Details, bool IsDefault);
+
+/// <summary>A pin the customer shared on an order. Kept per order rather than deduplicated: where someone
+/// asked for delivery last time is exactly what a courier calling ahead wants to know.</summary>
+public sealed record AdminCustomerLocationDto(
+    Guid OrderId, string OrderNumber, string Address, double Latitude, double Longitude, DateTimeOffset CreatedAt);
+
+public sealed record AdminCustomerDetailDto(
+    AdminCustomerListItemDto Customer,
+    IReadOnlyList<AdminCustomerAddressDto> Addresses,
+    IReadOnlyList<AdminCustomerLocationDto> Locations,
+    IReadOnlyList<AdminOrderListItemDto> Orders);
+
 public sealed record AdvanceOrderStatusRequest(OrderStatus ToStatus);
 
 // ---- Media ----

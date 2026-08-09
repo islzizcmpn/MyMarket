@@ -1,0 +1,130 @@
+@page "/customers/{Id:guid}"
+@inherits AdminPageBase
+
+<PageTitle>@L["CustomerDetail.PageTitle"]</PageTitle>
+<div class="topbar">
+    <h1>@(_detail?.Customer.Phone ?? L["Nav.Customers"].Value)</h1>
+    <a class="btn btn--ghost" href="/customers">@L["Common.Back"]</a>
+</div>
+
+@if (_loading) { <div class="spinner"></div> }
+else if (_detail is null) { <div class="card pad"><p class="muted">@L["CustomerDetail.NotFound"]</p></div> }
+else
+{
+    <div class="grid" style="grid-template-columns: 1fr 340px;">
+        <div class="grid" style="height:fit-content;">
+            <div class="card pad">
+                <h3>@L["CustomerDetail.Orders"]</h3>
+                @if (_detail.Orders.Count == 0) { <p class="muted">@L["CustomerDetail.NoOrders"]</p> }
+                else
+                {
+                    <table class="table">
+                        <thead><tr><th>@L["Orders.Order"]</th><th>@L["Common.Status"]</th><th>@L["Common.Payment"]</th><th>@L["Common.Total"]</th><th>@L["Orders.Placed"]</th></tr></thead>
+                        <tbody>
+                            @foreach (var o in _detail.Orders)
+                            {
+                                <tr>
+                                    <td><a href="@($"/orders/{o.Id}")">@o.Number</a></td>
+                                    <td><span class="status status--@o.Status.ToString().ToLower()">@L.EnumName(o.Status)</span></td>
+                                    <td>@L.EnumName(o.PaymentMethod) / @L.EnumName(o.PaymentStatus)</td>
+                                    <td>@Format.Money(L, o.Total)</td>
+                                    <td class="muted">@o.CreatedAt.LocalDateTime.ToString("g")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+
+            <div class="card pad">
+                <h3>@L["CustomerDetail.Locations"]</h3>
+                @if (_detail.Locations.Count == 0) { <p class="muted">@L["CustomerDetail.NoLocations"]</p> }
+                else
+                {
+                    @foreach (var loc in _detail.Locations)
+                    {
+                        <div class="row" style="justify-content:space-between; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--border);">
+                            <div>
+                                <div><a href="@($"/orders/{loc.OrderId}")">@loc.OrderNumber</a> <span class="muted">@loc.CreatedAt.LocalDateTime.ToString("d")</span></div>
+                                <div class="muted" style="font-size:.85rem;">@(string.IsNullOrWhiteSpace(loc.Address) ? MapLinks.Coordinates(loc.Latitude, loc.Longitude) : loc.Address)</div>
+                            </div>
+                            <div class="page-actions">
+                                <a class="btn btn--ghost btn--sm" href="@MapLinks.Google(loc.Latitude, loc.Longitude)" target="_blank" rel="noopener">@L["OrderDetail.OpenInGoogle"]</a>
+                                <a class="btn btn--ghost btn--sm" href="@MapLinks.Yandex(loc.Latitude, loc.Longitude)" target="_blank" rel="noopener">@L["OrderDetail.OpenInYandex"]</a>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <aside class="grid" style="height:fit-content;">
+            <div class="card pad">
+                <h3>@L["CustomerDetail.Account"]</h3>
+                @{ var c = _detail.Customer; }
+                @if (StaffRoles(c).Any())
+                {
+                    <p style="margin-top:0;">
+                        @foreach (var role in StaffRoles(c)) { <span class="status status--staff">@L[$"Role.{role}"]</span> }
+                    </p>
+                    <p class="muted" style="font-size:.8rem; margin-top:0;">@L["CustomerDetail.StaffNote"]</p>
+                }
+                <div class="row" style="justify-content:space-between;"><span class="muted">@L["Common.Phone"]</span><span>@(c.Phone ?? "—")</span></div>
+                <div class="row" style="justify-content:space-between;"><span class="muted">@L["Common.Name"]</span><span>@(string.IsNullOrWhiteSpace(c.FullName) ? "—" : c.FullName)</span></div>
+                <div class="row" style="justify-content:space-between;"><span class="muted">@L["Common.Email"]</span><span>@(string.IsNullOrWhiteSpace(c.Email) ? "—" : c.Email)</span></div>
+                <div class="row" style="justify-content:space-between;"><span class="muted">@L["Customers.Telegram"]</span><span>@(c.TelegramLinked ? L["Common.Yes"] : L["Common.No"])</span></div>
+                <div class="row" style="justify-content:space-between;"><span class="muted">@L["CustomerDetail.Language"]</span><span>@(string.IsNullOrWhiteSpace(c.Language) ? "—" : c.Language.ToUpperInvariant())</span></div>
+                <div class="row" style="justify-content:space-between;"><span class="muted">@L["Customers.Registered"]</span><span>@c.CreatedAt.LocalDateTime.ToString("g")</span></div>
+            </div>
+
+            <div class="card pad">
+                <h3>@L["CustomerDetail.Totals"]</h3>
+                <div class="row" style="justify-content:space-between;"><span class="muted">@L["Customers.Orders"]</span><span>@c.OrderCount</span></div>
+                <div class="row" style="justify-content:space-between;"><span class="muted">@L["Customers.Spent"]</span><span>@Format.Money(L, c.TotalSpent)</span></div>
+                <p class="muted" style="font-size:.8rem; margin:8px 0 0;">@L["Customers.SpentNote"]</p>
+            </div>
+
+            <div class="card pad">
+                <h3>@L["CustomerDetail.Addresses"]</h3>
+                @if (_detail.Addresses.Count == 0) { <p class="muted">@L["CustomerDetail.NoAddresses"]</p> }
+                else
+                {
+                    @foreach (var a in _detail.Addresses)
+                    {
+                        <div style="padding:6px 0; border-bottom:1px solid var(--border);">
+                            <div>@Written(a)</div>
+                            @if (a.IsDefault) { <span class="muted" style="font-size:.8rem;">@L["CustomerDetail.DefaultAddress"]</span> }
+                        </div>
+                    }
+                }
+            </div>
+        </aside>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private AdminCustomerDetailDto? _detail;
+    private bool _loading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!await EnsureAuthedAsync()) return;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try { _detail = await Api.GetCustomerAsync(Id); } catch { _detail = null; }
+        _loading = false;
+    }
+
+    private static IEnumerable<string> StaffRoles(AdminCustomerListItemDto customer) =>
+        customer.Roles.Where(r => r is "Admin" or "Manager");
+
+    private static string Written(AdminCustomerAddressDto address) =>
+        string.Join(", ", new[] { address.Region, address.City, address.Street, address.Details }
+            .Where(part => !string.IsNullOrWhiteSpace(part)));
+}

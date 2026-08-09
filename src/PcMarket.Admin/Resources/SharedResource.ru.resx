@@ -163,6 +163,84 @@
   <data name="Nav.Orders" xml:space="preserve">
     <value>Заказы</value>
   </data>
+  <data name="Nav.Customers" xml:space="preserve">
+    <value>Клиенты</value>
+  </data>
+  <data name="Common.Email" xml:space="preserve">
+    <value>Эл. почта</value>
+  </data>
+  <data name="Role.Admin" xml:space="preserve">
+    <value>АДМИН</value>
+  </data>
+  <data name="Role.Manager" xml:space="preserve">
+    <value>МЕНЕДЖЕР</value>
+  </data>
+  <data name="Customers.PageTitle" xml:space="preserve">
+    <value>Клиенты</value>
+  </data>
+  <data name="Customers.SearchPlaceholder" xml:space="preserve">
+    <value>Телефон, имя или почта…</value>
+  </data>
+  <data name="Customers.Empty" xml:space="preserve">
+    <value>Клиенты не найдены.</value>
+  </data>
+  <data name="Customers.Contact" xml:space="preserve">
+    <value>Контакты</value>
+  </data>
+  <data name="Customers.Orders" xml:space="preserve">
+    <value>Заказов</value>
+  </data>
+  <data name="Customers.Spent" xml:space="preserve">
+    <value>Сумма покупок</value>
+  </data>
+  <data name="Customers.Registered" xml:space="preserve">
+    <value>Регистрация</value>
+  </data>
+  <data name="Customers.Telegram" xml:space="preserve">
+    <value>Telegram</value>
+  </data>
+  <data name="Customers.SpentNote" xml:space="preserve">
+    <value>Отменённые и возвращённые заказы не учитываются.</value>
+  </data>
+  <data name="CustomerDetail.PageTitle" xml:space="preserve">
+    <value>Клиент</value>
+  </data>
+  <data name="CustomerDetail.NotFound" xml:space="preserve">
+    <value>Клиент не найден.</value>
+  </data>
+  <data name="CustomerDetail.Account" xml:space="preserve">
+    <value>Аккаунт</value>
+  </data>
+  <data name="CustomerDetail.StaffNote" xml:space="preserve">
+    <value>Это служебный аккаунт, а не клиент.</value>
+  </data>
+  <data name="CustomerDetail.Language" xml:space="preserve">
+    <value>Язык</value>
+  </data>
+  <data name="CustomerDetail.Totals" xml:space="preserve">
+    <value>Итоги</value>
+  </data>
+  <data name="CustomerDetail.Orders" xml:space="preserve">
+    <value>Заказы</value>
+  </data>
+  <data name="CustomerDetail.NoOrders" xml:space="preserve">
+    <value>Заказов пока нет.</value>
+  </data>
+  <data name="CustomerDetail.Locations" xml:space="preserve">
+    <value>Отправленные геолокации</value>
+  </data>
+  <data name="CustomerDetail.NoLocations" xml:space="preserve">
+    <value>Геолокации пока не отправлялись.</value>
+  </data>
+  <data name="CustomerDetail.Addresses" xml:space="preserve">
+    <value>Сохранённые адреса</value>
+  </data>
+  <data name="CustomerDetail.NoAddresses" xml:space="preserve">
+    <value>Сохранённых адресов нет.</value>
+  </data>
+  <data name="CustomerDetail.DefaultAddress" xml:space="preserve">
+    <value>По умолчанию</value>
+  </data>
   <data name="Nav.Import" xml:space="preserve">
     <value>Импорт</value>
   </data>
