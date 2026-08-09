@@ -95,6 +95,74 @@ if (-not (Test-DockerReady)) {
     Write-Ok "Docker engine is ready"
 }
 
+# Docker pins a container to the network *ID* it was created against, not the name. If the compose
+# network is ever replaced - a `docker compose down`, a Docker Desktop reset, or two projects taking
+# turns owning these fixed container_names - it comes back under the same name with a new ID, and any
+# stopped container still holding the old ID can never start again:
+#     failed to set up container networking: network <old-id> not found
+# `up -d` reports that as a hard failure, so the run dies here, before reaching the --force-recreate
+# below that would have rebuilt the offending container anyway. Clearing the corpses first is what
+# makes this script self-healing; compose recreates them attached to the live network.
+function Remove-StaleNetworkContainers() {
+    Write-Step "Checking for containers pinned to a deleted network"
+
+    # --no-trunc: `docker network ls` truncates to 12 chars by default, but a container records the
+    # full 64-char ID, so the two would never compare equal.
+    $liveNetworks = @{}
+    foreach ($netId in (docker network ls --no-trunc --format '{{.ID}}')) {
+        $trimmed = "$netId".Trim()
+        if ($trimmed) { $liveNetworks[$trimmed] = $true }
+    }
+    # An empty list means the docker query itself failed. Treating that as "every network is gone"
+    # would delete the whole stack, so bail out and let `up` report the real problem.
+    if ($liveNetworks.Count -eq 0) {
+        Write-Warn "Could not list docker networks - skipping the stale-container check."
+        return
+    }
+
+    # Deliberately NOT `docker compose ps`: compose reconciles that listing against the current config
+    # and silently omits containers that have drifted from it - which is exactly the set we are hunting.
+    # (Measured: a stale tunnel container was missing from `compose ps -aq` but present here.) Filtering
+    # on working_dir scopes this to containers compose created from *this* checkout, so a second project
+    # sharing these container_names is never touched.
+    $containerIds = docker ps -aq --filter "label=com.docker.compose.project.working_dir=$repoRoot"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warn "Could not list this project's containers - skipping the stale-container check."
+        return
+    }
+
+    $removed = 0
+    foreach ($rawId in $containerIds) {
+        $cid = "$rawId".Trim()
+        if (-not $cid) { continue }
+
+        # Only ever touch a container that is already stopped: a running one demonstrably has a
+        # working network, and a healthy stack must survive this function untouched.
+        $running = (docker inspect -f '{{.State.Running}}' $cid | Out-String).Trim()
+        if ($running -ne "false") { continue }
+
+        $refs = (docker inspect -f '{{range .NetworkSettings.Networks}}{{.NetworkID}} {{end}}' $cid | Out-String)
+        $isStale = $false
+        foreach ($ref in ($refs -split '\s+')) {
+            $r = $ref.Trim()
+            if ($r -and -not $liveNetworks.ContainsKey($r)) { $isStale = $true }
+        }
+        if (-not $isStale) { continue }
+
+        $name = (docker inspect -f '{{.Name}}' $cid | Out-String).Trim().TrimStart('/')
+        Write-Warn "Removing stopped container '$name' - it is pinned to a network that no longer exists. Compose will recreate it."
+        docker rm $cid | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            throw "Could not remove the stale container '$name'. Remove it manually with: docker rm $name"
+        }
+        $removed++
+    }
+
+    if ($removed -eq 0) { Write-Ok "No stale containers" } else { Write-Ok "Removed $removed stale container(s)" }
+}
+
+Remove-StaleNetworkContainers
+
 Write-Step "Starting the dev stack (postgres, redis, minio, api, web, admin, nginx, tunnels)"
 $upArgs = @("compose", "--profile", "dev", "up", "-d")
 if ($Build) { $upArgs += "--build" }
