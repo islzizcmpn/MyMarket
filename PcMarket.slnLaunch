@@ -1,0 +1,47 @@
+[
+  {
+    "Name": "API + Web + Admin",
+    "Projects": [
+      {
+        "Path": "src\\PcMarket.Api\\PcMarket.Api.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "src\\PcMarket.Web\\PcMarket.Web.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "src\\PcMarket.Admin\\PcMarket.Admin.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      }
+    ]
+  },
+  {
+    "Name": "API + Admin",
+    "Projects": [
+      {
+        "Path": "src\\PcMarket.Api\\PcMarket.Api.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "src\\PcMarket.Admin\\PcMarket.Admin.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      }
+    ]
+  },
+  {
+    "Name": "API only",
+    "Projects": [
+      {
+        "Path": "src\\PcMarket.Api\\PcMarket.Api.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      }
+    ]
+  }
+]

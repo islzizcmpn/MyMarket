@@ -104,8 +104,16 @@ For working on the code, run the backing services in Docker and the apps from th
 
 ```bash
 cp .env.example .env
-docker compose up -d postgres redis minio   # PostgreSQL :5432, Redis :6379, MinIO :9000 (console :9001)
+docker compose up -d postgres redis minio minio-init   # PostgreSQL :5432, Redis :6379, MinIO :9000 (console :9001)
 ```
+
+On Windows, `scripts\start-dev-services.cmd` does the same thing and additionally waits for the
+Docker engine (starting Docker Desktop if it is not up) and for the health checks to pass.
+
+These must be running **before** the API starts. Hangfire builds its PostgreSQL storage while the DI
+container is being constructed, so with nothing on 5432 the API does not start degraded — it
+terminates with `Npgsql … Failed to connect to 127.0.0.1:5432`, and the admin panel shows only its
+generic "unexpected error" banner.
 
 ### 2. Run the API
 
@@ -152,6 +160,37 @@ dotnet run --project src/PcMarket.Api
 SEED_CATALOG_PATH=src/PcMarket.Infrastructure/Persistence/Seed/demo-catalog.json \
   dotnet run --project src/PcMarket.Api
 ```
+
+---
+
+## Running from Visual Studio
+
+Same model as above — the backing services run in Docker, the apps run from the IDE. Nothing extra
+needs configuring: `appsettings.json` already points the API at `localhost:5432/6379/9000`, and the
+storefront and admin panel already point at `http://localhost:5055`.
+
+1. Run `scripts\start-dev-services.cmd` (or the `docker compose` line above) and let it finish.
+2. Open `PcMarket.slnx`.
+3. Pick a launch profile from the Startup Projects dropdown on the toolbar, then F5.
+
+`PcMarket.slnLaunch` defines three multi-project profiles:
+
+| Profile | Starts | Opens |
+|---------|--------|-------|
+| `API + Web + Admin` | all three | storefront `:5193`, admin `:5146` |
+| `API + Admin` | API and admin panel | admin `:5146` |
+| `API only` | API | nothing (API's `launchBrowser` is false) |
+
+All three use each project's `http` profile, so the apps talk to each other over plain HTTP and no
+dev certificate is involved. Switch to `https` per project if you need TLS locally
+(API `:7241`, storefront `:7030`, admin `:7035`) — set `Api:BaseUrl` to the HTTPS API address to match.
+
+The API applies migrations and seeds on startup in Development, so the first F5 against an empty
+database is enough to get a working catalog and the seeded admin from step 3 above.
+
+> The full Docker stack (`docker compose up -d`) can run at the same time — it is reachable through
+> Nginx on `:8080`/`:8443` and does not collide with the IDE's ports. Both share one PostgreSQL, so
+> data written from either side is visible to the other.
 
 ---
 
