@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-    Storefront look on top of the MAUI template styles: cards, headings, price emphasis, and the
-    error/empty states every screen shares.
+    Storefront look on top of the MAUI template styles: typography, cards, headings, price
+    emphasis, and the error/empty states every screen shares.
+
+    Typography: Play is the storefront's face and the app's default. The stock Styles.xaml sets
+    FontFamily="OpenSansRegular" on ten control types; since that file is deliberately left
+    untouched, the implicit styles below re-set the same types to Play. This dictionary is merged
+    after it, so these win.
+
+    Play ships only 400 and 700 — nothing in between. Hierarchy is therefore built from size and
+    letter-spacing, and bold is selected by naming the PlayBold *file* rather than by setting
+    FontAttributes="Bold", which would tell the renderer to synthesise a heavier weight on top of
+    an already-bold face.
 -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -22,6 +32,36 @@
     <Color x:Key="CardLight">#FFFFFF</Color>
     <Color x:Key="CardDark">#1B1B1F</Color>
 
+    <!-- Default face. One implicit style per control type the template names, so no text control
+         is left on OpenSans. Keyed styles below inherit from these unless they say otherwise. -->
+    <Style TargetType="Label">
+        <Setter Property="FontFamily" Value="PlayRegular" />
+    </Style>
+    <Style TargetType="Button">
+        <Setter Property="FontFamily" Value="PlayRegular" />
+    </Style>
+    <Style TargetType="Entry">
+        <Setter Property="FontFamily" Value="PlayRegular" />
+    </Style>
+    <Style TargetType="Editor">
+        <Setter Property="FontFamily" Value="PlayRegular" />
+    </Style>
+    <Style TargetType="Picker">
+        <Setter Property="FontFamily" Value="PlayRegular" />
+    </Style>
+    <Style TargetType="SearchBar">
+        <Setter Property="FontFamily" Value="PlayRegular" />
+    </Style>
+    <Style TargetType="DatePicker">
+        <Setter Property="FontFamily" Value="PlayRegular" />
+    </Style>
+    <Style TargetType="TimePicker">
+        <Setter Property="FontFamily" Value="PlayRegular" />
+    </Style>
+    <Style TargetType="RadioButton">
+        <Setter Property="FontFamily" Value="PlayRegular" />
+    </Style>
+
     <Style x:Key="Card" TargetType="Border">
         <Setter Property="StrokeThickness" Value="0" />
         <Setter Property="Padding" Value="14" />
@@ -30,14 +70,18 @@
         <Setter Property="StrokeShape" Value="RoundRectangle 12" />
     </Style>
 
+    <!-- Display sizes tighten: Play sets generously, and at 24pt the default tracking reads loose.
+         Negative spacing here is the same lever the storefront pulls on its headings. -->
     <Style x:Key="H1" TargetType="Label">
+        <Setter Property="FontFamily" Value="PlayBold" />
         <Setter Property="FontSize" Value="24" />
-        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="CharacterSpacing" Value="-0.4" />
     </Style>
 
     <Style x:Key="H2" TargetType="Label">
+        <Setter Property="FontFamily" Value="PlayBold" />
         <Setter Property="FontSize" Value="18" />
-        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="CharacterSpacing" Value="-0.2" />
     </Style>
 
     <Style x:Key="MutedText" TargetType="Label">
@@ -45,9 +89,11 @@
         <Setter Property="TextColor" Value="{StaticResource Muted}" />
     </Style>
 
+    <!-- Prices keep default tracking: these are long digit runs with thin-space grouping, and
+         tightening them costs more legibility than the tighter set buys. -->
     <Style x:Key="Price" TargetType="Label">
+        <Setter Property="FontFamily" Value="PlayBold" />
         <Setter Property="FontSize" Value="17" />
-        <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="TextColor" Value="{StaticResource Accent}" />
     </Style>
 

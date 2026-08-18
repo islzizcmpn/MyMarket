@@ -5,8 +5,15 @@
              x:Class="PcMarket.Mobile.App">
     <Application.Resources>
         <ResourceDictionary>
+            <!--
+                Order is load-bearing. StaticResource resolves at parse time against the
+                dictionaries merged so far, so each one must follow everything it references:
+                Brushes needs Colors, and AppStyles needs both. A forward reference compiles
+                clean and fails at launch.
+            -->
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Brushes.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
                 <ResourceDictionary Source="Resources/Styles/AppStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>

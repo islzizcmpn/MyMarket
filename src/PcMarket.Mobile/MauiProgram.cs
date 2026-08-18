@@ -17,6 +17,13 @@ public static class MauiProgram
 			.UseMauiApp<App>()
 			.ConfigureFonts(fonts =>
 			{
+				// Play is the storefront's face (loaded there from Google Fonts; a MAUI app has to
+				// carry the files). It ships only 400 and 700, so type hierarchy is built from size
+				// and letter-spacing rather than intermediate weights — see AppStyles.xaml.
+				fonts.AddFont("Play-Regular.ttf", "PlayRegular");
+				fonts.AddFont("Play-Bold.ttf", "PlayBold");
+
+				// Retained as the fallback the stock template dictionary still names.
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
 			});

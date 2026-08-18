@@ -27,20 +27,37 @@ launch, so the token layer needs its own device run before 18 files start depend
   - Must be merged **after** `Colors.xaml` — brushes forward-referencing colours fail at runtime.
   - _Requirements: 1.3, 1.4_
 
-- [ ] 3. Wire dictionaries and prove them on-device
+- [x] 3. Wire dictionaries and prove them on-device
   - Register `Brushes.xaml` in `App.xaml`'s `MergedDictionaries` **at position 2, directly after
-    `Colors.xaml` and ahead of `AppStyles.xaml`** — see the correction note in design.md.
-  - Build, deploy to the Redmi Note 11, launch, and confirm no `StaticResource not found`.
+    `Colors.xaml` and ahead of `AppStyles.xaml`** — see the correction note in design.md. **Done**,
+    with the ordering rule recorded as a comment in `App.xaml` so it is not undone by accident.
+  - Build, deploy to the Redmi Note 11, launch, and confirm no `StaticResource not found`. **Done**
+    in both themes: clean logcat, and token values confirmed live by pixel sampling.
   - This is a deliberate checkpoint, not a formality — it costs one deploy and de-risks the next
-    eight tasks.
+    eight tasks. **It earned its keep.** The first pass reported success against stale Phase 8
+    assemblies: `adb install -r` of the Debug APK does not deploy managed code, because
+    `EmbedAssembliesIntoApk=false` by default. Deploy with `-t:Install` and verify by pixel, never by
+    eye — see the CRITICAL section in research.md. Every later task's verification depended on
+    catching this.
   - _Requirements: 9.1, 9.3_
 
-- [ ] 4. Bundle the Play typeface
+- [x] 4. Bundle the Play typeface
   - Add `Play-Regular.ttf` and `Play-Bold.ttf` (OFL) to `Resources/Fonts/`, register in
-    `MauiProgram.CreateMauiApp` as `PlayRegular` / `PlayBold`.
+    `MauiProgram.CreateMauiApp` as `PlayRegular` / `PlayBold`. **Done**, with `OFL.txt` alongside as
+    the licence requires, and the csproj `MauiFont` glob narrowed to `*.ttf` so the licence text is
+    not bundled as a typeface.
   - Set Play as the default face and build the type scale on size + letter-spacing, since Play has no
-    weights between 400 and 700.
-  - Confirm on-device that Play is actually rendering — registration failure is silent.
+    weights between 400 and 700. **Done** — implicit styles in `AppStyles.xaml` re-set the nine text
+    control types the untouched template puts on OpenSans. Bold is selected by naming the `PlayBold`
+    file rather than by `FontAttributes="Bold"`, which would synthesise weight over an already-bold
+    face. `CharacterSpacing` tightens H1/H2; prices stay at 0.
+  - Confirm on-device that Play is actually rendering — registration failure is silent. **Done**,
+    confirmed by cropping the 24pt heading and comparing letterforms before/after.
+  - **Deviation — fonts are subsetted.** The upstream TTFs are 410 KB together and packed to
+    **+499 KB**, breaching Requirement 2.5's 150 KB budget threefold. Subsetted with fontTools to
+    Latin + Cyrillic with hinting stripped: 105 KB on disk, **50 KB packed — Requirement 2.5 passes**.
+    Greek and Vietnamese dropped; Cyrillic deliberately kept for the localization slice. Command and
+    rationale in research.md.
   - _Requirements: 2.1, 2.2, 2.3, 2.5_
 
 - [ ] 5. Rewrite `AppStyles.xaml` as the storefront style layer
