@@ -29,7 +29,7 @@
             </VerticalStackLayout>
         </Border>
 
-        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsBusy}" Command="{Binding LoadCommand}">
+        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsBusy, Mode=OneWay}" Command="{Binding LoadCommand}">
             <CollectionView ItemsSource="{Binding Addresses}" SelectionMode="None">
                 <CollectionView.EmptyView>
                     <Label Text="No saved addresses yet." Style="{StaticResource MutedText}" HorizontalOptions="Center" Margin="0,24" />

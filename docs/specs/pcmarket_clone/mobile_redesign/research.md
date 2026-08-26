@@ -3,7 +3,7 @@
 Findings gathered while implementing this spec. Written for the next run of the implementation
 command — read this before touching `Resources/Styles/`.
 
-Last updated 2026-08-15, after Tasks 1–2.
+Last updated 2026-08-23, after Task 8.
 
 ---
 
@@ -81,9 +81,204 @@ since tightening long digit runs costs more legibility than it buys).
 The `MauiFont` glob in the csproj was narrowed from `Resources\Fonts\*` to `Resources\Fonts\*.ttf`
 so `OFL.txt` is not bundled as if it were a typeface.
 
+### `Resources/Styles/AppStyles.xaml` (rewritten, Task 5)
+
+The storefront style layer. Contains **no literal colour at all** — every value resolves through a
+token, including the text on the accent gradient, which uses the `White` key (the brand's warm
+off-white, theme-invariant) because the gradient stays dark red in both themes.
+
+Keyed styles, all reusable by later tasks:
+
+| Key | Target | Notes |
+|---|---|---|
+| `Card` | Border | `surface` in a `line` hairline, radius 16. No shadow — see Task 9 |
+| `MediaPanel` | Border | `media-bg`, no stroke; backdrop for product imagery |
+| `InputField` / `InputFieldFocused` | Border | the input frame and its `brand` focus ring |
+| `Segmented` | Border | track a pair of pills sits in |
+| `StatusBadge` / `StatusBadgeText` | Border / Label | filled pill, brand-tinted by default |
+| `H1` `H2` `H3` `MutedText` `Price` `ErrorText` `SuccessText` | Label | type scale |
+| `PrimaryButton` `GhostButton` `Quantity` `Pill` `PillActive` | Button | |
+
+Implicit styles it now owns outright: `Page`, `Label`, `Button`, `Border`, `Entry`, `Editor`,
+`Picker`, `SearchBar`, `DatePicker`, `TimePicker`, `RadioButton`.
+
+### `Services/ThemeService.cs`, `Services/SystemBars.cs` (new, Task 6–7)
+
+`ThemeService` is a singleton: `Restore()` (start-up), `Apply(AppTheme)` (user choice, persists),
+`ApplySystemBars()` (called on `Window.Activated`). Preference key `pcmarket.theme`, values
+`dark`/`light`, both read and write in `try/catch`.
+
+`SystemBars` is a partial class with a `static partial void ApplyPlatform` implemented only in
+`Platforms/Android/SystemBars.Android.cs`. On the other heads the method has no body and the call
+compiles away — no `#if ANDROID` anywhere.
+
+### `Services/AppConfig.cs`, `Services/Artwork.cs` (Task 8)
+
+`AppConfig.MediaRootUrl` sits beside `ApiRootUrl` and has the identical shape — same emulator branch,
+same Debug/Release split — so the two never drift: `http://10.0.2.2:5193` on a virtual Android device,
+`http://localhost:5193` otherwise, `https://pcmarket.uz` in Release. The existing cleartext exemption in
+`network_security_config.xml` is scoped by *host*, not port, so it already covered `:5193` — confirmed,
+no change was needed.
+
+`Artwork` is the resolver. Everything decorative goes through it:
+
+| Member | Returns |
+|---|---|
+| `Url(path)` | `{media root}/images/{path}`; an already-absolute URL passes through untouched |
+| `Banner` | `home/banner-dark.jpg` |
+| `Category(slug)` | `home/cat-{slug}.jpg`, or the stand-in for slugs that have none |
+| `Source(url)` | cached `UriImageSource`, or `null` when the string is not an absolute URI |
+
+`RemoteImageConverter` (registered in `AppStyles.xaml` as `RemoteImage`) is a three-line wrapper over
+`Source` so a `DataTemplate` can use it. Bind through it rather than binding a bare string: MAUI's own
+string conversion only handles paths that are already absolute, and pins the cache at one day.
+
+**`Category` must mirror the storefront's stand-in map, not just the slug rule.** `Home.razor` resolves
+a category ring by trying `cat-{slug}.jpg` on disk and falling back to a named photograph. The mobile
+app cannot stat a remote folder, so the map is copied. It currently holds one entry — `computers` →
+`feat-case-1.jpg` — and without it the Computers tile 404s while the web shows a photo. Measured
+against the running storefront:
+
+```
+images/home/banner-dark.jpg       200
+images/home/cat-accessories.jpg   200
+images/home/feat-case-1.jpg       200
+images/home/cat-computers.jpg     404   <- the naive rule
+```
+
+Keep it in step with `CategoryFallbackArt` in `Home.razor` whenever art is added.
+
+**Cache validity is split by configuration** — 5 minutes in Debug, 30 days in Release. Design.md asks
+for a long validity because the art only changes at deploy cadence, which is right for Release and
+actively obstructive in Debug, where replacing a file on the storefront would then not show for a month.
+
+**The fallback is the absence of a source, not a placeholder.** `Source` returns `null` for anything it
+cannot parse, and an `Image` with no source draws nothing, so what stays visible is the panel behind it.
+That makes "no URL", "malformed URL" and "fetch failed" all land on the same flat token surface, which
+is what Requirement 7.4 asks for. It only holds because every remote image is wrapped — see below.
+
+Measured, not assumed. With the device offline and the cache emptied, every product image failed and
+each panel read a uniform `#1B1B20` where image content had been — thumbnails and the 220dp product
+panel alike — with the layout unmoved and no broken-image glyph. Glide reports the failure as a
+warning that goes nowhere:
+
+```
+W/Glide: Load failed for [https://placehold.co/...] with dimensions [176x176]
+W/Glide: com.bumptech.glide.load.HttpException(Failed to connect or obtain data, status code: -1)
+```
+
+Zero `FATAL EXCEPTION`. Restoring the network and relaunching brought all three images back and
+repopulated the cache, which is what rules out a code fault masquerading as the fallback.
+
+### Remote images are wrapped, and the wrapper is the fallback
+
+All four (`HomePage`, `CatalogPage`, `CartPage`, `ProductPage`) now sit inside a `MediaPanel` border.
+Thumbnails take `StrokeShape="RoundRectangle 12"` and `Padding="6"` over the style's 16; the product
+hero keeps 16 and takes `Padding="16"`. Size moved from the `Image` to the `Border`, with the image left
+on `Aspect="AspectFit"` to fill what is left.
+
+Task 10's `ProductCardView` should carry this shape rather than reinventing it, and Task 11's hero and
+category tiles need the same treatment — a remote image with no token panel behind it has no fallback
+at all.
+
+Verified by pixel on the Redmi Note 11, both themes, with the panel's padding ring sampled *next to* a
+loaded image so the panel and the artwork are distinguishable:
+
+| Sample | Dark | Light | Token |
+|---|---|---|---|
+| Media panel | `#1B1B20` | `#EFEDEA` | `TokenMediaBg` |
+| Card behind it | `#17171B` | `#FFFFFF` | `TokenSurface` |
+| Image content | `#EEF0FF` | `#EEF0FF` | remote artwork painting through |
+
+**Caching is real and observable.** MAUI's Android `UriImageSource` is backed by Glide, whose disk cache
+is at `/data/user/0/uz.pcmarket.mobile/cache/image_manager_disk_cache/`. Three entries were written on
+the Task 6 deploy and were still serving three days later, across a reinstall — which is the evidence
+for Requirement 7.5, and is much easier to read than trying to catch a refetch:
+
+```
+adb shell "run-as uz.pcmarket.mobile ls -la /data/user/0/uz.pcmarket.mobile/cache/image_manager_disk_cache/"
+```
+
+### How to test the image fallback without bricking anything
+
+Two traps, both hit while proving Requirement 7.4.
+
+**Cutting the network alone proves nothing** — the cache above serves the art regardless, so the screen
+looks perfectly healthy. The cache has to go first. Delete *only* the Glide directory:
+
+```
+adb shell "run-as uz.pcmarket.mobile rm -rf /data/user/0/uz.pcmarket.mobile/cache/image_manager_disk_cache"
+```
+
+This is safe in a way `pm clear` is not. `cache/` is not `files/`, so the FastDev assemblies survive and
+the app still launches — see the SIGABRT section above for what `pm clear` does instead.
+
+**Check what the development PC's internet actually rides on before touching the phone's radio.** Cutting
+it took the host offline the first time, because the PC was tethered from the same handset. Confirm the
+host has its own route first:
+
+```powershell
+Get-NetRoute -DestinationPrefix "0.0.0.0/0" | Sort-Object RouteMetric | Select-Object -First 1 InterfaceAlias
+netsh wlan show interfaces | Select-String SSID     # and that it is not the phone's hotspot
+```
+
+With those two out of the way the test is clean, because **`adb reverse` rides the USB transport and
+survives airplane mode**. The device shows zero connected networks while `tcp:5055` still answers, so the
+catalogue loads over USB and only the images fail — exactly the case Requirement 7.4 describes, with
+nothing else broken to confuse the reading:
+
+```
+adb shell dumpsys connectivity | grep -c "state: CONNECTED/CONNECTED"   # 0
+adb exec-out 'nc -w 3 127.0.0.1 5055 < /dev/null; echo RC=$?'           # RC=0
+```
+
+Once Task 11 puts storefront artwork on screen there is a gentler option that needs no radio at all:
+stop the storefront on the host, which fails the decorative set and leaves both the API and the product
+photography untouched.
+
+### Product photography does not go through the media root
+
+The seeded catalogue carries absolute `https://placehold.co/...` URLs, so `PrimaryImageUrl` is already
+absolute and `Url` passes it straight through. Product imagery gains caching and the panel fallback from
+this task, nothing more; only the decorative set resolves against `MediaRootUrl`.
+
+---
+
 ---
 
 ## Constraints discovered — read before editing XAML here
+
+### 0. AN IMPLICIT STYLE REPLACES THE TEMPLATE'S — IT DOES NOT LAYER OVER IT
+
+The single most important thing on this page, found during Task 5.
+
+Resource lookup finds **exactly one** implicit style per control type, and `MergedDictionaries` are
+searched last-merged-first. So an implicit `Style TargetType="Label"` in `AppStyles.xaml` does not
+add to the template's — it **shadows it entirely**, and every setter the template had and yours
+does not is simply gone.
+
+Tasks 1–4 shipped this one-setter style:
+
+```xml
+<Style TargetType="Label">
+    <Setter Property="FontFamily" Value="PlayRegular" />
+</Style>
+```
+
+which was discarding the template's `TextColor` and leaving every unkeyed label on the Android
+platform default. It looked correct only because that default is near-white under night mode — it
+would have gone black-on-charcoal the moment the light theme was properly exercised.
+
+**Every implicit style in `AppStyles.xaml` is therefore complete**, carrying colour, size, family
+and visual states. When adding a new one, port the template's setters for that type first, then
+retune. The template still owns the types not named there — ActivityIndicator, CheckBox, Switch,
+Slider, ImageButton, ProgressBar, RefreshView, SearchHandler, Shadow — which inherit the brand
+through the retuned keys in `Colors.xaml`, exactly as the "retune, don't rewrite" strategy intends.
+
+The same rule bit the shell: the template's `Shell` style paints the tab bar black in dark theme,
+and `Styles.xaml` is merged *before* `AppStyles.xaml`, so a style could have overridden it — but
+setting the values directly on the `Shell` element in `AppShell.xaml` outranks any style and is
+what Task 7 does.
 
 ### 1. XML comments cannot contain a doubled hyphen
 
@@ -212,9 +407,60 @@ $z.Entries | Where-Object { $_.FullName -match '\.ttf$' } |
 Also note: whole-APK deltas across incremental builds are not comparable. Measure a component's cost
 from its own zip entries.
 
+### `adb shell pm clear` bricks a Debug install, and `-t:Install` will NOT repair it
+
+Same root cause, third guise. Found in Task 6 while trying to prove the first-run default by wiping
+the stored preference. `pm clear` deletes `/data/user/0/uz.pcmarket.mobile/files/`, which is where
+FastDev puts the managed assemblies. The app then aborts on launch:
+
+```
+F monodroid: No assemblies found in '/data/user/0/uz.pcmarket.mobile/files/.__override__/arm64-v8a'
+F monodroid: Assuming this is part of Fast Deployment. Exiting...
+F libc    : Fatal signal 6 (SIGABRT)
+```
+
+The trap is the recovery: re-running `-t:Install` **does not fix it**. MSBuild tracks what it last
+pushed, sees the package still installed at the same version, and skips the assembly push — so the
+app keeps aborting and it looks like the code change crashed it. **Uninstall first:**
+
+```
+adb uninstall uz.pcmarket.mobile
+dotnet build ... -f net10.0-android -t:Install
+```
+
+To clear a preference without this, uninstall rather than `pm clear`. The abort message names Fast
+Deployment explicitly, which is the tell that separates it from a real crash — a XAML fault shows
+up as `XamlParseException` in a managed stack trace, never as a SIGABRT before the runtime starts.
+
 ---
 
 ## Open findings for later tasks
+
+### How to wire an input's focus ring — affects Tasks 12, 13, 14
+
+`InputField` and `InputFieldFocused` are two separate `Border` styles because a shared style cannot
+observe its child's focus: `x:Reference` resolves against the *view's* name scope, and a
+`ResourceDictionary` has none. Nor does a `Border` receive focus state from a child — MAUI's
+`ChangeVisualState` never propagates. The view wires it, in three lines:
+
+```xml
+<Border Style="{StaticResource InputField}">
+    <Border.Triggers>
+        <DataTrigger TargetType="Border" Binding="{Binding Source={x:Reference Region}, Path=IsFocused}" Value="True">
+            <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource TokenBrandLight}, Dark={StaticResource TokenBrand}}" />
+        </DataTrigger>
+    </Border.Triggers>
+    <Entry x:Name="Region" Placeholder="Region" Text="{Binding Region}" />
+</Border>
+```
+
+An unwrapped input is not unstyled — the implicit input styles already sit it on `input-bg` and
+give it a `Focused` state tinting the fill with `brand-050`. The wrapper is what adds the `line`
+border Requirement 5.2 asks for.
+
+The same "the view owns state that depends on the view model" rule produced the theme toggle:
+`Pill` plus a `DataTrigger` filling the selected one with `BrushAccent`. Reuse that shape for the
+catalog filter and sort pills in Task 12 rather than inventing a second mechanism.
 
 ### The template's default shadow is WHITE — affects Task 9
 
@@ -239,15 +485,13 @@ Present and verified for Russian: `U+0401`/`U+0451` (Ё ё), `U+2116` (№), `U+
 `U+2009` THIN SPACE — harmless today, because `Format.Money` groups digits with a plain ASCII space
 (`Replace(',', ' ')`), not a thin space. Do not switch it to `U+2009` without re-adding the glyph.
 
-### Page background comes from `OffBlack`, which now maps to `surface` — affects Task 7
+### RESOLVED (Task 5) — page background came from `OffBlack`, which maps to `surface`
 
-Measured on device after Task 3: the template binds `ContentPage` background
-`Light=White, Dark=OffBlack`, so the page renders `#F2F1EF` light / `#17171B` dark.
-
-The dark value is the **surface** step, not `TokenBg` (`#101013`), because `OffBlack` also serves as
-the bar background. Requirement 3.1 asks for the page to sit on `bg`, so Task 5 or Task 7 should set
-the page background explicitly to `TokenBg` and leave `OffBlack` doing bar duty. Retuning `OffBlack`
-down to `#101013` instead would flatten the bars into the page.
+The template binds `ContentPage` background `Light=White, Dark=OffBlack`, so the page rendered
+`#17171B` dark — the **surface** step, not `TokenBg`, because `OffBlack` also serves as the bar
+background. `AppStyles.xaml` now carries its own implicit `Page` style on `TokenBg`, leaving
+`OffBlack` doing bar duty. Retuning `OffBlack` down to `#101013` instead would have flattened the
+bars into the page. Verified by pixel: page `#101013`, bars `#17171B`.
 
 ### Views are already clean — Requirement 1.6 is nearly free
 
@@ -259,15 +503,15 @@ converters (`Money`, `Date`, `OrderStatus`, `Not`, `HasText`, `Attributes`).
 **Consequence for Task 5:** rewriting those ten style keys in `AppStyles.xaml` re-skins all 18 views
 without editing them. Keep the key names — renaming any of them means touching every view.
 
-### `Platforms/Android/Resources/values/colors.xml` still holds template purple
+### RESOLVED (Task 7) — `colors.xml` and the splash held template purple
 
-```xml
-colorPrimary #512BD4 / colorPrimaryDark #2B0B98 / colorAccent #2B0B98
-```
+`colorPrimary` / `colorPrimaryDark` / `colorAccent` are now `#17171B` / `#101013` / `#E0452E`, and
+`MauiSplashScreen Color` went `#512BD4` to `#101013`. Neither is reached by `Colors.xaml` — they
+drive the launch theme before MAUI paints anything, which is why the cold start flashed violet.
 
-This drives the Android splash and native chrome, and is **not** reached by `Colors.xaml`. Task 7
-(shell and system bars) needs to retune it, or the launch screen will flash purple before the themed
-UI paints.
+**Still open: `MauiIcon Color="#512BD4"` in the csproj.** That is the adaptive-icon background, not
+chrome, so it was left out of Task 7's scope rather than changed silently — but a purple icon on a
+charcoal/red app is wrong and wants a decision. Changing it regenerates the launcher icon.
 
 ### `*Brush` `SolidColorBrush` resources are unreferenced
 
@@ -289,14 +533,35 @@ now because they are template surface area, but they are removable if the file n
 | Cross-dictionary resolution | ✔ `BrushHeroPanel` resolves `TokenHeroFrom` from `Colors.xaml` |
 | Token values live on device | ✔ verified by pixel sampling, both themes |
 
-Measured after a correct deploy (Redmi Note 11, Android 11):
+Measured after a correct deploy (Redmi Note 11, Android 11). Every sample below is an **exact**
+match for the shipped token — no approximations:
 
-| Sample | Dark | Light | Source |
+| Sample | Dark | Light | Token |
 |---|---|---|---|
-| Page background | `#17171B` | `#F2F1EF` | retuned `OffBlack` / `White` |
-| Card surface | `#1B1B1F` | `#FFFFFF` | `AppStyles.xaml` `CardDark`/`CardLight` — unchanged, Task 5 |
-| Tab label (active) | — | `#B5241A` | retuned `Magenta` |
-| Tab bar | `#000000` | `#FFFFFF` | Shell default — Task 7 |
+| Page background | `#101013` | `#F5F4F2` | `TokenBg` |
+| Card surface | `#17171B` | `#FFFFFF` | `TokenSurface` |
+| Shell nav bar | `#17171B` | `#FFFFFF` | `TokenSurface` |
+| Tab bar | `#17171B` | `#FFFFFF` | `TokenSurface` |
+| Android status bar | `#17171B` | `#FFFFFF` | `TokenSurface` |
+| Tab label (active) | `#E0452E` | `#B5241A` | `TokenBrand` |
+| Tab label (inactive) | `#8E8D97` | `#6C6B74` | `TokenMuted` |
+| H1 heading | `#F2F1EF` | `#16161A` | `TokenInk` |
+| Muted body text | `#8E8D97` | `#6C6B74` | `TokenMuted` |
+| Error text | `#F36868` | — | `TokenDanger` |
+| Primary CTA | interpolates `#B5111D` to `#D4431F` | | `BrushAccent` |
+
+Theme behaviour, all measured rather than assumed:
+
+| Check | Result |
+|---|---|
+| Toggle repaints every open screen, no restart | ✔ |
+| Choice survives `am force-stop` and relaunch | ✔ light restored while OS was in **night** mode |
+| First run, no stored value, OS in **light** mode | ✔ renders dark (Req 8.1 and 8.4 together) |
+| System bars follow the toggle, icon contrast flips | ✔ both directions |
+| Cold start no longer flashes violet | ✔ |
+
+Sampling the tab label is still the sharpest canary: same glyph, same 992-pixel count as Task 3
+measured, different colour. `#D600AA` means stale, `#F2F1EF` means pre-Task-7, `#E0452E` means live.
 
 Both theme paths matter: `AppThemeBinding` selects a different key per theme, so a missing or
 mistyped `*Light` companion only fails in one of them. Switch with

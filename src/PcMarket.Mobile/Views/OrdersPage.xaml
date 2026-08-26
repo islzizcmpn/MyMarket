@@ -11,7 +11,7 @@
 
         <Label Grid.Row="0" Text="{Binding Error}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" />
 
-        <RefreshView Grid.Row="1" IsRefreshing="{Binding IsBusy}" Command="{Binding LoadCommand}">
+        <RefreshView Grid.Row="1" IsRefreshing="{Binding IsBusy, Mode=OneWay}" Command="{Binding LoadCommand}">
             <CollectionView ItemsSource="{Binding Orders}" SelectionMode="None">
                 <CollectionView.EmptyView>
                     <VerticalStackLayout Padding="24" Spacing="6">

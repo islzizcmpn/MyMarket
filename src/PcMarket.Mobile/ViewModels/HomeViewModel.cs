@@ -9,8 +9,6 @@ namespace PcMarket.Mobile.ViewModels;
 /// <summary>Landing screen: the top-level categories plus the newest products.</summary>
 public partial class HomeViewModel(CatalogApiClient catalog) : BaseViewModel
 {
-    private bool _loaded;
-
     public ObservableCollection<CategoryNodeDto> Categories { get; } = [];
 
     public ObservableCollection<ProductListItemDto> NewArrivals { get; } = [];
@@ -19,7 +17,7 @@ public partial class HomeViewModel(CatalogApiClient catalog) : BaseViewModel
     public partial string? SearchText { get; set; }
 
     [RelayCommand]
-    private Task AppearingAsync() => _loaded ? Task.CompletedTask : LoadAsync();
+    private Task AppearingAsync() => IsStale ? LoadAsync() : Task.CompletedTask;
 
     [RelayCommand]
     private Task LoadAsync() => RunAsync(async ct =>
@@ -39,7 +37,7 @@ public partial class HomeViewModel(CatalogApiClient catalog) : BaseViewModel
             NewArrivals.Add(product);
         }
 
-        _loaded = true;
+        MarkLoaded();
     });
 
     [RelayCommand]

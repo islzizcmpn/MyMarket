@@ -39,6 +39,46 @@
                 <Button Text="Sign out" Style="{StaticResource GhostButton}" Command="{Binding SignOutCommand}" />
             </VerticalStackLayout>
 
+            <!--
+                Appearance. Offered signed in or out, because the choice is about the app rather
+                than the account — it is the one setting an anonymous visitor can still make.
+
+                Each segment starts from the Pill style and a DataTrigger fills the selected one
+                with the accent gradient. The selected state cannot come from a shared style: it
+                depends on the view model, which a ResourceDictionary has no binding context for.
+            -->
+            <Label Text="Appearance" Style="{StaticResource H3}" Margin="2,6,0,0" />
+
+            <Border Style="{StaticResource Segmented}">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="4">
+                    <Button Grid.Column="0"
+                            Text="Dark"
+                            Style="{StaticResource Pill}"
+                            Command="{Binding UseDarkThemeCommand}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding IsDarkTheme}" Value="True">
+                                <Setter Property="Background" Value="{StaticResource BrushAccent}" />
+                                <Setter Property="TextColor" Value="{StaticResource White}" />
+                                <Setter Property="BorderWidth" Value="0" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+
+                    <Button Grid.Column="1"
+                            Text="Light"
+                            Style="{StaticResource Pill}"
+                            Command="{Binding UseLightThemeCommand}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding IsLightTheme}" Value="True">
+                                <Setter Property="Background" Value="{StaticResource BrushAccent}" />
+                                <Setter Property="TextColor" Value="{StaticResource White}" />
+                                <Setter Property="BorderWidth" Value="0" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                </Grid>
+            </Border>
+
             <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
 
         </VerticalStackLayout>

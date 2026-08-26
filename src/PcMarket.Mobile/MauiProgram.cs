@@ -40,6 +40,9 @@ public static class MauiProgram
 		builder.Services.AddSingleton<AuthFlow>();
 		builder.Services.AddSingleton<IPushTokenSource, PushTokenSource>();
 
+		// One theme choice per app, applied at start-up and from the account screen.
+		builder.Services.AddSingleton<ThemeService>();
+
 		builder.Services.AddSingleton<AppShell>();
 
 		AddPage<HomePage, HomeViewModel>(builder.Services);

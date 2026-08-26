@@ -42,7 +42,7 @@
             </VerticalStackLayout>
         </Border>
 
-        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsBusy}" Command="{Binding LoadCommand}">
+        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsBusy, Mode=OneWay}" Command="{Binding LoadCommand}">
             <CollectionView ItemsSource="{Binding Products}"
                             SelectionMode="None"
                             RemainingItemsThreshold="4"
@@ -59,7 +59,16 @@
                     <DataTemplate x:DataType="catalog:ProductListItemDto">
                         <Border Style="{StaticResource Card}" Margin="0,0,0,10">
                             <Grid ColumnDefinitions="76,*" ColumnSpacing="12">
-                                <Image Grid.Column="0" Source="{Binding PrimaryImageUrl}" Aspect="AspectFit" HeightRequest="76" />
+                                <Border Grid.Column="0"
+                                        Style="{StaticResource MediaPanel}"
+                                        StrokeShape="RoundRectangle 12"
+                                        Padding="6"
+                                        HeightRequest="76"
+                                        WidthRequest="76"
+                                        VerticalOptions="Start">
+                                    <Image Source="{Binding PrimaryImageUrl, Converter={StaticResource RemoteImage}}"
+                                           Aspect="AspectFit" />
+                                </Border>
                                 <VerticalStackLayout Grid.Column="1" Spacing="4">
                                     <Label Text="{Binding Name}" FontAttributes="Bold" MaxLines="2" LineBreakMode="TailTruncation" />
                                     <Label Text="{Binding BrandName}" Style="{StaticResource MutedText}" />

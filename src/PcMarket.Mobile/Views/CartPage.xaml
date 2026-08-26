@@ -11,7 +11,7 @@
 
         <Label Grid.Row="0" Text="{Binding Error}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" />
 
-        <RefreshView Grid.Row="1" IsRefreshing="{Binding IsBusy}" Command="{Binding LoadCommand}">
+        <RefreshView Grid.Row="1" IsRefreshing="{Binding IsBusy, Mode=OneWay}" Command="{Binding LoadCommand}">
             <CollectionView ItemsSource="{Binding Items}" SelectionMode="None">
                 <CollectionView.EmptyView>
                     <VerticalStackLayout Padding="24" Spacing="6">
@@ -23,7 +23,16 @@
                     <DataTemplate x:DataType="cart:CartItemDto">
                         <Border Style="{StaticResource Card}" Margin="0,0,0,10">
                             <Grid ColumnDefinitions="64,*,Auto" ColumnSpacing="12">
-                                <Image Grid.Column="0" Source="{Binding PrimaryImageUrl}" Aspect="AspectFit" HeightRequest="64" />
+                                <Border Grid.Column="0"
+                                        Style="{StaticResource MediaPanel}"
+                                        StrokeShape="RoundRectangle 12"
+                                        Padding="6"
+                                        HeightRequest="64"
+                                        WidthRequest="64"
+                                        VerticalOptions="Start">
+                                    <Image Source="{Binding PrimaryImageUrl, Converter={StaticResource RemoteImage}}"
+                                           Aspect="AspectFit" />
+                                </Border>
 
                                 <VerticalStackLayout Grid.Column="1" Spacing="4">
                                     <Label Text="{Binding ProductName}" FontAttributes="Bold" MaxLines="2" LineBreakMode="TailTruncation" />

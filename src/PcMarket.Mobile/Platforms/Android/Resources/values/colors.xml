@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Native chrome, which Colors.xaml does not reach: these drive the launch theme and the window
+    background before MAUI has painted anything. Left on the template purple they produce a violet
+    flash on every cold start, ahead of the charcoal UI.
+
+    Values match the design tokens - colorPrimary is `surface` (the bar fill), colorPrimaryDark is
+    `bg` (the page beneath), colorAccent is `brand`. ThemeService repaints the bars from the same
+    tokens once the window is up; this is only what shows before that.
+-->
 <resources>
-    <color name="colorPrimary">#512BD4</color>
-    <color name="colorPrimaryDark">#2B0B98</color>
-    <color name="colorAccent">#2B0B98</color>
+    <color name="colorPrimary">#17171B</color>
+    <color name="colorPrimaryDark">#101013</color>
+    <color name="colorAccent">#E0452E</color>
 </resources>

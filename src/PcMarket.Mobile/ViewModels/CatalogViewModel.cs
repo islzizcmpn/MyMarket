@@ -13,7 +13,6 @@ public partial class CatalogViewModel(CatalogApiClient catalog) : BaseViewModel,
 {
     private int _page = 1;
     private int _totalPages;
-    private bool _loaded;
 
     public ObservableCollection<ProductListItemDto> Products { get; } = [];
 
@@ -71,14 +70,14 @@ public partial class CatalogViewModel(CatalogApiClient catalog) : BaseViewModel,
 
         if (query.Count > 0)
         {
-            _loaded = false;
+            Invalidate();
         }
     }
 
     private string? _pendingCategorySlug;
 
     [RelayCommand]
-    private Task AppearingAsync() => _loaded ? Task.CompletedTask : LoadAsync();
+    private Task AppearingAsync() => IsStale ? LoadAsync() : Task.CompletedTask;
 
     [RelayCommand]
     private Task LoadAsync() => RunAsync(async ct =>
@@ -112,7 +111,7 @@ public partial class CatalogViewModel(CatalogApiClient catalog) : BaseViewModel,
         }
 
         _totalPages = result.TotalPages;
-        _loaded = true;
+        MarkLoaded();
         NotifyListState();
     });
 

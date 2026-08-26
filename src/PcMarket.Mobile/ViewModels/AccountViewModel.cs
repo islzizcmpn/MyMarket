@@ -13,7 +13,8 @@ public partial class AccountViewModel(
     UsersApiClient users,
     MobileSession session,
     SessionGuard guard,
-    AuthFlow flow) : BaseViewModel
+    AuthFlow flow,
+    ThemeService theme) : BaseViewModel
 {
     [ObservableProperty]
     public partial UserProfileDto? Profile { get; set; }
@@ -21,6 +22,12 @@ public partial class AccountViewModel(
     public bool IsAuthenticated => session.IsAuthenticated;
 
     public bool IsAnonymous => !session.IsAuthenticated;
+
+    /// <summary>Drives the appearance toggle. Read from the service rather than mirrored into a
+    /// field, so a theme applied from anywhere else is still what the control shows.</summary>
+    public bool IsDarkTheme => theme.Current == AppTheme.Dark;
+
+    public bool IsLightTheme => !IsDarkTheme;
 
     public string DisplayName => Profile?.FullName is { Length: > 0 } name ? name : Profile?.Phone ?? string.Empty;
 
@@ -55,6 +62,19 @@ public partial class AccountViewModel(
 
     [RelayCommand]
     private static Task OpenAddressesAsync() => Shell.Current.GoToAsync("addresses");
+
+    [RelayCommand]
+    private void UseDarkTheme() => SetTheme(AppTheme.Dark);
+
+    [RelayCommand]
+    private void UseLightTheme() => SetTheme(AppTheme.Light);
+
+    private void SetTheme(AppTheme value)
+    {
+        theme.Apply(value);
+        OnPropertyChanged(nameof(IsDarkTheme));
+        OnPropertyChanged(nameof(IsLightTheme));
+    }
 
     [RelayCommand]
     private Task SignOutAsync() => RunAsync(async ct =>

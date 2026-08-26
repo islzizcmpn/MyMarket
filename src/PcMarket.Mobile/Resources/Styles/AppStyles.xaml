@@ -1,17 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-    Storefront look on top of the MAUI template styles: typography, cards, headings, price
-    emphasis, and the error/empty states every screen shares.
+    The storefront style layer, built entirely on the tokens in Colors.xaml and the brushes in
+    Brushes.xaml. Merged last, so anything here wins over the stock template dictionary.
 
-    Typography: Play is the storefront's face and the app's default. The stock Styles.xaml sets
-    FontFamily="OpenSansRegular" on ten control types; since that file is deliberately left
-    untouched, the implicit styles below re-set the same types to Play. This dictionary is merged
-    after it, so these win.
+    Four things to know before editing:
 
-    Play ships only 400 and 700 — nothing in between. Hierarchy is therefore built from size and
-    letter-spacing, and bold is selected by naming the PlayBold *file* rather than by setting
-    FontAttributes="Bold", which would tell the renderer to synthesise a heavier weight on top of
-    an already-bold face.
+    1. NO LITERAL COLOURS. Every colour resolves through a token; the only exception is
+       Transparent. The `White` key is a token too (the brand's warm off-white) and is the one
+       used for text sitting on the accent gradient, which stays dark red in both themes.
+
+    2. AN IMPLICIT STYLE HERE REPLACES THE TEMPLATE'S, IT DOES NOT LAYER ON IT. Resource lookup
+       finds exactly one implicit style per control type, and the last dictionary merged wins. So
+       every implicit style below has to be complete: dropping TextColor from the Label style does
+       not fall back to the template's value, it leaves the control unstyled. The template still
+       owns the control types not named here (ActivityIndicator, CheckBox, Switch, Slider and so
+       on), which inherit the brand through the retuned keys in Colors.xaml.
+
+    3. Play ships only 400 and 700, so bold is selected by naming the PlayBold *file* rather than
+       by FontAttributes, which would synthesise weight over an already-bold face. Hierarchy comes
+       from size plus CharacterSpacing.
+
+    4. CSS custom properties are named without their leading double hyphen, as in Colors.xaml:
+       XML forbids a doubled hyphen inside a comment.
 -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -23,111 +33,534 @@
     <converters:InverseBoolConverter x:Key="Not" />
     <converters:HasTextConverter x:Key="HasText" />
     <converters:AttributesConverter x:Key="Attributes" />
+    <converters:RemoteImageConverter x:Key="RemoteImage" />
 
-    <Color x:Key="Accent">#1F6FEB</Color>
-    <Color x:Key="AccentDark">#144D9E</Color>
-    <Color x:Key="Danger">#C0392B</Color>
-    <Color x:Key="Success">#1E8E4E</Color>
-    <Color x:Key="Muted">#6B7280</Color>
-    <Color x:Key="CardLight">#FFFFFF</Color>
-    <Color x:Key="CardDark">#1B1B1F</Color>
+    <!-- ===================================================================================
+         PAGE
 
-    <!-- Default face. One implicit style per control type the template names, so no text control
-         is left on OpenSans. Keyed styles below inherit from these unless they say otherwise. -->
+         The template binds the page background to OffBlack, which is the `surface` step because
+         that key also does bar duty. The storefront's page sits one step lower, on `bg`, so the
+         chrome reads as raised above it.
+         =================================================================================== -->
+
+    <Style TargetType="Page" ApplyToDerivedTypes="True">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource TokenBgLight}, Dark={StaticResource TokenBg}}" />
+    </Style>
+
+    <!-- ===================================================================================
+         TEXT CONTROLS  (implicit: the default face and ink colour for every text control type
+         the template names, so nothing is left on OpenSans or on a platform default colour)
+         =================================================================================== -->
+
     <Style TargetType="Label">
         <Setter Property="FontFamily" Value="PlayRegular" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInkLight}, Dark={StaticResource TokenInk}}" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor"
+                                    Value="{AppThemeBinding Light={StaticResource TokenMutedLight}, Dark={StaticResource TokenMuted}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
+
+    <!-- Base button. Graphite by rest: the accent is reserved for the primary and pill-active
+         styles below, matching the storefront rule that only calls to action carry the gradient. -->
     <Style TargetType="Button">
         <Setter Property="FontFamily" Value="PlayRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="CharacterSpacing" Value="0.2" />
+        <Setter Property="BorderWidth" Value="1" />
+        <Setter Property="BorderColor"
+                Value="{AppThemeBinding Light={StaticResource TokenLineLight}, Dark={StaticResource TokenLine}}" />
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource TokenSurface2Light}, Dark={StaticResource TokenSurface2}}" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInkLight}, Dark={StaticResource TokenInk}}" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="20,12" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
+        <Setter Property="MinimumWidthRequest" Value="44" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <!-- Opacity rather than a colour swap: the accent styles paint with a Brush,
+                         which a BackgroundColor setter cannot reach. Same lever the web pulls. -->
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.55" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="PointerOver" />
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
+
+    <!-- ===================================================================================
+         INPUTS  (app.css tokens: input-bg, line, brand)
+
+         The fill and the ink live on the control; the border lives on the InputField frame below,
+         because MAUI inputs have no border of their own. The Focused state tints the fill with
+         `brand-050` so a bare, unframed input still signals focus; a framed one gets the stronger
+         signal from swapping its frame to InputFieldFocused.
+         =================================================================================== -->
+
     <Style TargetType="Entry">
         <Setter Property="FontFamily" Value="PlayRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInputBgLight}, Dark={StaticResource TokenInputBg}}" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInkLight}, Dark={StaticResource TokenInk}}" />
+        <Setter Property="PlaceholderColor"
+                Value="{AppThemeBinding Light={StaticResource TokenMutedLight}, Dark={StaticResource TokenMuted}}" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Focused">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor"
+                                    Value="{AppThemeBinding Light={StaticResource TokenBrand050Light}, Dark={StaticResource TokenBrand050}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor"
+                                    Value="{AppThemeBinding Light={StaticResource TokenMutedLight}, Dark={StaticResource TokenMuted}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
+
     <Style TargetType="Editor">
         <Setter Property="FontFamily" Value="PlayRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInputBgLight}, Dark={StaticResource TokenInputBg}}" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInkLight}, Dark={StaticResource TokenInk}}" />
+        <Setter Property="PlaceholderColor"
+                Value="{AppThemeBinding Light={StaticResource TokenMutedLight}, Dark={StaticResource TokenMuted}}" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Focused">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor"
+                                    Value="{AppThemeBinding Light={StaticResource TokenBrand050Light}, Dark={StaticResource TokenBrand050}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor"
+                                    Value="{AppThemeBinding Light={StaticResource TokenMutedLight}, Dark={StaticResource TokenMuted}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
+
+    <!-- A Picker's placeholder is its Title, so TitleColor is the muted one here. -->
     <Style TargetType="Picker">
         <Setter Property="FontFamily" Value="PlayRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInputBgLight}, Dark={StaticResource TokenInputBg}}" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInkLight}, Dark={StaticResource TokenInk}}" />
+        <Setter Property="TitleColor"
+                Value="{AppThemeBinding Light={StaticResource TokenMutedLight}, Dark={StaticResource TokenMuted}}" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Focused">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor"
+                                    Value="{AppThemeBinding Light={StaticResource TokenBrand050Light}, Dark={StaticResource TokenBrand050}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor"
+                                    Value="{AppThemeBinding Light={StaticResource TokenMutedLight}, Dark={StaticResource TokenMuted}}" />
+                            <Setter Property="TitleColor"
+                                    Value="{AppThemeBinding Light={StaticResource TokenMutedLight}, Dark={StaticResource TokenMuted}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
+
     <Style TargetType="SearchBar">
         <Setter Property="FontFamily" Value="PlayRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInputBgLight}, Dark={StaticResource TokenInputBg}}" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInkLight}, Dark={StaticResource TokenInk}}" />
+        <Setter Property="PlaceholderColor"
+                Value="{AppThemeBinding Light={StaticResource TokenMutedLight}, Dark={StaticResource TokenMuted}}" />
+        <Setter Property="CancelButtonColor"
+                Value="{AppThemeBinding Light={StaticResource TokenBrandLight}, Dark={StaticResource TokenBrand}}" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
     </Style>
+
     <Style TargetType="DatePicker">
         <Setter Property="FontFamily" Value="PlayRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInputBgLight}, Dark={StaticResource TokenInputBg}}" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInkLight}, Dark={StaticResource TokenInk}}" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
     </Style>
+
     <Style TargetType="TimePicker">
         <Setter Property="FontFamily" Value="PlayRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInputBgLight}, Dark={StaticResource TokenInputBg}}" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInkLight}, Dark={StaticResource TokenInk}}" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
     </Style>
+
     <Style TargetType="RadioButton">
         <Setter Property="FontFamily" Value="PlayRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInkLight}, Dark={StaticResource TokenInk}}" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
     </Style>
 
+    <!-- ===================================================================================
+         SURFACES
+
+         The implicit Border style is the hairline every panel starts from: `line` at 1px on the
+         storefront's 16px radius, with no fill of its own. Card adds the `surface` fill.
+         =================================================================================== -->
+
+    <Style TargetType="Border">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="Stroke"
+                Value="{AppThemeBinding Light={StaticResource TokenLineLight}, Dark={StaticResource TokenLine}}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+    </Style>
+
+    <!-- The card rests on `surface` inside a `line` hairline. No shadow: MAUI maps Shadow to an
+         Android render-node effect, and one per card in a long list is measurably expensive. The
+         lift state in the motion layer is where the shadow appears. -->
     <Style x:Key="Card" TargetType="Border">
-        <Setter Property="StrokeThickness" Value="0" />
-        <Setter Property="Padding" Value="14" />
         <Setter Property="BackgroundColor"
-                Value="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+                Value="{AppThemeBinding Light={StaticResource TokenSurfaceLight}, Dark={StaticResource TokenSurface}}" />
+        <Setter Property="Stroke"
+                Value="{AppThemeBinding Light={StaticResource TokenLineLight}, Dark={StaticResource TokenLine}}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="Padding" Value="14" />
     </Style>
 
-    <!-- Display sizes tighten: Play sets generously, and at 24pt the default tracking reads loose.
-         Negative spacing here is the same lever the storefront pulls on its headings. -->
+    <!-- Backdrop for product imagery. Carries no stroke: it sits inside a card that already has
+         one, and the glow brush behind the image is what gives it its edge. -->
+    <Style x:Key="MediaPanel" TargetType="Border">
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource TokenMediaBgLight}, Dark={StaticResource TokenMediaBg}}" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <!-- The frame an Entry, Editor or Picker sits in. MAUI inputs have no border property, so the
+         `line` border of the storefront's form fields is drawn by this wrapper instead.
+
+         The focus ring is the InputFieldFocused style below. Swapping between the two needs the
+         child's IsFocused, which a shared style cannot reach because x:Reference resolves against
+         the view's name scope; the view wires it with a DataTrigger on the input it wraps. -->
+    <Style x:Key="InputField" TargetType="Border">
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInputBgLight}, Dark={StaticResource TokenInputBg}}" />
+        <Setter Property="Stroke"
+                Value="{AppThemeBinding Light={StaticResource TokenLineLight}, Dark={StaticResource TokenLine}}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        <Setter Property="Padding" Value="12,2" />
+    </Style>
+
+    <Style x:Key="InputFieldFocused" TargetType="Border">
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInputBgLight}, Dark={StaticResource TokenInputBg}}" />
+        <Setter Property="Stroke"
+                Value="{AppThemeBinding Light={StaticResource TokenBrandLight}, Dark={StaticResource TokenBrand}}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        <Setter Property="Padding" Value="12,2" />
+    </Style>
+
+    <!-- ===================================================================================
+         TYPE SCALE
+
+         Display sizes tighten: Play sets generously, and at 24pt the default tracking reads
+         loose. Negative spacing is the same lever the storefront pulls on its headings.
+         =================================================================================== -->
+
     <Style x:Key="H1" TargetType="Label">
         <Setter Property="FontFamily" Value="PlayBold" />
         <Setter Property="FontSize" Value="24" />
         <Setter Property="CharacterSpacing" Value="-0.4" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInkLight}, Dark={StaticResource TokenInk}}" />
     </Style>
 
     <Style x:Key="H2" TargetType="Label">
         <Setter Property="FontFamily" Value="PlayBold" />
         <Setter Property="FontSize" Value="18" />
         <Setter Property="CharacterSpacing" Value="-0.2" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInkLight}, Dark={StaticResource TokenInk}}" />
+    </Style>
+
+    <!-- Section label rather than a heading: small, tight and set in bold, the way the storefront
+         titles its rails. Tracking goes positive here because at 15pt in caps-height runs the
+         letters need air, not less of it. -->
+    <Style x:Key="H3" TargetType="Label">
+        <Setter Property="FontFamily" Value="PlayBold" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="CharacterSpacing" Value="0.6" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInkLight}, Dark={StaticResource TokenInk}}" />
     </Style>
 
     <Style x:Key="MutedText" TargetType="Label">
+        <Setter Property="FontFamily" Value="PlayRegular" />
         <Setter Property="FontSize" Value="13" />
-        <Setter Property="TextColor" Value="{StaticResource Muted}" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenMutedLight}, Dark={StaticResource TokenMuted}}" />
     </Style>
 
-    <!-- Prices keep default tracking: these are long digit runs with thin-space grouping, and
-         tightening them costs more legibility than the tighter set buys. -->
+    <!-- Prices keep default tracking: these are long digit runs with space grouping, and tightening
+         them costs more legibility than the tighter set buys. -->
     <Style x:Key="Price" TargetType="Label">
         <Setter Property="FontFamily" Value="PlayBold" />
         <Setter Property="FontSize" Value="17" />
-        <Setter Property="TextColor" Value="{StaticResource Accent}" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenBrandLight}, Dark={StaticResource TokenBrand}}" />
     </Style>
 
     <Style x:Key="ErrorText" TargetType="Label">
-        <Setter Property="TextColor" Value="{StaticResource Danger}" />
+        <Setter Property="FontFamily" Value="PlayRegular" />
         <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenDangerLight}, Dark={StaticResource TokenDanger}}" />
     </Style>
 
     <Style x:Key="SuccessText" TargetType="Label">
-        <Setter Property="TextColor" Value="{StaticResource Success}" />
+        <Setter Property="FontFamily" Value="PlayRegular" />
         <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenOkLight}, Dark={StaticResource TokenOk}}" />
     </Style>
 
+    <!-- ===================================================================================
+         BUTTONS
+
+         Buttons are the one place the accent appears at full strength, exactly as on the web;
+         everything else on the page stays graphite.
+         =================================================================================== -->
+
+    <!-- Background, not BackgroundColor: the accent is a gradient. A Brush set here outranks any
+         BackgroundColor the control also carries, which is why the disabled state fades with
+         Opacity instead of recolouring. White here is the brand off-white token, and it holds in
+         both themes because the gradient itself is dark red in both. -->
     <Style x:Key="PrimaryButton" TargetType="Button">
-        <Setter Property="BackgroundColor" Value="{StaticResource Accent}" />
-        <Setter Property="TextColor" Value="White" />
-        <Setter Property="CornerRadius" Value="10" />
-        <Setter Property="HeightRequest" Value="46" />
+        <Setter Property="FontFamily" Value="PlayBold" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="CharacterSpacing" Value="0.2" />
+        <Setter Property="Background" Value="{StaticResource BrushAccent}" />
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="20,12" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.55" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
 
     <Style x:Key="GhostButton" TargetType="Button">
+        <Setter Property="FontFamily" Value="PlayBold" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="CharacterSpacing" Value="0.2" />
         <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="TextColor" Value="{StaticResource Accent}" />
-        <Setter Property="CornerRadius" Value="10" />
-        <Setter Property="HeightRequest" Value="42" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInkLight}, Dark={StaticResource TokenInk}}" />
+        <Setter Property="BorderWidth" Value="1" />
+        <Setter Property="BorderColor"
+                Value="{AppThemeBinding Light={StaticResource TokenLineLight}, Dark={StaticResource TokenLine}}" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="20,10" />
+        <Setter Property="HeightRequest" Value="44" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.55" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
 
+    <!-- Stepper for cart quantities. Square, so it reads as a control rather than a call to
+         action, and sized at 40 rather than the 44 the other buttons take: two of them flank a
+         count in a line item and 44 crowds the row. -->
     <Style x:Key="Quantity" TargetType="Button">
-        <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="TextColor" Value="{StaticResource Accent}" />
+        <Setter Property="FontFamily" Value="PlayBold" />
         <Setter Property="FontSize" Value="18" />
-        <Setter Property="WidthRequest" Value="38" />
-        <Setter Property="HeightRequest" Value="38" />
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource TokenSurface2Light}, Dark={StaticResource TokenSurface2}}" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenBrandLight}, Dark={StaticResource TokenBrand}}" />
+        <Setter Property="BorderWidth" Value="1" />
+        <Setter Property="BorderColor"
+                Value="{AppThemeBinding Light={StaticResource TokenLineLight}, Dark={StaticResource TokenLine}}" />
+        <Setter Property="CornerRadius" Value="10" />
         <Setter Property="Padding" Value="0" />
+        <Setter Property="WidthRequest" Value="40" />
+        <Setter Property="HeightRequest" Value="40" />
+        <Setter Property="MinimumWidthRequest" Value="40" />
+        <Setter Property="MinimumHeightRequest" Value="40" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.55" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <!-- ===================================================================================
+         PILLS  (app.css `pill`, plus the catalog filter and sort controls)
+
+         At rest a pill is quiet: `surface-2` inside a `line` hairline, so a row of them reads as
+         graphite and only the chosen one is lit. Active fills with the accent gradient.
+         =================================================================================== -->
+
+    <Style x:Key="Pill" TargetType="Button">
+        <Setter Property="FontFamily" Value="PlayBold" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="CharacterSpacing" Value="1" />
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource TokenSurface2Light}, Dark={StaticResource TokenSurface2}}" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenInkLight}, Dark={StaticResource TokenInk}}" />
+        <Setter Property="BorderWidth" Value="1" />
+        <Setter Property="BorderColor"
+                Value="{AppThemeBinding Light={StaticResource TokenLineLight}, Dark={StaticResource TokenLine}}" />
+        <Setter Property="CornerRadius" Value="18" />
+        <Setter Property="Padding" Value="16,6" />
+        <Setter Property="HeightRequest" Value="36" />
+        <Setter Property="MinimumHeightRequest" Value="36" />
+        <Setter Property="MinimumWidthRequest" Value="44" />
+    </Style>
+
+    <Style x:Key="PillActive" TargetType="Button">
+        <Setter Property="FontFamily" Value="PlayBold" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="CharacterSpacing" Value="1" />
+        <Setter Property="Background" Value="{StaticResource BrushAccent}" />
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="18" />
+        <Setter Property="Padding" Value="16,6" />
+        <Setter Property="HeightRequest" Value="36" />
+        <Setter Property="MinimumHeightRequest" Value="36" />
+        <Setter Property="MinimumWidthRequest" Value="44" />
+    </Style>
+
+    <!-- ===================================================================================
+         STATUS BADGE  (app.css `status`)
+
+         A filled pill, brand-tinted by default. Order screens override BackgroundColor and the
+         text colour per state, so a delivered order reads `ok` and a cancelled one `danger`.
+         Border plus Label rather than a padded Label alone: MAUI labels have no corner radius.
+         =================================================================================== -->
+
+    <Style x:Key="StatusBadge" TargetType="Border">
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource TokenBrand050Light}, Dark={StaticResource TokenBrand050}}" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="Padding" Value="10,3" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+    </Style>
+
+    <Style x:Key="StatusBadgeText" TargetType="Label">
+        <Setter Property="FontFamily" Value="PlayBold" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="CharacterSpacing" Value="0.4" />
+        <Setter Property="TextColor"
+                Value="{AppThemeBinding Light={StaticResource TokenBrand700Light}, Dark={StaticResource TokenBrand700}}" />
+    </Style>
+
+    <!-- ===================================================================================
+         SEGMENTED CONTROL
+
+         The track a pair of pills sits in, used by the theme toggle on Account. The pills
+         themselves are the Pill and PillActive styles above.
+         =================================================================================== -->
+
+    <Style x:Key="Segmented" TargetType="Border">
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource TokenSurfaceLight}, Dark={StaticResource TokenSurface}}" />
+        <Setter Property="Stroke"
+                Value="{AppThemeBinding Light={StaticResource TokenLineLight}, Dark={StaticResource TokenLine}}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 22" />
+        <Setter Property="Padding" Value="4" />
     </Style>
 
 </ResourceDictionary>

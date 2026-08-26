@@ -1,6 +1,7 @@
 using System.Globalization;
 using PcMarket.Contracts.Orders;
 using PcMarket.Mobile.Core;
+using PcMarket.Mobile.Services;
 
 namespace PcMarket.Mobile;
 
@@ -59,6 +60,19 @@ public sealed class AttributesConverter : IValueConverter
         value is IReadOnlyDictionary<string, string> attributes && attributes.Count > 0
             ? string.Join(" · ", attributes.Select(pair => $"{pair.Key}: {pair.Value}"))
             : "Standard";
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}
+
+/// <summary>Turns a URL into a cached <see cref="UriImageSource"/>, resolving a storefront-relative path
+/// against the media root on the way. Binding a bare string to <c>Image.Source</c> would also produce a
+/// URI source, but only for a path that is already absolute and only on MAUI's own one-day cache; both of
+/// those are decisions this app needs to make for itself.</summary>
+public sealed class RemoteImageConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        Artwork.Source(value as string);
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotSupportedException();

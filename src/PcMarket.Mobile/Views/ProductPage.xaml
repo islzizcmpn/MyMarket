@@ -16,7 +16,10 @@
 
             <VerticalStackLayout Spacing="14" IsVisible="{Binding HasProduct}">
 
-                <Image Source="{Binding PrimaryImageUrl}" Aspect="AspectFit" HeightRequest="220" />
+                <Border Style="{StaticResource MediaPanel}" Padding="16" HeightRequest="220">
+                    <Image Source="{Binding PrimaryImageUrl, Converter={StaticResource RemoteImage}}"
+                           Aspect="AspectFit" />
+                </Border>
 
                 <Label Text="{Binding Product.Name}" Style="{StaticResource H1}" />
                 <Label Text="{Binding Product.BrandName}" Style="{StaticResource MutedText}" />

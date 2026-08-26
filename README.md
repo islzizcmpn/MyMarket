@@ -331,9 +331,49 @@ dotnet build src/PcMarket.Mobile/PcMarket.Mobile.csproj -f net10.0-android -t:Ru
 ```
 
 Start the API first (`dotnet run --project src/PcMarket.Api`). The app resolves its backend in
-`Services/AppConfig.cs`: an Android emulator uses **`http://10.0.2.2:5055`**, since `localhost` inside the
-emulator is the emulated device. Android blocks cleartext HTTP by default, so debug builds carry a
-narrow exception for that host in `Platforms/Android/Resources/xml/network_security_config.xml`.
+`Services/AppConfig.cs`, and **the two device types resolve differently**:
+
+| Target | Backend URL | Artwork URL | Extra setup |
+|--------|-------------|-------------|-------------|
+| Emulator | `http://10.0.2.2:5055` | `http://10.0.2.2:5193` | none — `10.0.2.2` is the emulator's alias for the host |
+| Physical device | `http://localhost:5055` | `http://localhost:5193` | **an `adb reverse` tunnel is required, for both ports** |
+
+The second column is `AppConfig.MediaRootUrl`: the app's decorative artwork (hero banner, category
+tiles) is **fetched from the running storefront** rather than bundled, because the photography under
+`PcMarket.Web/wwwroot/images` is an order of magnitude larger than the whole package. `Services/Artwork.cs`
+resolves the paths and hands back cached image sources. Without the storefront running, or without its
+tunnel, those images simply do not load — every one of them sits on a token-coloured panel, so the
+screen degrades to flat surfaces rather than breaking. Product photography is unaffected: those URLs
+come from the catalogue and are already absolute.
+
+On a phone `localhost` is *the phone*, so without the tunnel every request fails at the transport
+layer and the app shows "Can't reach the store. Check your connection and try again." That reads
+like a Wi-Fi fault and is not one. On Windows:
+
+```bat
+scripts\start-mobile-dev.cmd
+```
+
+It brings up the backing services, runs the API on `:5055`, opens the tunnel, and then verifies the
+path from both ends (host `/health`, plus a TCP connect from the device itself) so a silent failure
+cannot be mistaken for success. Add `-WithStorefront` to also serve the storefront on `:5193` for
+the app's remote artwork, and `-Launch` to deploy and start the app. It is idempotent — re-run it
+whenever the error reappears, because reverse tunnels are bound to the adb transport and are lost
+whenever it resets (cable unplugged, `adb kill-server`, or a device reconnect).
+
+By hand it is:
+
+```bash
+adb reverse tcp:5055 tcp:5055     # and tcp:5193 for storefront artwork
+```
+
+Note that the `docker compose` stack cannot serve a device directly: it publishes only nginx on
+`:8080`, and nginx routes by **Host header** (`localhost` to the storefront, `api.localhost` to the
+API). A tunnel pointed at `:8080` would send the app's `/api/v1` calls to the Blazor storefront,
+which cannot answer them, so the API is run on the host instead.
+
+Android blocks cleartext HTTP by default, so debug builds carry a narrow exception for both
+`10.0.2.2` and `localhost` in `Platforms/Android/Resources/xml/network_security_config.xml`.
 
 Sessions persist in the platform keystore (`SecureStorage`) and a guest cart survives restarts via a
 token in `Preferences`; signing in merges the guest cart into the account. Push notifications are wired

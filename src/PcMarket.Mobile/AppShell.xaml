@@ -1,10 +1,30 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Chrome colours are set on the element rather than through a Style so they outrank the stock
+    template's Shell style, which is still merged ahead of AppStyles.xaml and paints the tab bar
+    black in dark theme. They cover the pushed routes too: Shell owns the navigation bar for
+    product, checkout and order detail as well as for the tabs.
+
+    The bars sit on `surface` rather than `bg` so the chrome reads as raised above the page, and
+    the Android system bars are painted from the same token in ThemeService.
+-->
 <Shell
     x:Class="PcMarket.Mobile.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     Title="PcMarket"
-    Shell.FlyoutBehavior="Disabled">
+    Shell.FlyoutBehavior="Disabled"
+    Shell.NavBarHasShadow="False"
+    Shell.BackgroundColor="{AppThemeBinding Light={StaticResource TokenSurfaceLight}, Dark={StaticResource TokenSurface}}"
+    Shell.ForegroundColor="{AppThemeBinding Light={StaticResource TokenInkLight}, Dark={StaticResource TokenInk}}"
+    Shell.TitleColor="{AppThemeBinding Light={StaticResource TokenInkLight}, Dark={StaticResource TokenInk}}"
+    Shell.DisabledColor="{AppThemeBinding Light={StaticResource TokenMutedLight}, Dark={StaticResource TokenMuted}}"
+    Shell.UnselectedColor="{AppThemeBinding Light={StaticResource TokenMutedLight}, Dark={StaticResource TokenMuted}}"
+    Shell.TabBarBackgroundColor="{AppThemeBinding Light={StaticResource TokenSurfaceLight}, Dark={StaticResource TokenSurface}}"
+    Shell.TabBarForegroundColor="{AppThemeBinding Light={StaticResource TokenBrandLight}, Dark={StaticResource TokenBrand}}"
+    Shell.TabBarTitleColor="{AppThemeBinding Light={StaticResource TokenBrandLight}, Dark={StaticResource TokenBrand}}"
+    Shell.TabBarUnselectedColor="{AppThemeBinding Light={StaticResource TokenMutedLight}, Dark={StaticResource TokenMuted}}"
+    Shell.TabBarDisabledColor="{AppThemeBinding Light={StaticResource TokenMutedLight}, Dark={StaticResource TokenMuted}}">
 
     <!--
         Tab content is assigned from code-behind rather than a ContentTemplate so each page comes from
