@@ -2,6 +2,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:PcMarket.Mobile.ViewModels"
+             xmlns:views="clr-namespace:PcMarket.Mobile.Views"
+             xmlns:motion="clr-namespace:PcMarket.Mobile.Services.Motion"
              xmlns:catalog="clr-namespace:PcMarket.Contracts.Catalog;assembly=PcMarket.Contracts"
              x:Class="PcMarket.Mobile.Views.CatalogPage"
              x:DataType="vm:CatalogViewModel"
@@ -10,43 +12,213 @@
     <Grid RowDefinitions="Auto,Auto,*" Padding="16,12" RowSpacing="10">
 
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="8">
-            <Entry Grid.Column="0"
-                   Placeholder="Search products"
-                   Text="{Binding SearchText}"
-                   ReturnCommand="{Binding LoadCommand}" />
+            <Border Grid.Column="0" Style="{StaticResource InputField}">
+                <Border.Triggers>
+                    <DataTrigger TargetType="Border"
+                                 Binding="{Binding Source={x:Reference SearchField}, Path=IsFocused}"
+                                 Value="True">
+                        <Setter Property="Stroke"
+                                Value="{AppThemeBinding Light={StaticResource TokenBrandLight}, Dark={StaticResource TokenBrand}}" />
+                    </DataTrigger>
+                </Border.Triggers>
+                <Entry x:Name="SearchField"
+                       Placeholder="Search products"
+                       Text="{Binding SearchText}"
+                       ReturnCommand="{Binding LoadCommand}" />
+            </Border>
             <Button Grid.Column="1"
                     Text="Filters"
                     Style="{StaticResource GhostButton}"
                     Command="{Binding ToggleFiltersCommand}" />
         </Grid>
 
-        <Border Grid.Row="1" Style="{StaticResource Card}" IsVisible="{Binding FiltersVisible}">
-            <VerticalStackLayout Spacing="8">
-                <Picker Title="Category"
-                        ItemsSource="{Binding Categories}"
-                        ItemDisplayBinding="{Binding Name, x:DataType=catalog:CategoryNodeDto}"
-                        SelectedItem="{Binding SelectedCategory}" />
-                <Picker Title="Brand"
-                        ItemsSource="{Binding Brands}"
-                        ItemDisplayBinding="{Binding Name, x:DataType=catalog:BrandDto}"
-                        SelectedItem="{Binding SelectedBrand}" />
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                    <Entry Grid.Column="0" Placeholder="Min price" Keyboard="Numeric" Text="{Binding MinPrice}" />
-                    <Entry Grid.Column="1" Placeholder="Max price" Keyboard="Numeric" Text="{Binding MaxPrice}" />
-                </Grid>
-                <Picker Title="Sort" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding Sort}" />
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                    <Button Grid.Column="0" Text="Apply" Style="{StaticResource PrimaryButton}" Command="{Binding ApplyFiltersCommand}" />
-                    <Button Grid.Column="1" Text="Clear" Style="{StaticResource GhostButton}" Command="{Binding ClearFiltersCommand}" />
-                </Grid>
-            </VerticalStackLayout>
-        </Border>
+        <VerticalStackLayout Grid.Row="1" Spacing="8">
+
+            <!-- Category and sort are pill rails rather than pickers: the storefront puts its
+                 filters on the page as chips, and a dropdown hides the current choice behind a tap.
+                 Both rails scroll horizontally, so neither assumes how long a translated label runs.
+
+                 The active fill is the same DataTrigger shape as the theme toggle on Account -
+                 one mechanism for "this one is chosen" across the app. -->
+            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                <HorizontalStackLayout Spacing="8">
+
+                    <!-- No category selected is a state, so it gets a pill of its own rather than
+                         leaving the rail with nothing lit. -->
+                    <Button Text="All"
+                            Style="{StaticResource Pill}"
+                            Command="{Binding SelectCategoryCommand}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding SelectedCategory, Converter={StaticResource IsNull}}" Value="True">
+                                <Setter Property="Background" Value="{StaticResource BrushAccent}" />
+                                <Setter Property="TextColor" Value="{StaticResource White}" />
+                                <Setter Property="BorderWidth" Value="0" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+
+                    <!-- BindableLayout, not a CollectionView: this rail is a handful of items that
+                         all fit in memory, and a CollectionView here would virtualize inside a
+                         horizontal ScrollView for no benefit. -->
+                    <HorizontalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Categories}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="catalog:CategoryNodeDto">
+                                <Button Text="{Binding Name}"
+                                        Style="{StaticResource Pill}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, Path=SelectCategoryCommand}"
+                                        CommandParameter="{Binding .}">
+                                    <Button.Triggers>
+                                        <DataTrigger TargetType="Button" Value="True">
+                                            <!-- A pill has to compare itself against the view model's
+                                                 selection, which is two values, so the trigger reads a
+                                                 MultiBinding rather than a plain one. -->
+                                            <DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource IsSelected}">
+                                                    <Binding Path="." />
+                                                    <Binding Path="SelectedCategory"
+                                                             Source="{RelativeSource AncestorType={x:Type vm:CatalogViewModel}}" />
+                                                </MultiBinding>
+                                            </DataTrigger.Binding>
+                                            <Setter Property="Background" Value="{StaticResource BrushAccent}" />
+                                            <Setter Property="TextColor" Value="{StaticResource White}" />
+                                            <Setter Property="BorderWidth" Value="0" />
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </HorizontalStackLayout>
+
+                </HorizontalStackLayout>
+            </ScrollView>
+
+            <!-- The four sort options are written out rather than bound to the enum. Binding them
+                 would need a converter turning ProductSort into display text, which is exactly the
+                 "literal copy baked into a converter" the localization slice must not inherit; in a
+                 view the strings sit where every other string on the screen does. Copy matches the
+                 storefront's own labels. -->
+            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                <HorizontalStackLayout Spacing="8">
+
+                    <Button Text="Newest"
+                            Style="{StaticResource Pill}"
+                            Command="{Binding SelectSortCommand}"
+                            CommandParameter="{x:Static catalog:ProductSort.Newest}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding Sort}" Value="{x:Static catalog:ProductSort.Newest}">
+                                <Setter Property="Background" Value="{StaticResource BrushAccent}" />
+                                <Setter Property="TextColor" Value="{StaticResource White}" />
+                                <Setter Property="BorderWidth" Value="0" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+
+                    <Button Text="Price: low to high"
+                            Style="{StaticResource Pill}"
+                            Command="{Binding SelectSortCommand}"
+                            CommandParameter="{x:Static catalog:ProductSort.PriceAsc}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding Sort}" Value="{x:Static catalog:ProductSort.PriceAsc}">
+                                <Setter Property="Background" Value="{StaticResource BrushAccent}" />
+                                <Setter Property="TextColor" Value="{StaticResource White}" />
+                                <Setter Property="BorderWidth" Value="0" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+
+                    <Button Text="Price: high to low"
+                            Style="{StaticResource Pill}"
+                            Command="{Binding SelectSortCommand}"
+                            CommandParameter="{x:Static catalog:ProductSort.PriceDesc}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding Sort}" Value="{x:Static catalog:ProductSort.PriceDesc}">
+                                <Setter Property="Background" Value="{StaticResource BrushAccent}" />
+                                <Setter Property="TextColor" Value="{StaticResource White}" />
+                                <Setter Property="BorderWidth" Value="0" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+
+                    <Button Text="Name A–Z"
+                            Style="{StaticResource Pill}"
+                            Command="{Binding SelectSortCommand}"
+                            CommandParameter="{x:Static catalog:ProductSort.NameAsc}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding Sort}" Value="{x:Static catalog:ProductSort.NameAsc}">
+                                <Setter Property="Background" Value="{StaticResource BrushAccent}" />
+                                <Setter Property="TextColor" Value="{StaticResource White}" />
+                                <Setter Property="BorderWidth" Value="0" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+
+                </HorizontalStackLayout>
+            </ScrollView>
+
+            <!-- Brand and price range stay behind the Filters toggle. They are a list of dozens and a
+                 pair of numbers; neither becomes a rail of chips without making the screen worse. -->
+            <Border Style="{StaticResource Card}" IsVisible="{Binding FiltersVisible}">
+                <VerticalStackLayout Spacing="10">
+
+                    <Border Style="{StaticResource InputField}">
+                        <Picker Title="Brand"
+                                ItemsSource="{Binding Brands}"
+                                ItemDisplayBinding="{Binding Name, x:DataType=catalog:BrandDto}"
+                                SelectedItem="{Binding SelectedBrand}" />
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                        <Border Grid.Column="0" Style="{StaticResource InputField}">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding Source={x:Reference MinPriceField}, Path=IsFocused}"
+                                             Value="True">
+                                    <Setter Property="Stroke"
+                                            Value="{AppThemeBinding Light={StaticResource TokenBrandLight}, Dark={StaticResource TokenBrand}}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Entry x:Name="MinPriceField"
+                                   Placeholder="Min price"
+                                   Keyboard="Numeric"
+                                   Text="{Binding MinPrice}" />
+                        </Border>
+                        <Border Grid.Column="1" Style="{StaticResource InputField}">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding Source={x:Reference MaxPriceField}, Path=IsFocused}"
+                                             Value="True">
+                                    <Setter Property="Stroke"
+                                            Value="{AppThemeBinding Light={StaticResource TokenBrandLight}, Dark={StaticResource TokenBrand}}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Entry x:Name="MaxPriceField"
+                                   Placeholder="Max price"
+                                   Keyboard="Numeric"
+                                   Text="{Binding MaxPrice}" />
+                        </Border>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                        <Button Grid.Column="0" Text="Apply" Style="{StaticResource PrimaryButton}" Command="{Binding ApplyFiltersCommand}" />
+                        <Button Grid.Column="1" Text="Clear" Style="{StaticResource GhostButton}" Command="{Binding ClearFiltersCommand}" />
+                    </Grid>
+
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
 
         <RefreshView Grid.Row="2" IsRefreshing="{Binding IsBusy, Mode=OneWay}" Command="{Binding LoadCommand}">
             <CollectionView ItemsSource="{Binding Products}"
                             SelectionMode="None"
                             RemainingItemsThreshold="4"
                             RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Span="2"
+                                     Orientation="Vertical"
+                                     HorizontalItemSpacing="12"
+                                     VerticalItemSpacing="12" />
+                </CollectionView.ItemsLayout>
                 <CollectionView.EmptyView>
                     <VerticalStackLayout Padding="24" Spacing="6">
                         <Label Text="Nothing here" Style="{StaticResource H2}" HorizontalOptions="Center" />
@@ -57,33 +229,13 @@
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="catalog:ProductListItemDto">
-                        <Border Style="{StaticResource Card}" Margin="0,0,0,10">
-                            <Grid ColumnDefinitions="76,*" ColumnSpacing="12">
-                                <Border Grid.Column="0"
-                                        Style="{StaticResource MediaPanel}"
-                                        StrokeShape="RoundRectangle 12"
-                                        Padding="6"
-                                        HeightRequest="76"
-                                        WidthRequest="76"
-                                        VerticalOptions="Start">
-                                    <Image Source="{Binding PrimaryImageUrl, Converter={StaticResource RemoteImage}}"
-                                           Aspect="AspectFit" />
-                                </Border>
-                                <VerticalStackLayout Grid.Column="1" Spacing="4">
-                                    <Label Text="{Binding Name}" FontAttributes="Bold" MaxLines="2" LineBreakMode="TailTruncation" />
-                                    <Label Text="{Binding BrandName}" Style="{StaticResource MutedText}" />
-                                    <Label Text="{Binding PriceFrom, Converter={StaticResource Money}}" Style="{StaticResource Price}" />
-                                    <Label Text="Out of stock"
-                                           Style="{StaticResource ErrorText}"
-                                           IsVisible="{Binding InStock, Converter={StaticResource Not}}" />
-                                </VerticalStackLayout>
-                            </Grid>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, Path=OpenProductCommand}"
-                                    CommandParameter="{Binding .}" />
-                            </Border.GestureRecognizers>
-                        </Border>
+                        <views:ProductCardView
+                            Product="{Binding .}"
+                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, Path=OpenProductCommand}">
+                            <views:ProductCardView.Behaviors>
+                                <motion:RevealBehavior />
+                            </views:ProductCardView.Behaviors>
+                        </views:ProductCardView>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
                 <CollectionView.Footer>

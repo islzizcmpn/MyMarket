@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    The storefront's product card, defined once. Home, Catalog and anything else listing products host
+    this view inside their DataTemplate rather than repeating the layout, which is what keeps the card
+    identical everywhere — the mobile counterpart of the web's ProductCard.razor.
+
+    The whole card is one tap target, bound to the host's Command. The accent bar at the bottom is an
+    affordance for that tap rather than a second control, so it is deliberately not a Button — a
+    Button there would swallow the tap and split one action in two.
+-->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:catalog="clr-namespace:PcMarket.Contracts.Catalog;assembly=PcMarket.Contracts"
+             xmlns:motion="clr-namespace:PcMarket.Mobile.Services.Motion"
+             x:Class="PcMarket.Mobile.Views.ProductCardView">
+
+    <!-- BindingContext is set from the Product property in code-behind rather than inherited, so the
+         card works the same whether it is hosted in a DataTemplate or placed on a page by hand. -->
+    <Border x:Name="Root"
+            x:DataType="catalog:ProductListItemDto"
+            Style="{StaticResource Card}"
+            Padding="0">
+
+        <Border.Behaviors>
+            <motion:CardLift x:Name="Lift" />
+        </Border.Behaviors>
+
+        <Grid RowDefinitions="Auto,*">
+
+            <!-- The ambient glow spans the whole card and is painted first, so it reads as light from
+                 behind the product rather than a wash over it. The brush is centred on the lower edge
+                 of the media panel: product photography is opaque, so a light centred behind the image
+                 would simply be hidden by it, while a core on its bottom edge spills across the body.
+
+                 Opacity and scale are part of the token, not decoration. The web runs this gradient
+                 at .34 and scale(.84) at rest and only swells it to full on hover, so ported at full
+                 strength it washes the whole card red - which is how it shipped until the catalog put
+                 whole cards on screen and made it obvious. The swell itself is not ported: it belongs
+                 to a hover state this app does not have. -->
+            <Rectangle Grid.Row="0"
+                       Grid.RowSpan="2"
+                       Fill="{StaticResource BrushGlowMedia}"
+                       Opacity="0.34"
+                       Scale="0.84"
+                       InputTransparent="True" />
+
+            <!-- Fixed height rather than a 1:1 aspect ratio. MAUI has no aspect-ratio, and the usual
+                 workaround binds HeightRequest to Width, which forces a second measure pass per card
+                 inside a virtualizing list on a mid-range device. At the two-column width this app
+                 lays out at, 150 reads square enough to be worth not paying for that. -->
+            <Border Grid.Row="0"
+                    Style="{StaticResource MediaPanel}"
+                    StrokeShape="RoundRectangle 16,16,0,0"
+                    HeightRequest="150">
+                <Grid>
+                    <Image Source="{Binding PrimaryImageUrl, Converter={StaticResource RemoteImage}}"
+                           Aspect="AspectFit"
+                           Margin="14" />
+
+                    <!-- Dissolves the image into the card body instead of ending on a hard edge. The
+                         second vignette layer the web stacks over this one is left off: a MAUI brush
+                         paints one gradient, and this layer carries most of the effect on its own. -->
+                    <Rectangle Fill="{StaticResource BrushVignetteMediaFade}"
+                               InputTransparent="True" />
+                </Grid>
+            </Border>
+
+            <VerticalStackLayout Grid.Row="1" Padding="12,10,12,12" Spacing="3">
+                <Label Text="{Binding Name}"
+                       FontSize="14"
+                       MaxLines="2"
+                       LineBreakMode="TailTruncation" />
+
+                <Label Text="{Binding BrandName}"
+                       Style="{StaticResource MutedText}"
+                       LineBreakMode="TailTruncation" />
+
+                <Label Text="{Binding PriceFrom, Converter={StaticResource Money}}"
+                       Style="{StaticResource Price}"
+                       Margin="0,2,0,0" />
+
+                <Label Text="Out of stock"
+                       Style="{StaticResource ErrorText}"
+                       FontSize="12"
+                       IsVisible="{Binding InStock, Converter={StaticResource Not}}" />
+
+                <Border Background="{StaticResource BrushAccent}"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="14,9"
+                        Margin="0,9,0,0"
+                        InputTransparent="True">
+                    <Label Text="View"
+                           FontFamily="PlayBold"
+                           FontSize="13"
+                           CharacterSpacing="0.2"
+                           TextColor="{StaticResource White}"
+                           HorizontalOptions="Center" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- The card's input surface, spanning both rows. It is a Button and not a gesture
+                 recognizer because only a Button reports the press itself: measured on the target
+                 device, Android raises PointerPressed and PointerReleased for a pointer device but
+                 never for a finger, so a lift driven from a PointerGestureRecognizer is dead on
+                 touch. Pressed and Released drive the lift, Clicked runs the host's command, and one
+                 control owning all three means the press and the tap can never disagree.
+
+                 Opacity 0, not a transparent background. A Button still paints its platform pressed
+                 state, and over the whole card that state is a square black scrim: measured, it
+                 greyed the artwork and squared off the card's rounded corners for as long as the
+                 finger was down. Android hit-tests on bounds and ignores alpha, so a fully
+                 transparent Button still receives every event while painting nothing. The lift is
+                 the press feedback; the button has no business drawing any of its own. -->
+            <Button x:Name="Surface"
+                    Grid.Row="0"
+                    Grid.RowSpan="2"
+                    Opacity="0"
+                    BackgroundColor="Transparent"
+                    BorderWidth="0"
+                    CornerRadius="16"
+                    Padding="0" />
+
+        </Grid>
+    </Border>
+
+</ContentView>

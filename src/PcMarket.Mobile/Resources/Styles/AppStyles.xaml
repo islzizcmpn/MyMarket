@@ -34,6 +34,9 @@
     <converters:HasTextConverter x:Key="HasText" />
     <converters:AttributesConverter x:Key="Attributes" />
     <converters:RemoteImageConverter x:Key="RemoteImage" />
+    <converters:CategoryArtConverter x:Key="CategoryArt" />
+    <converters:SelectionConverter x:Key="IsSelected" />
+    <converters:IsNullConverter x:Key="IsNull" />
 
     <!-- ===================================================================================
          PAGE

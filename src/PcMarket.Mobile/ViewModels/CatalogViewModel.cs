@@ -172,6 +172,25 @@ public partial class CatalogViewModel(CatalogApiClient catalog) : BaseViewModel,
         return LoadAsync();
     }
 
+    /// <summary>Category pill tap; <see langword="null"/> is the "All" pill. Clearing the search is
+    /// not incidental — a query runs the FTS endpoint and ignores every filter, so a category chosen
+    /// while a search was live would otherwise light up and change nothing.</summary>
+    [RelayCommand]
+    private Task SelectCategoryAsync(CategoryNodeDto? category)
+    {
+        SelectedCategory = category;
+        SearchText = null;
+        return LoadAsync();
+    }
+
+    /// <summary>Sort pill tap.</summary>
+    [RelayCommand]
+    private Task SelectSortAsync(ProductSort sort)
+    {
+        Sort = sort;
+        return LoadAsync();
+    }
+
     [RelayCommand]
     private void ToggleFilters() => FiltersVisible = !FiltersVisible;
 

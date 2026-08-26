@@ -159,32 +159,211 @@ launch, so the token layer needs its own device run before 18 files start depend
   - Requirement 7.3 is code-level only: no Release build was run against the production host.
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 9. Motion layer
+- [x] 9. Motion layer
   - `BrandEasing` implementing the web's two cubic-bezier curves numerically; `MotionGate` reading the
-    OS animation scale; `CardLift` and `RevealBehavior` attached behaviours.
-  - All behaviours cancel on `Unloaded` — animating a torn-down view throws.
+    OS animation scale; `CardLift` and `RevealBehavior` attached behaviours. **Done** — all four under
+    `Services/Motion/`, with the Android half of `MotionGate` in `Platforms/Android/` following the
+    `SystemBars` partial-method shape, so the other heads compile the call away and motion stays on.
+  - All behaviours cancel on `Unloaded` — animating a torn-down view throws. **Done**, on `Unloaded`
+    and again on detach, and each animation is additionally wrapped: in a recycling list the teardown
+    can beat the handler, and a lost animation must not surface as a crash.
   - Approximate `--shadow-lift`'s three layers with MAUI's single shadow; record the approximation.
+    **Done** — the values live in a new `Resources/Styles/Motion.xaml`, merged fifth, and `CardLift`
+    builds the shadow from them, so it is retuned in the dictionary rather than in code. Only the wide
+    dark drop survives; the 1px light top edge and the warm brand-tinted layer are the two that read
+    as *lit*, so the mobile card reads as raised rather than as picked out by a light. CSS's `-36px`
+    spread has no MAUI equivalent either, so the blur is cut in its place instead of being carried at
+    full width, and the offset is set to the lift distance so the card appears to leave its shadow
+    behind on the page.
+  - **The curves are verified, not just transcribed.** A cubic-bezier is a parametric curve, not a
+    function of time, so each sample solves `x(t) = progress` by Newton-Raphson with a bisection
+    fallback and then reads `y(t)` — the same solve a browser runs. Swept at 1000 points, both curves
+    are monotonic and stay in range; `lift-in` is at 0.494 by 10% and 0.972 by half, which is the
+    front-loaded easeOutExpo the web tuned for and nothing like `CubicOut`; `lift-out` is symmetric
+    about 0.5 to seven places.
+  - **Deviation — `TranslateTo` and `FadeTo` are obsolete in MAUI 10.** design.md names both, and
+    under the solution's warnings-as-errors they fail the build outright. Ported to
+    `TranslateToAsync` and `FadeToAsync`, which are the same methods renamed.
+  - **Addition — an implicit `Shadow` style, and it is why `Motion.xaml` is merged last.** The stock
+    template declares one globally with `Brush` bound White in *both* themes, which against the
+    charcoal ramp is a pale halo rather than a shadow — and being implicit it would have reached the
+    lift shadow too. Overridden here rather than by editing the untouched template. Note also that
+    MAUI 10 types `VisualElement.Shadow` as non-nullable while its default is no shadow at all, so
+    the lift is dropped with `ClearValue`, never by assigning null.
+  - **Verified on device, and it took two fixes to get there.** The lift was measured, found dead,
+    root-caused twice and re-measured:
+    1. **`PointerGestureRecognizer` never fires for touch on Android.** The platform wiring is
+       present — `GesturePlatformManager.InitializePointerHandler` exists and
+       `PlatformPointerEventArgs` exposes a `MotionEvent` — so this looked safe from the metadata
+       alone, and it is not: a finger raises neither `PointerPressed` nor `PointerReleased` on the
+       Redmi Note 11. A `Button`'s `Pressed`/`Released` pair does. `CardLift` therefore no longer
+       listens for anything; it exposes `Raise()` and `Release()` and the view drives it.
+    2. **The lift was cancelling itself through its own `Unloaded` handler.** Assigning `Shadow`
+       re-attaches the platform view when the card is inside a `CollectionView`, which raises
+       `Unloaded` for the card *under the finger* — with `Handler` and `Parent` both still live.
+       Design.md's "cancel on Unloaded" rule then reset the card one frame into the rise, so the
+       animation ran to completion against a translation that had already been zeroed. Proven by
+       removing the shadow assignment: `TranslationY` went from 0 to -16 with nothing else changed.
+       `Unloaded` alone is not a teardown signal here; a null `Handler` is, and that is what the
+       behaviour now tests.
+    Measured after both fixes: the pressed card's artwork rises **42 px (15.3 dp against 16 dp
+    expected, the 2 px being the anti-aliased edge row)**, the neighbouring card in the same row
+    moves **0 px**, and after press → navigate → back the card is at its exact resting position, so
+    nothing is stranded raised. Zero `FATAL EXCEPTION` throughout.
+  - **Deviation — the input surface is a `Button` at `Opacity="0"`, not a transparent one.** A
+    Button still paints its platform pressed state, and stretched over a whole card that state is a
+    square black scrim: measured, it greyed the artwork from `#EEF0FF` to `#B5B7C2` and squared off
+    the card's rounded corners for as long as the finger was down. Android hit-tests on bounds and
+    ignores alpha, so a fully transparent Button receives every event while painting nothing. The
+    lift is the press feedback; the button has no business drawing its own.
+  - `RevealBehavior` hides an item for its entrance, so it arms off `HandlerChanged` as well as
+    `Loaded`: an entrance that never armed would leave the item invisible for good, which is not a
+    failure worth saving one hook over.
   - _Requirements: 6.1, 6.2, 6.4, 6.5_
 
-- [ ] 10. Shared `ProductCardView`
+- [x] 10. Shared `ProductCardView`
   - `ContentView` with a bindable `Product`, implementing the card from design.md: media panel on
     `media-bg` with the glow brush, name / brand / price, `grad-accent` CTA, `CardLift` attached.
+    **Done.** The glow spans the whole card rather than sitting inside the media panel, which is what
+    the ported brush is centred for: product photography is opaque, so a light behind the image would
+    simply be hidden by it, and a core on the image's lower edge is what lets the spill read across
+    the card body. The `vignette-media` fade layer sits over the image; its second layer is left off,
+    the reduction `Brushes.xaml` already names as valid.
   - Static card carries a `line` border rather than a shadow; the shadow appears only when lifted,
-    because per-card shadows in a long list are measurably expensive on Android.
+    because per-card shadows in a long list are measurably expensive on Android. **Done** — the
+    `Card` style was already shadowless for exactly this reason, and `CardLift` is the only thing in
+    the app that ever sets one.
+  - **Deviation — the card carries a second bindable property, `Command`.** design.md lists `Product`
+    alone, which leaves the host to attach the tap on the outside while the lift is driven from
+    inside. Android dispatches touch to the innermost view that takes it, so that split makes "does
+    tapping a card open the product" a dispatch question rather than a decision. One invisible
+    `Button` over the card now reports press, release *and* click, so the three can never disagree.
+    The card still decides nothing: the host supplies the command and the card passes its `Product`
+    as the parameter. Verified on device — the tap opens the product page.
+  - **Deviation — the CTA reads "View", not "Add to cart".** design.md's diagram carries that label
+    over from `ProductCard.razor`, where the button is a *ghost* at rest and the card's hover rule is
+    what fills it with the accent. Mobile has no hover; the press is the equivalent, and the press
+    opens the product. A real add-to-cart here would need the quick-add round trip the web card
+    makes, which is a new capability rather than a restyle and would put a network call behind a
+    view — against this slice's own presentation-only scope. So the bar is painted `grad-accent` as
+    Task 10 asks, reads what the tap actually does, and is deliberately not a `Button`: a Button
+    there would swallow the tap and split one action into two.
+  - **Deviation — the media panel is a fixed 150 high, not 1:1.** MAUI has no aspect-ratio, and the
+    usual workaround binds `HeightRequest` to the element's own `Width`, which sets a request during
+    arrange and forces a second measure pass *per card* inside a virtualizing list. Against this
+    spec's own warning about per-card cost on the target device, a fixed height that reads square
+    enough at the two-column width is the better trade. It is not square at every screen width.
   - _Requirements: 4.3, 6.1_
 
-- [ ] 11. Restyle Home
+- [x] 11. Restyle Home
   - Hero block with remote banner artwork under the `hero-bloom` and `hero-vignette` brushes,
-    replacing the plain "Build your PC" card.
-  - Category tiles using remote category artwork instead of text chips.
-  - New arrivals switched to `ProductCardView` with staggered reveal.
+    replacing the plain "Build your PC" card. **Done** — four layers bottom to top: `BrushHeroPanel`,
+    the remote banner, bloom, vignette, with the copy over them. The panel is not decoration behind an
+    image that always arrives, it *is* the Requirement 7.4 fallback: an unreachable storefront draws
+    no image and the gradient underneath is what remains, copy still legible, layout unmoved. Bloom
+    under vignette as on the web, so the light reads as falling inside a darkened frame rather than as
+    a wash laid over one. Hero copy sits on `White` rather than `ink`, because the artwork behind it
+    is a dark photograph in both themes and must not follow the page.
+  - **Addition — `BrushHeroScrim`, because the hero was unreadable once real artwork loaded.** With
+    the banner finally painting, the headline landed on a lit monitor and the bloom and vignette that
+    Task 11 names are effects, not legibility layers. The storefront solves this with a third overlay
+    layer this port had skipped. Added to `Brushes.xaml` and **rotated**: the web runs it 90deg
+    because its hero is a 21:8 band with copy in the left third, while this hero is a full-width
+    228dp block with copy along the bottom, so a left-to-right ramp would darken an empty left edge
+    and leave the headline over the bright half. Same stops and colour, turned bottom to top, and
+    placed under the bloom exactly as the web orders them. Verified by recovering the alpha from
+    device pixels — 0.85 / 0.81 / 0.43 / 0.29 / 0.15 bottom to top, tracking the CSS .93 / .80 / .45
+    / .14 ramp across the full hero.
+  - Category tiles using remote category artwork instead of text chips. **Done** — a new
+    `CategoryArtConverter` resolves the tile from the slug through `Artwork.Category`, which carries
+    the storefront's stand-in map, so Computers shows the same photograph on both clients instead of
+    404ing on the naive rule. Each tile is a `MediaPanel` inside a `Card`, so a category with no art
+    shows the token surface rather than nothing.
+  - New arrivals switched to `ProductCardView` with staggered reveal. **Done** — a two-column
+    `GridItemsLayout` with `RevealBehavior` on each card. The stagger comes from a batch clock rather
+    than an item index: containers loading within 150 ms of each other are one batch and step 70 ms
+    apart, capped at six steps. An index would have to be passed in, which a `DataTemplate` cannot
+    do; the clock also handles a later page appended by paging, which starts a fresh batch and enters
+    at once instead of inheriting a stale delay.
+  - Also replaced the bare search `Entry` with an `InputField` frame carrying the `brand` focus ring,
+    wired with the `DataTrigger` shape research.md documents — Requirement 5.2's pattern, proven here
+    before Tasks 12 to 14 depend on it. Section labels are set in sentence case with
+    `TextTransform="Uppercase"` rather than typed in caps, so the localization slice can translate the
+    word without inheriting English casing.
+  - **Addition — `OpenCatalogCommand` on `HomeViewModel`.** Requirement 4.1's hero needs a call to
+    action, and a view cannot navigate on its own. It is a one-line static command in the exact shape
+    of the `OpenProductAsync` and `OpenCategoryAsync` already there — no state, no existing behaviour
+    touched — so Requirement 9.6 still holds and the suite is green at 136 tests.
+  - **The hero's image source is assigned in code-behind, and that is the second bug this task hid.**
+    `x:Static` cannot supply a nullable `ImageSource`: the XAML source generator dereferences the
+    extension's result to stamp a namescope on it, so a nullable return fails CS8602 under
+    warnings-as-errors — *inside generated code*, pointing at a path that does not exist on disk until
+    `EmitCompilerGeneratedFiles` is switched on. The obvious workaround,
+    `{Binding Source={x:Static services:Artwork.Banner}, Converter={StaticResource RemoteImage}}`,
+    builds clean and then **yields nothing**: a Binding whose Source is a plain string and whose Path
+    is left implicit produces no value under SourceGen. On device the hero silently kept the gradient
+    panel that is supposed to be its *failure* state, and `banner-dark.jpg` was never requested at all
+    — proven by its 156 496 bytes never appearing in the platform image cache while the two category
+    tiles did. `HomePage` now assigns `HeroImage.Source` directly. The banner is cached and painting.
+  - **A gradient fallback that looks deliberate hides its own failure.** The hero looked finished for
+    three deploys while never fetching its artwork, because the fallback is a designed panel rather
+    than an empty box. Anything binding decorative artwork should be checked against the platform
+    image cache, not against the screenshot.
   - _Requirements: 4.1, 4.2, 4.3, 6.2_
 
-- [ ] 12. Restyle Catalog and Product
+- [x] 12. Restyle Catalog and Product
   - Catalog: filter/sort pills on `surface-2` with `grad-accent` active fill; two-column grid of
-    `ProductCardView`; paging preserved.
+    `ProductCardView`; paging preserved. **Done** — a category rail and a sort rail, both horizontally
+    scrolling so neither assumes how long a translated label runs, over a two-column
+    `GridItemsLayout` with `RevealBehavior` on each card. Brand and price range stay behind the
+    Filters toggle: they are a list of dozens and a pair of numbers, and neither becomes a rail of
+    chips without making the screen worse. The search box gained the `InputField` frame and focus
+    ring, as did both price fields.
   - Product: image area on `media-bg` with the media glow, variant selector and add-to-cart on
-    `grad-accent`.
+    `grad-accent`. **Done** — the image area now stacks the same three layers as the card (glow,
+    artwork, vignette fade) at 260dp, and the variant `Picker` became a pill rail. A dropdown hides
+    every option but one behind a tap, and on a product page the options are the decision.
+  - **Deviation — sort is pills, not the picker design.md sketches.** design.md's Catalog diagram
+    shows `Sort: [ Newest v ]` on `input-bg`, while Requirement 4.4 and this task both say filter
+    *and sort* are pill controls. The requirement wins; the ASCII is the outlier.
+  - **The four sort options are written out rather than bound to the enum.** Binding them needs a
+    converter turning `ProductSort` into display text — exactly the "literal copy baked into styles or
+    converters" that requirements.md's localization assumption rules out. In a view the strings sit
+    where every other string on the screen does. Copy matches the storefront's own labels.
+  - **Addition — three view-model commands**, because a pill needs something to invoke:
+    `SelectCategory` and `SelectSort` on `CatalogViewModel`, `SelectVariant` on `ProductViewModel`.
+    `SelectCategory` also clears the search, and that is not tidiness: a query runs the FTS endpoint
+    and ignores every filter, so a category chosen while a search was live would light up and change
+    nothing. Additive only, so Requirement 9.6 holds and the suite is green at 136.
+  - **Addition — `SelectionConverter` (`IsSelected`), an `IMultiValueConverter`.** A pill inside a
+    template has to compare *itself* against a property on the view model, which is two values, and a
+    single-value converter can only see one. The alternative is a wrapper type per list carrying an
+    `IsSelected` flag, which puts selection state into the view models this slice must not change.
+  - **`DataTrigger` with `Value="{x:Null}"` does not fire.** Measured: with no category selected the
+    "All" pill stayed on `surface-2` while every other pill behaved. "Nothing is selected" now goes
+    through an `IsNullConverter` instead. Worth knowing before Tasks 13 and 14 write another one.
+  - **The media glow shipped at three times its intended strength, and this task is what exposed it.**
+    Task 10 ported `glow-media`'s gradient but not the `opacity: .34` and `scale(.84)` the web applies
+    to it at rest — the swell to full opacity belongs to a hover state mobile does not have. On Home
+    the card bodies were below the fold, so nothing looked wrong; the moment Catalog put whole cards
+    on screen, every card body was washed red. Fixed in `ProductCardView` and on the product page.
+    Measured after: card body `#21191C` to `#1C181B`, a warm lift off `surface` `#17171B`, where
+    before it was a saturated red-brown.
+  - **Verified on device**, dark theme:
+    | Check | Result |
+    |---|---|
+    | Exactly one category pill lit, swaps on tap | ✔ `#C4291E` active, `#1D1D22` inactive |
+    | Exactly one sort pill lit, swaps on tap | ✔ same values |
+    | Category filter actually filters | ✔ Computers drops the accessories product |
+    | Sort actually sorts | ✔ price ascending, 650 000 then 7 500 000 |
+    | Variant pill swaps, dependent fields follow | ✔ Gray/25 in stock to Black/40 in stock |
+    | Two-column grid, cards render | ✔ |
+    | Zero `FATAL EXCEPTION` | ✔ |
+  - **Paging is preserved in code but could not be exercised.** The seeded catalogue holds 3 products
+    in 1 page, so `RemainingItemsThresholdReachedCommand` never fires against this data. The wiring is
+    carried over unchanged from the previous `CollectionView`; it wants a seed with more than 20
+    products, or Task 15 against a fuller catalogue.
+  - Light theme for these two screens is not re-checked here — Task 15.
   - _Requirements: 4.4, 4.5_
 
 - [ ] 13. Restyle Cart and Checkout

@@ -16,9 +16,20 @@
 
             <VerticalStackLayout Spacing="14" IsVisible="{Binding HasProduct}">
 
-                <Border Style="{StaticResource MediaPanel}" Padding="16" HeightRequest="220">
-                    <Image Source="{Binding PrimaryImageUrl, Converter={StaticResource RemoteImage}}"
-                           Aspect="AspectFit" />
+                <!-- The same three layers the product card uses, at detail size: the glow behind the
+                     product, the artwork over it, the vignette fade on top. The panel itself is the
+                     fallback - a fetch that fails leaves flat `media-bg` and an unmoved layout. -->
+                <Border Style="{StaticResource MediaPanel}" HeightRequest="260">
+                    <Grid>
+                        <Rectangle Fill="{StaticResource BrushGlowMedia}"
+                                   Opacity="0.34"
+                                   Scale="0.84"
+                                   InputTransparent="True" />
+                        <Image Source="{Binding PrimaryImageUrl, Converter={StaticResource RemoteImage}}"
+                               Aspect="AspectFit"
+                               Margin="18" />
+                        <Rectangle Fill="{StaticResource BrushVignetteMediaFade}" InputTransparent="True" />
+                    </Grid>
                 </Border>
 
                 <Label Text="{Binding Product.Name}" Style="{StaticResource H1}" />
@@ -27,13 +38,43 @@
                 <Border Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Choose an option" Style="{StaticResource H2}" />
-                        <Picker ItemsSource="{Binding Product.Variants}"
-                                SelectedItem="{Binding SelectedVariant}"
-                                ItemDisplayBinding="{Binding Sku, x:DataType=catalog:ProductVariantDto}" />
+
+                        <!-- Variants are pills rather than a Picker. A dropdown hides every option
+                             but one behind a tap, and on a product page the options are the decision.
+                             The chosen one carries the accent, matching the catalog rails. -->
+                        <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                            <HorizontalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Product.Variants}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="catalog:ProductVariantDto">
+                                        <Button Text="{Binding Sku}"
+                                                Style="{StaticResource Pill}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductViewModel}}, Path=SelectVariantCommand}"
+                                                CommandParameter="{Binding .}">
+                                            <Button.Triggers>
+                                                <DataTrigger TargetType="Button" Value="True">
+                                                    <DataTrigger.Binding>
+                                                        <MultiBinding Converter="{StaticResource IsSelected}">
+                                                            <Binding Path="." />
+                                                            <Binding Path="SelectedVariant"
+                                                                     Source="{RelativeSource AncestorType={x:Type vm:ProductViewModel}}" />
+                                                        </MultiBinding>
+                                                    </DataTrigger.Binding>
+                                                    <Setter Property="Background" Value="{StaticResource BrushAccent}" />
+                                                    <Setter Property="TextColor" Value="{StaticResource White}" />
+                                                    <Setter Property="BorderWidth" Value="0" />
+                                                </DataTrigger>
+                                            </Button.Triggers>
+                                        </Button>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </HorizontalStackLayout>
+                        </ScrollView>
+
                         <Label Text="{Binding SelectedVariant.Attributes, Converter={StaticResource Attributes}}"
                                Style="{StaticResource MutedText}" />
                         <Label Text="{Binding SelectedVariant.Price, Converter={StaticResource Money}}"
-                               Style="{StaticResource Price}" />
+                               Style="{StaticResource Price}"
+                               FontSize="22" />
                         <Label Text="{Binding StockLabel}" Style="{StaticResource MutedText}" />
                         <Button Text="Add to cart"
                                 Style="{StaticResource PrimaryButton}"
@@ -49,20 +90,22 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <Label Text="Description" Style="{StaticResource H2}" />
+                <Label Text="Description" Style="{StaticResource H3}" TextTransform="Uppercase" />
                 <Label Text="{Binding Product.Description}" />
 
-                <Label Text="Specifications" Style="{StaticResource H2}" />
-                <CollectionView ItemsSource="{Binding Specs}" SelectionMode="None">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="vm:SpecRow">
-                            <Grid ColumnDefinitions="*,*" Padding="0,5">
-                                <Label Grid.Column="0" Text="{Binding Key}" Style="{StaticResource MutedText}" />
-                                <Label Grid.Column="1" Text="{Binding Value}" />
-                            </Grid>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                <Label Text="Specifications" Style="{StaticResource H3}" TextTransform="Uppercase" />
+                <Border Style="{StaticResource Card}" Padding="14,4">
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Specs}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:SpecRow">
+                                <Grid ColumnDefinitions="*,*" Padding="0,9">
+                                    <Label Grid.Column="0" Text="{Binding Key}" Style="{StaticResource MutedText}" />
+                                    <Label Grid.Column="1" Text="{Binding Value}" />
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </Border>
 
             </VerticalStackLayout>
 

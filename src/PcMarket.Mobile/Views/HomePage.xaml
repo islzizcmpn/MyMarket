@@ -2,6 +2,9 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:PcMarket.Mobile.ViewModels"
+             xmlns:views="clr-namespace:PcMarket.Mobile.Views"
+             xmlns:motion="clr-namespace:PcMarket.Mobile.Services.Motion"
+             xmlns:services="clr-namespace:PcMarket.Mobile.Services"
              xmlns:catalog="clr-namespace:PcMarket.Contracts.Catalog;assembly=PcMarket.Contracts"
              x:Class="PcMarket.Mobile.Views.HomePage"
              x:DataType="vm:HomeViewModel"
@@ -11,36 +14,122 @@
         <ScrollView>
             <VerticalStackLayout Padding="16" Spacing="18">
 
-                <Border Style="{StaticResource Card}">
-                    <VerticalStackLayout Spacing="10">
-                        <Label Text="Build your PC" Style="{StaticResource H1}" />
-                        <Label Text="Components, laptops and peripherals delivered across Uzbekistan."
-                               Style="{StaticResource MutedText}" />
-                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                            <Entry Grid.Column="0"
-                                   Placeholder="Search products"
-                                   Text="{Binding SearchText}"
-                                   ReturnCommand="{Binding SearchCommand}" />
-                            <Button Grid.Column="1"
-                                    Text="Search"
+                <!-- ===========================================================================
+                     HERO
+
+                     Five stacked layers, painted bottom to top: the flat hero gradient, the remote
+                     banner over it, then the scrim, the bloom and the vignette. The gradient is not
+                     decoration behind an image that always arrives - it is the fallback. When the
+                     storefront is unreachable the image simply draws nothing and the panel underneath
+                     is what remains, with the copy still legible over it and the layout unmoved.
+
+                     The order of the top three is the web's and each part of it earns its place. The
+                     scrim goes on first because it is the only layer doing a job rather than an
+                     effect: it is what keeps white copy readable over a photograph nobody chose. The
+                     bloom sits above it so it reads as light falling on the darkened area rather than
+                     a tint mixed underneath. The vignette goes last, pulling the four edges down so
+                     the frame has depth instead of ending flat.
+                     =========================================================================== -->
+
+                <Border StrokeThickness="0"
+                        StrokeShape="RoundRectangle 18"
+                        Background="{StaticResource BrushHeroPanel}"
+                        HeightRequest="228">
+                    <Grid>
+                        <!-- Source is assigned in code-behind, not bound. A Binding whose Source is
+                             a plain string and whose Path is left implicit compiles clean and then
+                             yields nothing under XAML SourceGen: the hero kept its gradient and
+                             never fetched the banner at all. -->
+                        <Image x:Name="HeroImage" Aspect="AspectFill" />
+                        <Rectangle Fill="{StaticResource BrushHeroScrim}" InputTransparent="True" />
+                        <Rectangle Fill="{StaticResource BrushHeroBloom}" InputTransparent="True" />
+                        <Rectangle Fill="{StaticResource BrushHeroVignette}" InputTransparent="True" />
+
+                        <VerticalStackLayout Padding="20" Spacing="8" VerticalOptions="End">
+                            <!-- White rather than `ink`: the artwork behind is a dark photograph in
+                                 both themes, so this copy does not follow the page. -->
+                            <Label Text="Build your dream setup"
+                                   Style="{StaticResource H1}"
+                                   TextColor="{StaticResource White}"
+                                   MaxLines="2" />
+                            <Label Text="Laptops, components and peripherals, delivered across Uzbekistan."
+                                   TextColor="{StaticResource White}"
+                                   Opacity="0.82"
+                                   FontSize="13"
+                                   MaxLines="2"
+                                   LineBreakMode="TailTruncation" />
+                            <Button Text="Shop the catalog"
                                     Style="{StaticResource PrimaryButton}"
-                                    Command="{Binding SearchCommand}" />
-                        </Grid>
-                    </VerticalStackLayout>
+                                    HorizontalOptions="Start"
+                                    Margin="0,6,0,0"
+                                    Command="{Binding OpenCatalogCommand}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- The frame carries the border; the Entry inside has none of its own, which is why
+                     the focus ring is a trigger on the frame reading the child's IsFocused. A style
+                     cannot do this: x:Reference resolves against the view's name scope, and a
+                     ResourceDictionary has none. -->
+                <Border Style="{StaticResource InputField}" Padding="6,4">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border"
+                                     Binding="{Binding Source={x:Reference SearchField}, Path=IsFocused}"
+                                     Value="True">
+                            <Setter Property="Stroke"
+                                    Value="{AppThemeBinding Light={StaticResource TokenBrandLight}, Dark={StaticResource TokenBrand}}" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                        <Entry x:Name="SearchField"
+                               Grid.Column="0"
+                               Placeholder="Search products"
+                               Text="{Binding SearchText}"
+                               ReturnCommand="{Binding SearchCommand}" />
+                        <Button Grid.Column="1"
+                                Text="Search"
+                                Style="{StaticResource PrimaryButton}"
+                                FontSize="13"
+                                Padding="16,0"
+                                HeightRequest="38"
+                                CornerRadius="10"
+                                Command="{Binding SearchCommand}" />
+                    </Grid>
                 </Border>
 
                 <Label Text="{Binding Error}"
                        Style="{StaticResource ErrorText}"
                        IsVisible="{Binding HasError}" />
 
-                <Label Text="Categories" Style="{StaticResource H2}" />
+                <!-- Set in sentence case and transformed rather than typed in caps, so the later
+                     localization slice can translate the word without inheriting English casing. -->
+                <Label Text="Categories" Style="{StaticResource H3}" TextTransform="Uppercase" />
+
                 <CollectionView ItemsSource="{Binding Categories}"
-                                HeightRequest="56"
+                                HeightRequest="152"
+                                SelectionMode="None"
                                 ItemsLayout="HorizontalList">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="catalog:CategoryNodeDto">
-                            <Border Style="{StaticResource Card}" Padding="14,10" Margin="0,0,8,0">
-                                <Label Text="{Binding Name}" VerticalOptions="Center" />
+                            <Border Style="{StaticResource Card}" Padding="0" WidthRequest="128" Margin="0,0,10,0">
+                                <Grid RowDefinitions="100,*">
+                                    <!-- The panel is what a tile falls back to. The contract carries
+                                         no artwork for a category, so the file is resolved from the
+                                         slug and a category with none simply shows the surface. -->
+                                    <Border Grid.Row="0"
+                                            Style="{StaticResource MediaPanel}"
+                                            StrokeShape="RoundRectangle 16,16,0,0">
+                                        <Image Source="{Binding Slug, Converter={StaticResource CategoryArt}}"
+                                               Aspect="AspectFill" />
+                                    </Border>
+                                    <Label Grid.Row="1"
+                                           Text="{Binding Name}"
+                                           Padding="8,7"
+                                           FontSize="13"
+                                           MaxLines="2"
+                                           LineBreakMode="TailTruncation"
+                                           HorizontalTextAlignment="Center" />
+                                </Grid>
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=OpenCategoryCommand}"
@@ -51,35 +140,24 @@
                     </CollectionView.ItemTemplate>
                 </CollectionView>
 
-                <Label Text="New arrivals" Style="{StaticResource H2}" />
+                <Label Text="New arrivals" Style="{StaticResource H3}" TextTransform="Uppercase" />
+
                 <CollectionView ItemsSource="{Binding NewArrivals}" SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Span="2"
+                                         Orientation="Vertical"
+                                         HorizontalItemSpacing="12"
+                                         VerticalItemSpacing="12" />
+                    </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="catalog:ProductListItemDto">
-                            <Border Style="{StaticResource Card}" Margin="0,0,0,10">
-                                <Grid ColumnDefinitions="76,*" ColumnSpacing="12">
-                                    <Border Grid.Column="0"
-                                            Style="{StaticResource MediaPanel}"
-                                            StrokeShape="RoundRectangle 12"
-                                            Padding="6"
-                                            HeightRequest="76"
-                                            WidthRequest="76"
-                                            VerticalOptions="Start">
-                                        <Image Source="{Binding PrimaryImageUrl, Converter={StaticResource RemoteImage}}"
-                                               Aspect="AspectFit" />
-                                    </Border>
-                                    <VerticalStackLayout Grid.Column="1" Spacing="4">
-                                        <Label Text="{Binding Name}" FontAttributes="Bold" MaxLines="2" LineBreakMode="TailTruncation" />
-                                        <Label Text="{Binding BrandName}" Style="{StaticResource MutedText}" />
-                                        <Label Text="{Binding PriceFrom, Converter={StaticResource Money}}"
-                                               Style="{StaticResource Price}" />
-                                    </VerticalStackLayout>
-                                </Grid>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=OpenProductCommand}"
-                                        CommandParameter="{Binding .}" />
-                                </Border.GestureRecognizers>
-                            </Border>
+                            <views:ProductCardView
+                                Product="{Binding .}"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=OpenProductCommand}">
+                                <views:ProductCardView.Behaviors>
+                                    <motion:RevealBehavior />
+                                </views:ProductCardView.Behaviors>
+                            </views:ProductCardView>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>

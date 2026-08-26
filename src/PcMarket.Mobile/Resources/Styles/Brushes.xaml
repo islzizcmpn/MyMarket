@@ -78,6 +78,34 @@
     </RadialGradientBrush>
 
     <!-- ===================================================================================
+         HERO SCRIM  (app.css: the third layer of the hero overlay background)
+
+         What keeps white copy legible over any photograph. Without it the hero reads beautifully
+         until real artwork loads behind it and the headline lands on a bright monitor.
+
+         ROTATED FROM THE WEB'S, DELIBERATELY. The storefront runs this 90deg, left to right, because
+         its hero is a 21:8 band with the copy in the left third. This hero is a full-width 228dp
+         block with the copy along the bottom, so a left-to-right ramp would darken an empty left
+         edge and leave the headline over the bright half. Same stops, same colour, same falloff,
+         turned to run bottom to top: offset 0 is the bottom, where the copy is.
+
+         The stops are near-solid under the copy and ease to a light haze at the top so the artwork
+         still reads. The floor of .14 is not a rounding artefact - it is what guarantees white text
+         stays legible even over the brightest banner.
+         =================================================================================== -->
+
+    <LinearGradientBrush x:Key="BrushHeroScrim" StartPoint="0.5,1" EndPoint="0.5,0">
+        <!-- rgba(8,8,11,.93) -->
+        <GradientStop Offset="0.0" Color="#ED08080B" />
+        <!-- rgba(8,8,11,.80) -->
+        <GradientStop Offset="0.30" Color="#CC08080B" />
+        <!-- rgba(8,8,11,.45) -->
+        <GradientStop Offset="0.62" Color="#7308080B" />
+        <!-- rgba(8,8,11,.14) -->
+        <GradientStop Offset="1.0" Color="#2408080B" />
+    </LinearGradientBrush>
+
+    <!-- ===================================================================================
          HERO BLOOM  (app.css token: hero-bloom)
 
          The hero's invisible studio light: an orange core falling off through red to nothing,

@@ -77,3 +77,43 @@ public sealed class RemoteImageConverter : IValueConverter
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotSupportedException();
 }
+
+/// <summary>Turns a category slug into its tile artwork. Separate from <see cref="RemoteImageConverter"/>
+/// because the catalogue contract carries no image for a category: the file is resolved from the slug,
+/// through the same stand-in map the storefront uses, rather than read off the DTO.</summary>
+public sealed class CategoryArtConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is string slug && !string.IsNullOrWhiteSpace(slug)
+            ? Artwork.Source(Artwork.Category(slug))
+            : null;
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}
+
+/// <summary>True when a list item is the one currently selected. Takes the item and the selection as
+/// two values, because a pill inside a template has to compare itself against a property on the view
+/// model and a <see cref="IValueConverter"/> can only see one of the two.</summary>
+/// <remarks>The alternative is a wrapper type per list carrying an <c>IsSelected</c> flag, which puts
+/// selection state into the view models this slice is not supposed to change.</remarks>
+public sealed class SelectionConverter : IMultiValueConverter
+{
+    public object Convert(object?[]? values, Type targetType, object? parameter, CultureInfo culture) =>
+        values is { Length: 2 } && values[0] is not null && Equals(values[0], values[1]);
+
+    public object?[] ConvertBack(object? value, Type[] targetTypes, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}
+
+/// <summary>True when the bound value is null. A <c>DataTrigger</c> with <c>Value="{x:Null}"</c> does
+/// not fire - measured on device, the catalog's "All" pill stayed unlit with no category selected -
+/// so "nothing is selected" is tested through a converter instead.</summary>
+public sealed class IsNullConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is null;
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}

@@ -10,12 +10,17 @@
                 dictionaries merged so far, so each one must follow everything it references:
                 Brushes needs Colors, and AppStyles needs both. A forward reference compiles
                 clean and fails at launch.
+
+                Motion goes last for a second reason on top of that one: it carries an implicit
+                Shadow style that has to outrank the stock template's, and resource lookup takes
+                the one implicit style per type from the last dictionary merged.
             -->
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Brushes.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
                 <ResourceDictionary Source="Resources/Styles/AppStyles.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Motion.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

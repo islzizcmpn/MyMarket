@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    The motion layer's resource half: the lift shadow's values, and the override that stops the stock
+    template painting every shadow white. The curves, durations and the behaviours that run them are
+    in Services/Motion.
+
+    Merged LAST, after AppStyles.xaml, for one reason: the implicit Shadow style below has to outrank
+    the template's, and resource lookup finds exactly one implicit style per type, taking it from the
+    last dictionary merged.
+
+    As in Colors.xaml and Brushes.xaml, CSS custom properties are named without their leading double
+    hyphen, because XML forbids a doubled hyphen inside a comment.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- ===================================================================================
+         LIFT SHADOW  (app.css token: shadow-lift)
+
+         CardLift reads these four keys and builds the shadow from them, so the lift is retuned here
+         rather than in code.
+
+         The web stacks three layers: a 1px light top edge, a wide dark drop, and a warm brand-tinted
+         bloom beneath it. MAUI paints exactly one shadow per element, so only the dark drop is
+         ported. The two that are lost are the ones that read as "lit", which is why the mobile card
+         reads as raised rather than as picked out by a light — the approximation Requirement 6.5
+         asks to be recorded.
+
+         Colour and alpha are separated: Android composites the shadow through its own paint, so a
+         brush that already carries alpha is multiplied twice and comes out far too faint.
+         =================================================================================== -->
+
+    <!-- shadow-lift layer 2, dark theme: rgba(0, 0, 0, .92) -->
+    <Color x:Key="ShadowLift">#000000</Color>
+    <x:Double x:Key="ShadowLiftOpacity">0.92</x:Double>
+
+    <!-- shadow-lift layer 2, light theme: rgba(16, 24, 40, .34). Blue-black rather than black, and
+         at barely a third the strength: on a bone page a true black drop reads as dirt. -->
+    <Color x:Key="ShadowLiftLight">#101828</Color>
+    <x:Double x:Key="ShadowLiftOpacityLight">0.34</x:Double>
+
+    <!-- ===================================================================================
+         IMPLICIT SHADOW STYLE
+
+         The stock template declares an implicit Shadow style whose brush is White in BOTH themes.
+         Against the charcoal ramp that renders as a pale halo rather than a shadow, and because it
+         is implicit it would reach the lift shadow too. Overridden here rather than by editing
+         Styles.xaml, which stays untouched so a MAUI template update does not have to be re-merged
+         by hand.
+
+         Every setter the template had is carried, because an implicit style replaces the template's
+         outright rather than layering over it — the values are retuned, not dropped. Offset goes to
+         a straight-down drop: the template's diagonal 10,10 belongs to a design with a light source
+         off to one side, and neither the storefront nor this app has one.
+         =================================================================================== -->
+
+    <Style TargetType="Shadow">
+        <Setter Property="Radius" Value="15" />
+        <Setter Property="Opacity" Value="0.5" />
+        <Setter Property="Brush"
+                Value="{AppThemeBinding Light={StaticResource ShadowLiftLight}, Dark={StaticResource ShadowLift}}" />
+        <Setter Property="Offset" Value="0,6" />
+    </Style>
+
+</ResourceDictionary>

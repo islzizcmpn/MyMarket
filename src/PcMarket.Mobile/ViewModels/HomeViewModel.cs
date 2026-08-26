@@ -45,6 +45,9 @@ public partial class HomeViewModel(CatalogApiClient catalog) : BaseViewModel
         product is null ? Task.CompletedTask : Shell.Current.GoToAsync($"product?slug={Uri.EscapeDataString(product.Slug)}");
 
     [RelayCommand]
+    private static Task OpenCatalogAsync() => Shell.Current.GoToAsync("//catalog");
+
+    [RelayCommand]
     private static Task OpenCategoryAsync(CategoryNodeDto? category) =>
         category is null ? Task.CompletedTask : Shell.Current.GoToAsync($"//catalog?category={Uri.EscapeDataString(category.Slug)}");
 

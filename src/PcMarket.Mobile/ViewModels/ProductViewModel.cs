@@ -69,6 +69,17 @@ public partial class ProductViewModel(CatalogApiClient catalog, StoreCart cart) 
         SelectedVariant = Product.Variants.FirstOrDefault(v => v.StockQty > 0) ?? Product.Variants.FirstOrDefault();
     });
 
+    /// <summary>Variant pill tap. Ignores null so a mistimed tap cannot clear the selection and
+    /// disable the add-to-cart button.</summary>
+    [RelayCommand]
+    private void SelectVariant(ProductVariantDto? variant)
+    {
+        if (variant is not null)
+        {
+            SelectedVariant = variant;
+        }
+    }
+
     [RelayCommand]
     private Task AddToCartAsync() => RunAsync(async ct =>
     {
